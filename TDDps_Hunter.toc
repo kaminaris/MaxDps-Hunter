@@ -1,0 +1,8 @@
+## Title: TDDps_Hunter
+## Version: 1.1
+## Author: Kaminari
+## Interface: 60000
+## Dependencies: TDDps
+## LoadOnDemand: 1
+
+main.lua
