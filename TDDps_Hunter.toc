@@ -1,7 +1,7 @@
 ## Title: TDDps_Hunter
-## Version: 1.1
-## Author: Kaminari
-## Interface: 60000
+## Version: 1.2
+## Author: Kaminaris
+## Interface: 60200
 ## Dependencies: TDDps
 ## LoadOnDemand: 1
 
