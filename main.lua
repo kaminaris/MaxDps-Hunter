@@ -45,6 +45,36 @@ local _LockandLoad = 194595;
 local _HuntersMark = 185987;
 -- local _BestialWrathAura = 19574; the same as spell id
 
+-- Survi
+
+local _FuryoftheEagle = 203415;
+local _MongooseFury = 190931;
+local _RaptorStrike = 186270;
+local _WayoftheMokNathal = 201082;
+local _ExplosiveTrap = 191433;
+local _DragonsfireGrenade = 194855;
+local _Lacerate = 185855;
+local _MongooseBite = 190928;
+local _AspectoftheEagle = 186289;
+local _ThrowingAxes = 200163;
+local _FlankingStrike = 202800;
+local _SnakeHunter = 201078;
+local _Butchery = 212436;
+local _Carve = 187708;
+local _SerpentSting = 87935;
+local _AMurderofCrows = 206505;
+local _Growl = 6795;
+local _Thunderstomp = 63900;
+local _AnimalInstincts = 204315;
+local _MokNathalTactics = 201081;
+local _MortalWounds = 201075;
+local _Caltrops = 194277;
+local _ImprovedTraps = 199518;
+local _SteelTrap = 162488;
+local _SpittingCobra = 194407;
+local _ExpertTrapper = 199543;
+local _AspectoftheBeast = 191384;
+
 -- costs
 local _ChimaeraShotCost = 35;
 local _AMurderOfCrowsCost = 30;
@@ -65,22 +95,24 @@ local isDireFrenzy = false;
 local isSteadyFocus = false;
 local isBarrage = false;
 local isSidewinders = false;
+local isDragonsfireGrenade = false;
+local isThrowingAxes = false;
 
 -- Flags
 local _AimedShotTime = false;
+MaxDps.Hunter = {};
 
-----------------------------------------------
--- Pre enable, checking talents
-----------------------------------------------
-TDDps_Hunter_CheckTalents = function()
-	isStampede = TD_TalentEnabled('Stampede');
-	isMurderofcrows = TD_TalentEnabled('A Murder of Crows');
-	isDireFrenzy = TD_TalentEnabled('Dire Frenzy');
-	isSteadyFocus = TD_TalentEnabled('Steady Focus');
-	isBarrage = TD_TalentEnabled('Barrage');
-	isSidewinders = TD_TalentEnabled('Sidewinders');
+function MaxDps.Hunter.CheckTalents()
+	isStampede = MaxDps:TalentEnabled('Stampede');
+	isMurderofcrows = MaxDps:TalentEnabled('A Murder of Crows');
+	isDireFrenzy = MaxDps:TalentEnabled('Dire Frenzy');
+	isSteadyFocus = MaxDps:TalentEnabled('Steady Focus');
+	isBarrage = MaxDps:TalentEnabled('Barrage');
+	isDragonsfireGrenade = MaxDps:TalentEnabled('Dragonsfire Grenade');
+	isThrowingAxes = MaxDps:TalentEnabled('Throwing Axes');
+	isSidewinders = MaxDps:TalentEnabled('Sidewinders');
 	_AimedShotTime = select(4, GetSpellInfo(_AimedShot));
-	_AimedShotCost = TD_ExtractTooltip(_AimedShot, FOCUS_COST);
+	_AimedShotCost = MaxDps:ExtractTooltip(_AimedShot, FOCUS_COST);
 	if not _AimedShotTime then
 		_AimedShotTime = 2;
 	else
@@ -88,45 +120,37 @@ TDDps_Hunter_CheckTalents = function()
 	end
 end
 
-----------------------------------------------
--- Enabling Addon
-----------------------------------------------
-function TDDps_Hunter_EnableAddon(mode)
+function MaxDps:EnableRotationModule(mode)
 	mode = mode or 1;
-	_TD['DPS_Description'] = 'TD Hunter DPS supports: Beast Mastery, Marksmanship, (Survial is here but no longer maintained)';
-	_TD['DPS_OnEnable'] = TDDps_Hunter_CheckTalents;
+	MaxDps.Description = 'Hunter [Beast Mastery, Marksmanship, Survial]';
+	MaxDps.ModuleOnEnable = MaxDps.Hunter.CheckTalents;
 	if mode == 1 then
-		_TD['DPS_NextSpell'] = TDDps_Hunter_BeastMastery;
+		MaxDps.NextSpell = MaxDps.Hunter.BeastMastery;
 	end;
 	if mode == 2 then
-		_TD['DPS_NextSpell'] = TDDps_Hunter_Marksmanship;
+		MaxDps.NextSpell = MaxDps.Hunter.Marksmanship;
 	end;
 	if mode == 3 then
-		_TD['DPS_NextSpell'] = TDDps_Hunter_Survival;
+		MaxDps.NextSpell = MaxDps.Hunter.Survival;
 	end;
-	TDDps_EnableAddon();
 end
 
-----------------------------------------------
--- Main rotation: Beast Mastery
-----------------------------------------------
-TDDps_Hunter_BeastMastery = function()
-	local timeShift, currentSpell, gcd = TD_EndCast();
-	local focus, focusMax = TDDps_Hunter_Focus(0, timeShift);
+MaxDps.Hunter.BeastMastery = function()
+	local timeShift, currentSpell, gcd = MaxDps:EndCast();
+	local focus, focusMax = MaxDps.Hunter.Focus(0, timeShift);
 
-	local tt = TD_SpellAvailable(_TitansThunder, timeShift);
-	local amoc = TD_SpellAvailable(_AMurderOfCrows, timeShift);
-	local db, dbCD = TD_SpellAvailable(_DireBeast, timeShift);
-	local df, dfCD = TD_SpellAvailable(_DireFrenzy, timeShift);
-	local kc, kcCD = TD_SpellAvailable(_KillCommand, timeShift + 1);
-	local bw = TD_SpellAvailable(_BestialWrath, timeShift);
-	local stamp = TD_SpellAvailable(_Stampede, timeShift);
-	local aotw = TD_SpellAvailable(_AspectoftheWild, timeShift);
+	local amoc = MaxDps:SpellAvailable(_AMurderOfCrows, timeShift);
+	local db, dbCD = MaxDps:SpellAvailable(_DireBeast, timeShift);
+	local df, dfCD = MaxDps:SpellAvailable(_DireFrenzy, timeShift);
+	local kc, kcCD = MaxDps:SpellAvailable(_KillCommand, timeShift + 1);
+	local bw = MaxDps:SpellAvailable(_BestialWrath, timeShift);
+	local stamp = MaxDps:SpellAvailable(_Stampede, timeShift);
+	local aotw = MaxDps:SpellAvailable(_AspectoftheWild, timeShift);
 
-	TDButton_GlowCooldown(_AMurderOfCrows, isMurderofcrows and amoc);
-	TDButton_GlowCooldown(_Stampede, isStampede and stamp);
-	TDButton_GlowCooldown(_AspectoftheWild, aotw);
-	TDButton_GlowCooldown(_TitansThunder, tt);
+	MaxDps:GlowCooldown(_AMurderOfCrows, isMurderofcrows and amoc);
+	MaxDps:GlowCooldown(_Stampede, isStampede and stamp);
+	MaxDps:GlowCooldown(_AspectoftheWild, aotw);
+	MaxDps:GlowCooldown(_TitansThunder, MaxDps:SpellAvailable(_TitansThunder, timeShift));
 
 	if bw then
 		return _BestialWrath;
@@ -151,21 +175,19 @@ TDDps_Hunter_BeastMastery = function()
 	end
 end
 
-----------------------------------------------
--- Main rotation: Marksmanship
-----------------------------------------------
-TDDps_Hunter_Marksmanship = function()
-	local timeShift, currentSpell, gcd = TD_EndCast();
+MaxDps.Hunter.Marksmanship = function()
+	local timeShift, currentSpell, gcd = MaxDps:EndCast();
 
-	local lol, lolCharges = TD_Aura(_LockandLoad, timeShift);
-	local ts = TD_Aura(_Trueshot, timeShift);
-	local hm = TD_TargetAura(_HuntersMark, timeShift);
-	local vul, vulCd = TD_TargetAura('Vulnerable', timeShift);
+	local lol, lolCharges = MaxDps:Aura(_LockandLoad, timeShift);
+	local ts = MaxDps:Aura(_Trueshot, timeShift);
+	local mt = MaxDps:Aura(_MarkingTargets, timeShift);
+	local hm = MaxDps:TargetAura(_HuntersMark, timeShift);
+	local vul, vulCd = MaxDps:TargetAura('Vulnerable', timeShift);
 
-	local amoc = TD_SpellAvailable(_AMurderOfCrows, timeShift);
-	local tsCd = TD_SpellAvailable(_Trueshot, timeShift);
-	local wb = TD_SpellAvailable(_Windburst, timeShift);
-	local barr = TD_SpellAvailable(_Barrage, timeShift);
+	local amoc = MaxDps:SpellAvailable(_AMurderOfCrows, timeShift);
+	local tsCd = MaxDps:SpellAvailable(_Trueshot, timeShift);
+
+	local sw, swCharges = MaxDps:SpellCharges(_Sidewinders, timeShift);
 
 	local aimedShotCost = _AimedShotCost;
 	if lol then
@@ -179,20 +201,24 @@ TDDps_Hunter_Marksmanship = function()
 	if currentSpell == 'Windburst' then
 		minusFocus = 20;
 	end
-	local focus, focusMax = TDDps_Hunter_Focus(minusFocus, timeShift);
+	local focus, focusMax = MaxDps.Hunter.Focus(minusFocus, timeShift);
 
-	TDButton_GlowCooldown(_Trueshot, tsCd);
-	TDButton_GlowCooldown(_AMurderOfCrows, isMurderofcrows and amoc);
+	MaxDps:GlowCooldown(_Trueshot, tsCd);
+	MaxDps:GlowCooldown(_AMurderOfCrows, isMurderofcrows and amoc);
 
-	if hm and ((vul and vulCd < 2) or not vul) then
+	if hm and (((vul and vulCd < 3) or not vul) or focus >= 130) then
 		return _MarkedShot;
 	end
 
-	if vul and (vulCd > 2 and lol) then
+	if isSidewinders and mt and not hm and swCharges > 1 then
+		return _Sidewinders;
+	end
+
+	if vul and (vulCd > 3 and lol) then
 		return _AimedShot;
 	end
 
-	if wb and currentSpell ~= 'Windburst' then
+	if MaxDps:SpellAvailable(_Windburst, timeShift) and currentSpell ~= 'Windburst' then
 		return _Windburst;
 	end
 
@@ -200,7 +226,7 @@ TDDps_Hunter_Marksmanship = function()
 		return isSidewinders and _Sidewinders or _ArcaneShot;
 	end
 
-	if barr then
+	if MaxDps:SpellAvailable(_Barrage, timeShift) then
 		return _Barrage;
 	end
 
@@ -221,16 +247,70 @@ TDDps_Hunter_Marksmanship = function()
 	return isSidewinders and _Sidewinders or _ArcaneShot;
 end
 
-----------------------------------------------
--- Main rotation: Survival
-----------------------------------------------
-TDDps_Hunter_Survival = function()
-	return nil;
+local recenlyCapedBite = false;
+MaxDps.Hunter.Survival = function()
+	local timeShift, currentSpell, gcd = MaxDps:EndCast();
+
+	local fote = MaxDps:SpellAvailable(_FuryoftheEagle, timeShift);
+	local epxTrap = MaxDps:SpellAvailable(_ExplosiveTrap, timeShift);
+	local dfg = MaxDps:SpellAvailable(_DragonsfireGrenade, timeShift);
+	local lac = MaxDps:SpellAvailable(_Lacerate, timeShift);
+
+	local fs = MaxDps:SpellAvailable(_FlankingStrike, timeShift);
+	local aote, aoteCd = MaxDps:SpellAvailable(_AspectoftheEagle, timeShift);
+	local mb, mbCharges = MaxDps:SpellCharges(_MongooseBite, timeShift);
+	local ta, taCharges = MaxDps:SpellCharges(_ThrowingAxes, timeShift);
+
+	local mf, mfCount = MaxDps:Aura(_MongooseFury, timeShift);
+	local wotm, wotmCount, wotmExpires = MaxDps:Aura(_MokNathalTactics, timeShift);
+	local lacAura = MaxDps:Aura(_Lacerate, timeShift + 3);
+
+	local focus, focusMax = MaxDps.Hunter.Focus(0, timeShift);
+
+	if mbCharges == 0 then
+		recenlyCapedBite = false;
+	end
+
+	if fote and mfCount >= 6 then
+		return _FuryoftheEagle;
+	end
+
+	if (wotmCount < 4) or (wotmExpires < 2.5) and focus > 22 then
+		return _RaptorStrike;
+	end
+
+	if epxTrap then
+		return _ExplosiveTrap;
+	end
+
+	if isDragonsfireGrenade and dfg then
+		return _DragonsfireGrenade;
+	end
+
+	if lac and not lacAura and focus > 32 then
+		return _Lacerate;
+	end
+
+	local aoteClose = not aote and aoteCd < 5;
+	if (((mbCharges >= 3)
+			or (recenlyCapedBite and mbCharges > 0))
+			and not aoteClose) then
+		recenlyCapedBite = true;
+		return _MongooseBite;
+	end
+
+	if isThrowingAxes and taCharges > 0 and focus > 12 then
+		return _ThrowingAxes;
+	end
+
+	if fs and focus > 46 then
+		return _FlankingStrike;
+	end
+
+	return _RaptorStrike;
 end
-----------------------------------------------
--- Current or Future Focus
-----------------------------------------------
-function TDDps_Hunter_Focus(minus, timeShift)
+
+function MaxDps.Hunter.Focus(minus, timeShift)
 	local _, casting = GetPowerRegen();
 	local powerMax = UnitPowerMax('player', SPELL_POWER_FOCUS);
 	local power = UnitPower('player', SPELL_POWER_FOCUS) - minus + (casting * timeShift);

@@ -1,8 +1,0 @@
-## Title: TDDps_Hunter
-## Version: 1.3
-## Author: Kaminaris
-## Interface: 70000
-## Dependencies: TDDps
-## LoadOnDemand: 1
-
-main.lua
