@@ -1,9 +1,4 @@
-﻿-- Author      : Kaminari
--- Create Date : 10/27/2014 6:47:46 PM
-
--- SPELLS
-local _AMurderOfCrows = 131894;
-
+﻿-- SPELLS
 local _ChimaeraShot = 53209;
 local _KillShot = 53351;
 local _KillShotMM = 157708;
@@ -22,6 +17,7 @@ local _SerpentSting = 87935;
 local _FocusingShot = 163485;
 
 -- NEW
+local _AMurderofCrows = 131894;
 local _MarkedShot = 185901;
 local _AimedShot = 19434;
 local _Barrage = 120360;
@@ -62,7 +58,7 @@ local _SnakeHunter = 201078;
 local _Butchery = 212436;
 local _Carve = 187708;
 local _SerpentSting = 87935;
-local _AMurderofCrows = 206505;
+local _AMurderofCrowsSurvi = 206505;
 local _Growl = 6795;
 local _Thunderstomp = 63900;
 local _AnimalInstincts = 204315;
@@ -103,14 +99,16 @@ local _AimedShotTime = false;
 MaxDps.Hunter = {};
 
 function MaxDps.Hunter.CheckTalents()
-	isStampede = MaxDps:TalentEnabled('Stampede');
-	isMurderofcrows = MaxDps:TalentEnabled('A Murder of Crows');
-	isDireFrenzy = MaxDps:TalentEnabled('Dire Frenzy');
-	isSteadyFocus = MaxDps:TalentEnabled('Steady Focus');
-	isBarrage = MaxDps:TalentEnabled('Barrage');
-	isDragonsfireGrenade = MaxDps:TalentEnabled('Dragonsfire Grenade');
-	isThrowingAxes = MaxDps:TalentEnabled('Throwing Axes');
-	isSidewinders = MaxDps:TalentEnabled('Sidewinders');
+	MaxDps:CheckTalents();
+	isStampede = MaxDps:HasTalent(_Stampede);
+	isMurderofcrows = MaxDps:HasTalent(_AMurderofCrows) or MaxDps:HasTalent(_AMurderofCrowsSurvi);
+	isDireFrenzy = MaxDps:HasTalent(_DireFrenzy);
+	isSteadyFocus = MaxDps:HasTalent(_SteadyFocus);
+	isBarrage = MaxDps:HasTalent(_Barrage);
+	isDragonsfireGrenade = MaxDps:HasTalent(_DragonsfireGrenade);
+	isThrowingAxes = MaxDps:HasTalent(_ThrowingAxes);
+	isSidewinders = MaxDps:HasTalent(_Sidewinders);
+
 	_AimedShotTime = select(4, GetSpellInfo(_AimedShot));
 	_AimedShotCost = MaxDps:ExtractTooltip(_AimedShot, FOCUS_COST);
 	if not _AimedShotTime then
@@ -139,7 +137,7 @@ MaxDps.Hunter.BeastMastery = function()
 	local timeShift, currentSpell, gcd = MaxDps:EndCast();
 	local focus, focusMax = MaxDps.Hunter.Focus(0, timeShift);
 
-	local amoc = MaxDps:SpellAvailable(_AMurderOfCrows, timeShift);
+	local amoc = MaxDps:SpellAvailable(_AMurderofCrows, timeShift);
 	local db, dbCD = MaxDps:SpellAvailable(_DireBeast, timeShift);
 	local df, dfCD = MaxDps:SpellAvailable(_DireFrenzy, timeShift);
 	local kc, kcCD = MaxDps:SpellAvailable(_KillCommand, timeShift + 1);
@@ -147,7 +145,7 @@ MaxDps.Hunter.BeastMastery = function()
 	local stamp = MaxDps:SpellAvailable(_Stampede, timeShift);
 	local aotw = MaxDps:SpellAvailable(_AspectoftheWild, timeShift);
 
-	MaxDps:GlowCooldown(_AMurderOfCrows, isMurderofcrows and amoc);
+	MaxDps:GlowCooldown(_AMurderofCrows, isMurderofcrows and amoc);
 	MaxDps:GlowCooldown(_Stampede, isStampede and stamp);
 	MaxDps:GlowCooldown(_AspectoftheWild, aotw);
 	MaxDps:GlowCooldown(_TitansThunder, MaxDps:SpellAvailable(_TitansThunder, timeShift));
@@ -184,9 +182,6 @@ MaxDps.Hunter.Marksmanship = function()
 	local hm = MaxDps:TargetAura(_HuntersMark, timeShift);
 	local vul, vulCd = MaxDps:TargetAura('Vulnerable', timeShift);
 
-	local amoc = MaxDps:SpellAvailable(_AMurderOfCrows, timeShift);
-	local tsCd = MaxDps:SpellAvailable(_Trueshot, timeShift);
-
 	local sw, swCharges = MaxDps:SpellCharges(_Sidewinders, timeShift);
 
 	local aimedShotCost = _AimedShotCost;
@@ -195,16 +190,16 @@ MaxDps.Hunter.Marksmanship = function()
 	end
 
 	local minusFocus = 0;
-	if currentSpell == 'Aimed Shot' then
+	if MaxDps:SameSpell(currentSpell, _AimedShot) then
 		minusFocus = 50;
 	end
-	if currentSpell == 'Windburst' then
+	if MaxDps:SameSpell(currentSpell, _Windburst) then
 		minusFocus = 20;
 	end
 	local focus, focusMax = MaxDps.Hunter.Focus(minusFocus, timeShift);
 
-	MaxDps:GlowCooldown(_Trueshot, tsCd);
-	MaxDps:GlowCooldown(_AMurderOfCrows, isMurderofcrows and amoc);
+	MaxDps:GlowCooldown(_Trueshot, MaxDps:SpellAvailable(_Trueshot, timeShift));
+	MaxDps:GlowCooldown(_AMurderofCrows, isMurderofcrows and MaxDps:SpellAvailable(_AMurderofCrows, timeShift));
 
 	if hm and (((vul and vulCd < 3) or not vul) or focus >= 130) then
 		return _MarkedShot;
@@ -218,7 +213,7 @@ MaxDps.Hunter.Marksmanship = function()
 		return _AimedShot;
 	end
 
-	if MaxDps:SpellAvailable(_Windburst, timeShift) and currentSpell ~= 'Windburst' then
+	if MaxDps:SpellAvailable(_Windburst, timeShift) and MaxDps:SameSpell(currentSpell, _Windburst) then
 		return _Windburst;
 	end
 
@@ -226,7 +221,7 @@ MaxDps.Hunter.Marksmanship = function()
 		return isSidewinders and _Sidewinders or _ArcaneShot;
 	end
 
-	if MaxDps:SpellAvailable(_Barrage, timeShift) then
+	if isBarrage and MaxDps:SpellAvailable(_Barrage, timeShift) then
 		return _Barrage;
 	end
 
