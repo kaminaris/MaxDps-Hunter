@@ -213,7 +213,7 @@ MaxDps.Hunter.Marksmanship = function()
 		return _AimedShot;
 	end
 
-	if MaxDps:SpellAvailable(_Windburst, timeShift) and MaxDps:SameSpell(currentSpell, _Windburst) then
+	if MaxDps:SpellAvailable(_Windburst, timeShift) and not MaxDps:SameSpell(currentSpell, _Windburst) then
 		return _Windburst;
 	end
 
