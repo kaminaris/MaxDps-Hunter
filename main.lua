@@ -11,7 +11,6 @@ local _KillCommand = 34026;
 local _BestialWrath = 19574;
 local _FocusFire = 82692;
 local _RapidFire = 3045;
-local _ExplosiveShot = 53301;
 local _BlackArrow = 3674;
 local _SerpentSting = 87935;
 local _FocusingShot = 163485;
@@ -30,12 +29,15 @@ local _AspectoftheWild = 193530;
 local _CobraShot = 193455;
 local _Stampede = 201430;
 local _Windburst = 204147;
+local _MultiShot = 2643;
+local _PatientSniper = 234588;
+local _ExplosiveShot = 212431;
 
 -- AURAS
 local _ThrillOfTheHunt = 34720;
 local _SteadyFocus = 177668;
 local _Frenzy = 19623;
-local _Vulnerable = 198925;
+local _Vulnerable = 187131;
 local _MarkingTargets = 223138;
 local _LockandLoad = 194595;
 local _HuntersMark = 185987;
@@ -72,16 +74,7 @@ local _ExpertTrapper = 199543;
 local _AspectoftheBeast = 191384;
 
 -- costs
-local _ChimaeraShotCost = 35;
-local _AMurderOfCrowsCost = 30;
 local _AimedShotCost = 50;
-local _GlaiveTossCost = 15;
-local _BarrageCost = 60;
-local _DireBeastCost = 0;
-local _KillCommandCost = 40;
-local _ExplosiveShotCost = 15;
-local _BlackArrowCost = 35;
-local _ArcaneShotCost = 30;
 
 -- talents
 local isStampede = false;
@@ -93,9 +86,14 @@ local isBarrage = false;
 local isSidewinders = false;
 local isDragonsfireGrenade = false;
 local isThrowingAxes = false;
+local isPatientSniper = false;
+local isExplosive = false;
+
+local NHSetPieces = {138339, 138340, 138342, 138344, 138347, 138368};
 
 -- Flags
 local _AimedShotTime = false;
+local _isFourSet = false;
 MaxDps.Hunter = {};
 
 function MaxDps.Hunter.CheckTalents()
@@ -108,14 +106,14 @@ function MaxDps.Hunter.CheckTalents()
 	isDragonsfireGrenade = MaxDps:HasTalent(_DragonsfireGrenade);
 	isThrowingAxes = MaxDps:HasTalent(_ThrowingAxes);
 	isSidewinders = MaxDps:HasTalent(_Sidewinders);
+	isPatientSniper = MaxDps:HasTalent(_PatientSniper);
+	isExplosive = MaxDps:HasTalent(_ExplosiveShot);
 
-	_AimedShotTime = select(4, GetSpellInfo(_AimedShot));
 	_AimedShotCost = MaxDps:ExtractTooltip(_AimedShot, FOCUS_COST);
-	if not _AimedShotTime then
-		_AimedShotTime = 2;
-	else
-		_AimedShotTime = _AimedShotTime / 1000;
+	if not _AimedShotCost then
+		_AimedShotCost = 50;
 	end
+	_isFourSet = MaxDps:SetBonus(NHSetPieces) >= 4;
 end
 
 function MaxDps:EnableRotationModule(mode)
@@ -179,37 +177,81 @@ MaxDps.Hunter.Marksmanship = function()
 	local lol, lolCharges = MaxDps:Aura(_LockandLoad, timeShift);
 	local ts = MaxDps:Aura(_Trueshot, timeShift);
 	local mt = MaxDps:Aura(_MarkingTargets, timeShift);
-	local hm = MaxDps:TargetAura(_HuntersMark, timeShift);
-	local vul, vulCd = MaxDps:TargetAura('Vulnerable', timeShift);
-
+	local hm, hmCd = MaxDps:TargetAura(_HuntersMark, timeShift);
+	local vul, vulCd = MaxDps:TargetAura(_Vulnerable, timeShift);
+	local wb, wbCd = MaxDps:SpellAvailable(_Windburst, timeShift);
 	local sw, swCharges = MaxDps:SpellCharges(_Sidewinders, timeShift);
 
+	local targets = MaxDps:TargetsInRange(_ArcaneShot);
+	local filler = _ArcaneShot;
+	if targets > 3 then
+		filler = _MultiShot;
+	end
+
+	local attackHaste = MaxDps:AttackHaste();
 	local aimedShotCost = _AimedShotCost;
+	local aimedShotTime = 2.0 * attackHaste;
+	local aimedShotError = 0.3;
+
+	if _isFourSet and ts then
+		aimedShotCost = aimedShotCost * 0.85;
+	end
+
+	aimedShotCost = aimedShotCost + 3; -- error in focus calculation
+
 	if lol then
 		aimedShotCost = 0;
+		aimedShotTime = gcd;
 	end
 
 	local minusFocus = 0;
 	if MaxDps:SameSpell(currentSpell, _AimedShot) then
-		minusFocus = 50;
+		minusFocus = aimedShotCost;
 	end
 	if MaxDps:SameSpell(currentSpell, _Windburst) then
 		minusFocus = 20;
+		vul = true;
+		vulCd = 5;
 	end
 	local focus, focusMax = MaxDps.Hunter.Focus(minusFocus, timeShift);
 
 	MaxDps:GlowCooldown(_Trueshot, MaxDps:SpellAvailable(_Trueshot, timeShift));
 	MaxDps:GlowCooldown(_AMurderofCrows, isMurderofcrows and MaxDps:SpellAvailable(_AMurderofCrows, timeShift));
+	MaxDps:GlowCooldown(_Barrage, isBarrage and MaxDps:SpellAvailable(_Barrage, timeShift));
+	MaxDps:GlowCooldown(_ExplosiveShot, isExplosive and MaxDps:SpellAvailable(_ExplosiveShot, timeShift));
 
-	if hm and (((vul and vulCd < 3) or not vul) or focus >= 130) then
-		return _MarkedShot;
-	end
+
+
+--	local pooling_for_piercing = false;
+--	local time_to_die = 100;
+--	local hpPercent = MaxDps:TargetPercentHealth();
+
+--	local aimCasts = floor(vulCd / aimedShotTime);
+--	print(vulCd, aimCasts);
 
 	if isSidewinders and mt and not hm and swCharges > 1 then
 		return _Sidewinders;
 	end
 
-	if vul and (vulCd > 3 and lol) then
+	if hm and ((not vul or vulCd < (aimedShotTime + aimedShotError)) or focus >= (focusMax - 10)) then
+		return _MarkedShot;
+	end
+
+	if not vul and not hm and MaxDps:SpellAvailable(_Windburst, timeShift) and not MaxDps:SameSpell(currentSpell, _Windburst) then
+		return _Windburst;
+	end
+
+	local shouldAimed = vul and (focus >= aimedShotCost) and ((vulCd > (aimedShotTime + aimedShotError)) or (lol and vulCd > aimedShotError));
+
+	if shouldAimed then
+		return _AimedShot;
+	end
+
+	if focus <= aimedShotCost then
+		return isSidewinders and _Sidewinders or filler;
+	end
+
+	if shouldAimed then
 		return _AimedShot;
 	end
 
@@ -217,29 +259,17 @@ MaxDps.Hunter.Marksmanship = function()
 		return _Windburst;
 	end
 
-	if focus <= aimedShotCost then
-		return isSidewinders and _Sidewinders or _ArcaneShot;
-	end
-
-	if isBarrage and MaxDps:SpellAvailable(_Barrage, timeShift) then
-		return _Barrage;
-	end
-
-	if vul and (vulCd > 2 or not hm) and focus > 40 then
-		return _AimedShot;
-	end
-
 	-- Aimed Shot to dump Focus.
-	if focus >= focusMax - 10 then
+	if focus >= focusMax - 30 then
 		return _AimedShot;
 	end
 
 	if focus <= _AimedShotCost - 10 then
-		return isSidewinders and _Sidewinders or _ArcaneShot;
+		return isSidewinders and _Sidewinders or filler;
 	end
 
 	-- If nothing else, Steady Shot
-	return isSidewinders and _Sidewinders or _ArcaneShot;
+	return isSidewinders and _Sidewinders or filler;
 end
 
 local recenlyCapedBite = false;
