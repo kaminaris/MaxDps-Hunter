@@ -14,6 +14,7 @@ local _RapidFire = 3045;
 local _BlackArrow = 3674;
 local _SerpentSting = 87935;
 local _FocusingShot = 163485;
+local _KillerCobra = 199532;
 
 -- NEW
 local _AMurderofCrows = 131894;
@@ -32,6 +33,12 @@ local _Windburst = 204147;
 local _MultiShot = 2643;
 local _PatientSniper = 234588;
 local _ExplosiveShot = 212431;
+local _PiercingShot = 198670;
+local _TrickShot = 199522;
+local _Volley = 194386;
+local _Precision = 246153;
+local _CriticalAimed = 242243;
+local _BurstingShot = 186387;
 
 -- AURAS
 local _ThrillOfTheHunt = 34720;
@@ -77,7 +84,6 @@ local _AspectoftheBeast = 191384;
 local _AimedShotCost = 50;
 
 -- talents
-local isStampede = false;
 local isMurderofcrows = false;
 local isDireBeast = false;
 local isDireFrenzy = false;
@@ -90,15 +96,15 @@ local isPatientSniper = false;
 local isExplosive = false;
 
 local NHSetPieces = {138339, 138340, 138342, 138344, 138347, 138368};
+local TombSetPieces = {147139, 147140, 147141, 147142, 147143, 147144};
 
 -- Flags
 local _AimedShotTime = false;
 local _isFourSet = false;
+local _isTomb2Set = false;
 MaxDps.Hunter = {};
 
 function MaxDps.Hunter.CheckTalents()
-	MaxDps:CheckTalents();
-	isStampede = MaxDps:HasTalent(_Stampede);
 	isMurderofcrows = MaxDps:HasTalent(_AMurderofCrows) or MaxDps:HasTalent(_AMurderofCrowsSurvi);
 	isDireFrenzy = MaxDps:HasTalent(_DireFrenzy);
 	isSteadyFocus = MaxDps:HasTalent(_SteadyFocus);
@@ -109,11 +115,12 @@ function MaxDps.Hunter.CheckTalents()
 	isPatientSniper = MaxDps:HasTalent(_PatientSniper);
 	isExplosive = MaxDps:HasTalent(_ExplosiveShot);
 
-	_AimedShotCost = MaxDps:ExtractTooltip(_AimedShot, FOCUS_COST);
-	if not _AimedShotCost then
+--	_AimedShotCost = MaxDps:ExtractTooltip(_AimedShot, FOCUS_COST);
+--	if not _AimedShotCost then
 		_AimedShotCost = 50;
-	end
+--	end
 	_isFourSet = MaxDps:SetBonus(NHSetPieces) >= 4;
+	_isTomb2Set = MaxDps:SetBonus(TombSetPieces) >= 2;
 end
 
 function MaxDps:EnableRotationModule(mode)
@@ -129,49 +136,398 @@ function MaxDps:EnableRotationModule(mode)
 	if mode == 3 then
 		MaxDps.NextSpell = MaxDps.Hunter.Survival;
 	end;
+
+	self:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED');
+	self.lastSpellTimestamp = 0;
+	self.lastSpellId = 0;
 end
 
-MaxDps.Hunter.BeastMastery = function()
-	local timeShift, currentSpell, gcd = MaxDps:EndCast();
+-- Spell that break Tomb 2pc
+local includedSpells = {
+	[_AimedShot] = true,
+	[_MarkedShot] = true,
+	[_Sidewinders] = true,
+	[_ArcaneShot] = true,
+	[_MultiShot] = true,
+	[_BurstingShot] = true,
+};
+function MaxDps:UNIT_SPELLCAST_SUCCEEDED(event, unitID, spell, rank, lineID, spellID)
+	if unitID == 'player' and includedSpells[spellID] then
+		self.lastSpellTimestamp = GetTime();
+		self.lastSpellId = spellID;
+	end
+end
+
+MaxDps.Hunter.BeastMastery = function(_, timeShift, currentSpell, gcd, talents)
 	local focus, focusMax = MaxDps.Hunter.Focus(0, timeShift);
 
-	local amoc = MaxDps:SpellAvailable(_AMurderofCrows, timeShift);
-	local db, dbCD = MaxDps:SpellAvailable(_DireBeast, timeShift);
-	local df, dfCD = MaxDps:SpellAvailable(_DireFrenzy, timeShift);
 	local kc, kcCD = MaxDps:SpellAvailable(_KillCommand, timeShift + 1);
 	local bw = MaxDps:SpellAvailable(_BestialWrath, timeShift);
-	local stamp = MaxDps:SpellAvailable(_Stampede, timeShift);
-	local aotw = MaxDps:SpellAvailable(_AspectoftheWild, timeShift);
+	local bwAura = MaxDps:Aura(_BestialWrath, timeShift);
 
-	MaxDps:GlowCooldown(_AMurderofCrows, isMurderofcrows and amoc);
-	MaxDps:GlowCooldown(_Stampede, isStampede and stamp);
-	MaxDps:GlowCooldown(_AspectoftheWild, aotw);
+	if talents[_AMurderofCrows] then
+		MaxDps:GlowCooldown(_AMurderofCrows, MaxDps:SpellAvailable(_AMurderofCrows, timeShift));
+	end
+	if talents[_Stampede] then
+		MaxDps:GlowCooldown(_Stampede, MaxDps:SpellAvailable(_Stampede, timeShift));
+	end
+	MaxDps:GlowCooldown(_AspectoftheWild, MaxDps:SpellAvailable(_AspectoftheWild, timeShift));
 	MaxDps:GlowCooldown(_TitansThunder, MaxDps:SpellAvailable(_TitansThunder, timeShift));
 
 	if bw then
 		return _BestialWrath;
 	end
 
-	if not isDireFrenzy and (db or (dbCD < kcCD and focus < 80 and dbCD < 2)) then
-		return _DireBeast;
-	end
-
-	if isDireFrenzy and (df or (dfCD < kcCD and focus < 80 and dfCD < 2)) then
-		return _DireFrenzy;
+	if talents[_DireFrenzy] then
+		local df, dfCD = MaxDps:SpellAvailable(_DireFrenzy, timeShift);
+		if df or (dfCD < kcCD and focus < 80 and dfCD < 2) then
+			return _DireFrenzy;
+		end
+	else
+		local db, dbCharges = MaxDps:SpellCharges(_DireBeast, timeShift);
+		if dbCharges > 1.7 or (focus < 80 and dbCharges >= 1) then
+			return _DireBeast;
+		end
 	end
 
 	if kcCD < 1 then
 		return _KillCommand;
 	end
 
-	if focus > 80 then
+	if (talents[_KillerCobra] and bwAura) or focus > 80 then
 		return _CobraShot;
 	else
 		return nil;
 	end
 end
 
-MaxDps.Hunter.Marksmanship = function()
+MaxDps.Hunter.Marksmanship = function(_, timeShift, currentSpell, gcd, talents)
+	if talents[_PiercingShot] then
+		return MaxDps.Hunter.Meme(_, timeShift, currentSpell, gcd, talents);
+	elseif talents[_Sidewinders] then
+		return MaxDps.Hunter.Sidewinders(_, timeShift, currentSpell, gcd, talents);
+	else
+		return MaxDps.Hunter.TrickShot(_, timeShift, currentSpell, gcd, talents);
+	end
+end
+
+function MaxDps.Hunter.AimedCost(timeShift, lol, ts, talents, gcd)
+	-- Baseline
+	local aimedShotCost = _AimedShotCost;
+	local aimedShotTime = 2.0 * MaxDps:AttackHaste();
+
+	-- NH 4 set
+	if _isFourSet and ts then
+		aimedShotCost = aimedShotCost * 0.85;
+	end
+
+	-- Tomb 2 set
+	local prec = MaxDps:Aura(_Precision, timeShift + aimedShotTime);
+	if prec then
+		aimedShotCost = aimedShotCost * 0.92;
+		aimedShotTime = aimedShotTime * 0.92;
+	end
+
+	-- Voley error
+	local aimedShotError = 0;
+--	if not talents[_Volley] then
+--		aimedShotError = 0;
+--	else
+--		aimedShotCost = aimedShotCost + 3; -- volley cost
+--	end
+
+	local origAimedShotCost = aimedShotCost;
+	local origAimedShotTime = aimedShotTime;
+	-- Lock and load proc
+	if lol then
+		aimedShotCost = 0;
+		aimedShotTime = gcd;
+	end
+
+	return aimedShotCost, aimedShotTime, origAimedShotCost, origAimedShotTime, aimedShotError;
+end
+
+function MaxDps.Hunter.Cooldowns(timeShift, talents)
+	MaxDps:GlowCooldown(_Trueshot, MaxDps:SpellAvailable(_Trueshot, timeShift));
+
+	if talents[_AMurderofCrows] then
+		MaxDps:GlowCooldown(_AMurderofCrows, MaxDps:SpellAvailable(_AMurderofCrows, timeShift));
+	end
+
+	if talents[_Barrage] then
+		MaxDps:GlowCooldown(_Barrage, MaxDps:SpellAvailable(_Barrage, timeShift));
+	end
+
+	if talents[_ExplosiveShot] then
+		MaxDps:GlowCooldown(_ExplosiveShot, MaxDps:SpellAvailable(_ExplosiveShot, timeShift));
+	end
+end
+
+function MaxDps.Hunter.TrickShot(_, timeShift, currentSpell, gcd, talents)
+	local lol, lolCharges = MaxDps:Aura(_LockandLoad, timeShift);
+	local ts = MaxDps:Aura(_Trueshot, timeShift);
+	local mt = MaxDps:Aura(_MarkingTargets, timeShift);
+	local hm, hmCd = MaxDps:TargetAura(_HuntersMark, timeShift);
+	local vul, vulCd = MaxDps:TargetAura(_Vulnerable, timeShift);
+	local wb, wbCd = MaxDps:SpellAvailable(_Windburst, timeShift);
+	local sw, swCharges = MaxDps:SpellCharges(_Sidewinders, timeShift);
+
+	local targets = MaxDps:TargetsInRange(_ArcaneShot);
+	local filler = _ArcaneShot;
+	if targets > 3 then
+		filler = _MultiShot;
+	end
+
+	MaxDps.Hunter.Cooldowns(timeShift, talents);
+	MaxDps.debug = {};
+	local aimedShotCost, aimedShotTime, origAimedShotCost, origAimedShotTime, aimedShotError = MaxDps.Hunter.AimedCost(timeShift, lol, ts, talents, gcd);
+
+	local lastWasAimed = MaxDps.lastSpellId == _AimedShot;
+	local shouldFireAimed = false;
+	if _isTomb2Set and lastWasAimed then
+		local _, _, _, _, _, duration, expirationTime = UnitAura('player', GetSpellInfo(_CriticalAimed));
+		if expirationTime and duration then
+			MaxDps.debug['cadur'] = duration;
+			MaxDps.debug['caexp'] = expirationTime;
+			local start = expirationTime - duration;
+			if MaxDps.lastSpellTimestamp - 0.1 > start and MaxDps.lastSpellTimestamp + gcd < start then
+				-- last aimed shot triggered the buff
+				shouldFireAimed = true;
+			end
+		end
+	end
+
+	MaxDps.debug['should'] = shouldFireAimed;
+
+	local minusFocus = 0;
+	if MaxDps:SameSpell(currentSpell, _AimedShot) then
+		minusFocus = aimedShotCost;
+	end
+
+	if MaxDps:SameSpell(currentSpell, _Windburst) then
+		minusFocus = 20;
+		vul = true;
+		vulCd = 5;
+	end
+
+	local focus, focusMax, focusRegen = MaxDps.Hunter.Focus(minusFocus, timeShift);
+
+	local canWindburst = MaxDps:SpellAvailable(_Windburst, timeShift) and not MaxDps:SameSpell(currentSpell, _Windburst);
+	local prec = MaxDps:Aura(_Precision, timeShift);
+
+
+	-- T20, 2pc bonus
+
+--	if vul and shouldFireAimed and focus > aimedShotCost and (vulCd > aimedShotTime) then
+--		return _AimedShot;
+--	end
+
+	-- ignore calcs if lock and load
+	if lol and vulCd > gcd + 0.2 then
+		return _AimedShot;
+	end
+
+	local effectiveAimedFocusCost = aimedShotCost - aimedShotTime * focusRegen;
+	if effectiveAimedFocusCost < 0 then effectiveAimedFocusCost = 0; end
+
+	local vuln_aim_casts = math.floor(vulCd / aimedShotTime);
+	local vuln_aim_casts2 = math.floor((focus + (aimedShotTime * focusRegen) * (vuln_aim_casts - 1)) / aimedShotCost);
+	vuln_aim_casts = min(vuln_aim_casts, vuln_aim_casts2);
+
+	MaxDps.debug['vuln_aim_casts'] = vuln_aim_casts;
+	MaxDps.debug['eafc'] = effectiveAimedFocusCost;
+	MaxDps.debug['regen'] = focusRegen;
+	MaxDps.debug['aimtime'] = aimedShotTime;
+
+	if vuln_aim_casts < 1 and canWindburst then
+		return _Windburst;
+	end
+
+	--arcane_shot,if=(!set_bonus.tier20_2pc|!action.aimed_shot.in_flight|buff.t20_2p_critical_aimed_damage.remains>action.aimed_shot.execute_time+gcd.max)
+	-- &variable.vuln_aim_casts>0&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
+	local can_gcd = (vulCd < aimedShotTime) or (vulCd > vuln_aim_casts * aimedShotTime + gcd + 0.1);
+	local critAimed, critAimedCd = MaxDps:Aura(_CriticalAimed, timeShift)
+	local focusR = 8;
+	if filler == _MultiShot then
+		focusR = targets * 3;
+	end
+	if (not _isTomb2Set or not MaxDps:SameSpell(currentSpell, _AimedShot) or critAimedCd > aimedShotTime + gcd) -- add checking for last spell id
+		and vuln_aim_casts > 0 and (can_gcd) and (focus + focusR + (aimedShotTime * focusRegen) < focusMax)
+	then
+		return filler
+	end
+
+--	local focusNeededFor2 = effectiveAimedFocusCost + aimedShotCost;
+--	-- if possible, load focus up to the point were you can put 2 aimed shots
+--	if vulCd > (aimedShotTime * 2) + gcd and focus < focusNeededFor2 then
+--		return filler;
+--	end
+
+--	-- load focus to 95 if there is no vulnerable
+--	if not vul and focus < 80 then
+--		return filler;
+--	end
+--
+--	-- if there is no vulnerable at all
+--	if not vul and focus > focusNeededFor2 then
+--		if targets >= 3 and hm and focus >= 30 then
+--			return _MarkedShot;
+--		end
+--
+--		if canWindburst then
+--			return _Windburst;
+--		end
+--
+--		if hm and focus >= 30 then
+--			return _MarkedShot;
+--		end
+--	end
+
+--	aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|(focus>100&lowest_vuln_within.5>(execute_time+gcd.max)))
+--	if vulCd > aimedShotTime and focus > 100 then
+--		return _AimedShot;
+--	end
+
+--	marked_shot,if=!talent.sidewinders.enabled&!variable.pooling_for_piercing&!action.windburst.in_flight&(focus>65|buff.trueshot.up|(1%attack_haste)>1.171)
+--	if hm and not MaxDps:SameSpell(currentSpell, _Windburst) and (focus > 65 or ts or (1 / MaxDps:AttackHaste()) > 1.171) then
+--		return _MarkedShot
+--	end
+
+--	aimed_shot,if=focus+cast_regen>focus.max&!buff.sentinels_sight.up
+--	if focus + focusR > focusMax then
+--		return _AimedShot
+--	end
+
+	local shouldAimed = vul
+		and (focus >= aimedShotCost)
+		and (lol or (vulCd > aimedShotTime));
+
+	if shouldAimed then
+		return _AimedShot;
+	end
+
+	if not vul and canWindburst then
+		return _Windburst;
+	end
+
+	if hm and focus >= 60 then
+		return _MarkedShot;
+	end
+
+	-- Aimed Shot to dump Focus.
+	if not vul and focus >= focusMax - 30 then
+		return _AimedShot;
+	end
+
+	-- If nothing else, Steady Shot/Multi Shot
+	return filler;
+end
+
+
+MaxDps.Hunter.Sidewinders = function(_, timeShift, currentSpell, gcd, talents)
+	local lol, lolCharges = MaxDps:Aura(_LockandLoad, timeShift);
+	local ts = MaxDps:Aura(_Trueshot, timeShift);
+	local mt = MaxDps:Aura(_MarkingTargets, timeShift);
+	local hm, hmCd = MaxDps:TargetAura(_HuntersMark, timeShift);
+	local vul, vulCd = MaxDps:TargetAura(_Vulnerable, timeShift);
+	local wb, wbCd = MaxDps:SpellAvailable(_Windburst, timeShift);
+	local sw, swCharges = MaxDps:SpellCharges(_Sidewinders, timeShift);
+
+	local targets = MaxDps:TargetsInRange(_ArcaneShot);
+
+	local attackHaste = MaxDps:AttackHaste();
+	local aimedShotCost = _AimedShotCost;
+	local aimedShotTime = 2.0 * attackHaste;
+	local aimedShotError = 0.3;
+	if not talents[_Volley] then
+		aimedShotError = 0;
+	end
+
+	if _isFourSet and ts then
+		aimedShotCost = aimedShotCost * 0.85;
+	end
+	if talents[_Volley] then
+		aimedShotCost = aimedShotCost + 3; -- volley cost
+	end
+
+	if lol then
+		aimedShotCost = 0;
+		aimedShotTime = gcd;
+	end
+
+	local minusFocus = 0;
+	if MaxDps:SameSpell(currentSpell, _AimedShot) then
+		minusFocus = aimedShotCost;
+	end
+
+	if MaxDps:SameSpell(currentSpell, _Windburst) then
+		minusFocus = 20;
+		vul = true;
+		vulCd = 5;
+	end
+	local focus, focusMax = MaxDps.Hunter.Focus(minusFocus, timeShift);
+
+	MaxDps:GlowCooldown(_Trueshot, MaxDps:SpellAvailable(_Trueshot, timeShift));
+	MaxDps:GlowCooldown(_AMurderofCrows, isMurderofcrows and MaxDps:SpellAvailable(_AMurderofCrows, timeShift));
+	MaxDps:GlowCooldown(_Barrage, isBarrage and MaxDps:SpellAvailable(_Barrage, timeShift));
+	MaxDps:GlowCooldown(_ExplosiveShot, isExplosive and MaxDps:SpellAvailable(_ExplosiveShot, timeShift));
+
+	if isSidewinders and mt and not hm and swCharges > 1 then
+		return _Sidewinders;
+	end
+
+	if not ts and not vul and mt then
+		return filler;
+	end
+
+	if not ts and not lol and focus < 100 and vulCd > 6 then
+		return filler;
+	end
+
+	if not ts and not lol and  focus < 70 and vulCd > 4 then
+		return filler;
+	end
+
+	local shouldAimed = vul and (focus >= aimedShotCost) and ((vulCd > (aimedShotTime + aimedShotError)) or (lol and vulCd > aimedShotError));
+
+	if shouldAimed then
+		return _AimedShot;
+	end
+
+	if not vul and MaxDps:SpellAvailable(_Windburst, timeShift) and not MaxDps:SameSpell(currentSpell, _Windburst) then
+		return _Windburst;
+	end
+
+	if hm and ((not vul or vulCd < (aimedShotTime + aimedShotError)) or focus >= (focusMax - 10)) then
+		return _MarkedShot;
+	end
+
+	if focus <= aimedShotCost then
+		return isSidewinders and _Sidewinders or filler;
+	end
+
+	if shouldAimed then
+		return _AimedShot;
+	end
+
+	if MaxDps:SpellAvailable(_Windburst, timeShift) and not MaxDps:SameSpell(currentSpell, _Windburst) then
+		return _Windburst;
+	end
+
+	-- Aimed Shot to dump Focus.
+	if focus >= focusMax - 30 then
+		return _AimedShot;
+	end
+
+	if focus <= _AimedShotCost - 10 then
+		return isSidewinders and _Sidewinders or filler;
+	end
+
+	-- If nothing else, Steady Shot
+	return isSidewinders and _Sidewinders or filler;
+end
+
+MaxDps.Hunter.Meme = function()
 	local timeShift, currentSpell, gcd = MaxDps:EndCast();
 
 	local lol, lolCharges = MaxDps:Aura(_LockandLoad, timeShift);
@@ -218,27 +574,32 @@ MaxDps.Hunter.Marksmanship = function()
 	MaxDps:GlowCooldown(_Trueshot, MaxDps:SpellAvailable(_Trueshot, timeShift));
 	MaxDps:GlowCooldown(_AMurderofCrows, isMurderofcrows and MaxDps:SpellAvailable(_AMurderofCrows, timeShift));
 	MaxDps:GlowCooldown(_Barrage, isBarrage and MaxDps:SpellAvailable(_Barrage, timeShift));
-	MaxDps:GlowCooldown(_ExplosiveShot, isExplosive and MaxDps:SpellAvailable(_ExplosiveShot, timeShift));
 
+	local poolingForPiercing = false;
+	--	local time_to_die = 100;
+	--	local hpPercent = MaxDps:TargetPercentHealth();
 
+	--	local aimCasts = floor(vulCd / aimedShotTime);
+	--	print(vulCd, aimCasts);
 
---	local pooling_for_piercing = false;
---	local time_to_die = 100;
---	local hpPercent = MaxDps:TargetPercentHealth();
-
---	local aimCasts = floor(vulCd / aimedShotTime);
---	print(vulCd, aimCasts);
-
-	if isSidewinders and mt and not hm and swCharges > 1 then
-		return _Sidewinders;
+	if MaxDps:SpellAvailable(_PiercingShot, timeShift) and vul and focus >= 100 then
+		return _PiercingShot;
 	end
 
-	if hm and ((not vul or vulCd < (aimedShotTime + aimedShotError)) or focus >= (focusMax - 10)) then
+	if MaxDps:SpellAvailable(_ExplosiveShot, timeShift) then
+		return _ExplosiveShot;
+	end
+
+	if MaxDps:SpellAvailable(_Windburst, timeShift) and not MaxDps:SameSpell(currentSpell, _Windburst) then
+		return _Windburst;
+	end
+
+	if hm then
 		return _MarkedShot;
 	end
 
-	if not vul and not hm and MaxDps:SpellAvailable(_Windburst, timeShift) and not MaxDps:SameSpell(currentSpell, _Windburst) then
-		return _Windburst;
+	if mt then
+		return filler;
 	end
 
 	local shouldAimed = vul and (focus >= aimedShotCost) and ((vulCd > (aimedShotTime + aimedShotError)) or (lol and vulCd > aimedShotError));
@@ -251,21 +612,9 @@ MaxDps.Hunter.Marksmanship = function()
 		return isSidewinders and _Sidewinders or filler;
 	end
 
-	if shouldAimed then
-		return _AimedShot;
-	end
-
-	if MaxDps:SpellAvailable(_Windburst, timeShift) and not MaxDps:SameSpell(currentSpell, _Windburst) then
-		return _Windburst;
-	end
-
 	-- Aimed Shot to dump Focus.
 	if focus >= focusMax - 30 then
 		return _AimedShot;
-	end
-
-	if focus <= _AimedShotCost - 10 then
-		return isSidewinders and _Sidewinders or filler;
 	end
 
 	-- If nothing else, Steady Shot
@@ -273,9 +622,7 @@ MaxDps.Hunter.Marksmanship = function()
 end
 
 local recenlyCapedBite = false;
-MaxDps.Hunter.Survival = function()
-	local timeShift, currentSpell, gcd = MaxDps:EndCast();
-
+MaxDps.Hunter.Survival = function(_, timeShift, currentSpell, gcd, talents)
 	local fote = MaxDps:SpellAvailable(_FuryoftheEagle, timeShift);
 	local epxTrap = MaxDps:SpellAvailable(_ExplosiveTrap, timeShift);
 	local dfg = MaxDps:SpellAvailable(_DragonsfireGrenade, timeShift);
@@ -342,6 +689,6 @@ function MaxDps.Hunter.Focus(minus, timeShift)
 	if power > powerMax then
 		power = powerMax;
 	end;
-	return power, powerMax;
+	return power, powerMax, casting;
 end
 
