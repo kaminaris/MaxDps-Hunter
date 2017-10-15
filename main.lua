@@ -566,7 +566,7 @@ function MaxDps.Hunter.PatientSniper(_, timeShift, currentSpell, gcd, talents)
 
 	local filler = _ArcaneShot;
 	local focusR = 8;
-	if targets > 1 then
+	if not talents[_Sidewinders] and targets > 1 then
 		filler = _MultiShot;
 		focusR = targets * 3;
 	end
