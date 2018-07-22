@@ -1,7 +1,7 @@
 ## Title: MaxDps_Hunter
-## Version: 7.3.0
+## Version: 8.0.0
 ## Author: Kaminaris
-## Interface: 70300
+## Interface: 80000
 ## Dependencies: MaxDps
 ## LoadOnDemand: 1
 
