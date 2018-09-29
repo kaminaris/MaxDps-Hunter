@@ -107,12 +107,24 @@ function Hunter:BeastMastery(timeShift, currentSpell, gcd, talents)
 
 	local bwAura = MaxDps:Aura(_BestialWrathAura, timeShift);
 
-	local bs, bsCharges = MaxDps:SpellCharges(_BarbedShot, timeShift + 0.5);
+	local bs, bsCharges = MaxDps:SpellCharges(_BarbedShot, timeShift);
 	local frenzyAura, frenzyCount, frenzyCd = MaxDps:UnitAura(_Frenzy, timeShift, 'pet');
 
 	-- Rotation start
-	if bsCharges >= 1 and frenzyCd < 1 then
-		return _BarbedShot
+	if frenzyAura and bsCharges >= 1 and frenzyCd < 2 then
+		return _BarbedShot;
+	end
+
+	if talents[_AMurderofCrows] and MaxDps:SpellAvailable(_AMurderofCrows, timeShift) then
+		return _AMurderofCrows;
+	end
+
+	if bsCharges >= 1.8 then
+		return _BarbedShot;
+	end
+
+	if bw then
+		return _BestialWrath;
 	end
 
 	if talents[_ChimaeraShot] and MaxDps:SpellAvailable(_ChimaeraShot, timeShift) then
@@ -124,29 +136,11 @@ function Hunter:BeastMastery(timeShift, currentSpell, gcd, talents)
 		return _KillCommand;
 	end
 
-	if talents[_AMurderofCrows] and MaxDps:SpellAvailable(_AMurderofCrows, timeShift) then
-		return _AMurderofCrows;
-	end
-
-	if bw then
-		return _BestialWrath;
-	end
-
 	if talents[_DireBeast] and MaxDps:SpellAvailable(_DireBeast, timeShift) then
 		return _DireBeast;
 	end
 
-	if bsCharges >= 1.7 then
-		return _BarbedShot
-	end
-
-	if talents[_DireBeast] then
-		if MaxDps:SpellAvailable(_DireBeast, timeShift) then
-			return _DireBeast;
-		end
-	end
-
-	if focus > 70 and kcCd > 2 then
+	if focus > 60 and kcCd > 2 then
 		return _CobraShot;
 	else
 		return nil;
