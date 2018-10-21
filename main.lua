@@ -71,8 +71,8 @@ local _survivalSpells = {
 	CoordinatedAssault = 266779,
 	KillCommand = 259489,
 	WildfireBomb = 259495,
-	VipersVenom = 268501,
-	SerpentSting = 268423,
+	VipersVenom = 268552,
+	SerpentSting = 259491,
 	MongooseFury = 259388,
 	RaptorStrike = 186270
 }
