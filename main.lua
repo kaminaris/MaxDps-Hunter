@@ -73,7 +73,7 @@ local _survivalSpells = {
 	WildfireBomb = 259495,
 	VipersVenom = 268552,
 	SerpentSting = 259491,
-	MongooseFury = 259388,
+	MongooseBite = 259388,
 	RaptorStrike = 186270
 }
 
@@ -248,8 +248,8 @@ function Hunter:Survival(timeShift, currentSpell, gcd, talents)
 	end
 
 	if focus > 30 then
-		if talents[_survivalSpells.MongooseFury] then
-			return _survivalSpells.MongooseFury;
+		if talents[_survivalSpells.MongooseBite] then
+			return _survivalSpells.MongooseBite;
 		else
 			return _survivalSpells.RaptorStrike;
 		end
