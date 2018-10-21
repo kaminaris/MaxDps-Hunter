@@ -67,6 +67,15 @@ local _PetBasics = {
 	bite = 17253
 }
 
+local _survivalSpells = {
+	CoordinatedAssault = 266779,
+	KillCommand = 259489,
+	WildfireBomb = 259495,
+	VipersVenom = 268501,
+	SerpentSting = 268423,
+	MongooseFury = 259388,
+	RaptorStrike = 186270
+}
 
 function Hunter:Enable()
 	MaxDps:Print(MaxDps.Colors.Info .. 'Hunter [Beast Mastery, Marksmanship, Survial]');
@@ -199,7 +208,54 @@ function Hunter:Marksmanship(timeShift, currentSpell, gcd, talents)
 end
 
 function Hunter:Survival(timeShift, currentSpell, gcd, talents)
+	-- Initial implementation Icy Veins Single Target Rotation
+	-- https://www.icy-veins.com/wow/survival-hunter-pve-dps-rotation-cooldowns-abilities
+	-- Expected talent tree:
+	--  15: Viper's Venom
+	--  30: Guerilla Tactics
+	--  45: N/A
+	--  60: Bloodseeker
+	--  75: N/A
+	--  90: Tip of the Spear
+	-- 100: Birds of Prey
 
+	local minus = 0;
+
+	local focus, focusMax, focusRegen = Hunter:Focus(minus, timeShift);
+
+	MaxDps:GlowCooldown(_survivalSpells.CoordinatedAssault, MaxDps:SpellAvailable(_survivalSpells.CoordinatedAssault, timeShift));	
+
+	local kc, kcCd = MaxDps:SpellAvailable(_survivalSpells.KillCommand, timeShift);
+	if kc and focus < (focusMax - 15) then
+		return _survivalSpells.KillCommand;
+	end
+
+	-- Bombs
+	local wb, wbCd = MaxDps:SpellAvailable(_survivalSpells.WildfireBomb, timeShift + 0.5);
+	local wbAura, wbCount, wbTargetCd = MaxDps:TargetAura(_survivalSpells.WildfireBomb, timeShift);
+	if wb and wbTargetCd < 1 then
+		return _survivalSpells.WildfireBomb;
+	end
+
+	local vvAura, vvCount, vvCd = MaxDps:Aura(_survivalSpells.VipersVenom, timeShift);
+	if vvAura then
+		return _survivalSpells.SerpentSting;
+	end
+
+	local ss, _, ssCd = MaxDps:TargetAura(_survivalSpells.SerpentSting, timeShift);
+	if focus >= 10 and ssCd < 3 then
+		return _survivalSpells.SerpentSting;
+	end
+
+	if focus > 30 then
+		if talents[_survivalSpells.MongooseFury] then
+			return _survivalSpells.MongooseFury;
+		else
+			return _survivalSpells.RaptorStrike;
+		end
+	end
+
+	return nil;
 end
 
 function Hunter:Focus(minus, timeShift)
