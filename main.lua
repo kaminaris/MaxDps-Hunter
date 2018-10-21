@@ -73,7 +73,7 @@ local _survivalSpells = {
 	WildfireBomb = 259495,
 	VipersVenom = 268552,
 	SerpentSting = 259491,
-	MongooseBite = 259388,
+	MongooseBite = 259387,
 	RaptorStrike = 186270
 }
 
