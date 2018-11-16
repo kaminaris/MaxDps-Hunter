@@ -100,6 +100,7 @@ local A = {
 	LatentPoison       = 273283,
 	VenomousFangs      = 274590,
 	WildernessSurvival = 278532,
+	BlurOfTalons       = 277653
 };
 
 local spellMeta = {
@@ -509,7 +510,7 @@ function Hunter:SurvivalSingleTarget()
 	-- mongoose_bite,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd);
 	if talents[SV.BirdsOfPrey] and buff[SV.CoordinatedAssault].up and (
 		buff[SV.CoordinatedAssault].remains < gcd or
-		buff[SV.BlurOfTalons].up and buff[SV.BlurOfTalons].remains < gcd
+		buff[A.BlurOfTalons].up and buff[A.BlurOfTalons].remains < gcd
 	) then
 		return SV.MongooseBite;
 	end
@@ -517,7 +518,7 @@ function Hunter:SurvivalSingleTarget()
 	-- raptor_strike,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd);
 	if talents[SV.BirdsOfPrey] and buff[SV.CoordinatedAssault].up and (
 		buff[SV.CoordinatedAssault].remains < gcd or
-		buff[SV.BlurOfTalons].up and buff[SV.BlurOfTalons].remains < gcd
+		buff[A.BlurOfTalons].up and buff[A.BlurOfTalons].remains < gcd
 	) then
 		return SV.RaptorStrike;
 	end
