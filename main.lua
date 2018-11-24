@@ -306,7 +306,8 @@ function Hunter:SurvivalCleave()
 	local mongooseBiteCost = 30;
 
 	local carveCdr = targets;
-
+	local MongooseBite = MaxDps:FindSpell(265888) and 265888 or SV.MongooseBite;
+	local RaptorStrike = MaxDps:FindSpell(265189) and 265189 or SV.RaptorStrike;
 	local canCarve = not talents[SV.Butchery] and cooldown[SV.Carve].ready and focusWithRegen >= 35;
 
 	-- a_murder_of_crows;
@@ -326,7 +327,7 @@ function Hunter:SurvivalCleave()
 
 	-- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack=10;
 	if debuff[SV.LatentPoison].count >= 10 then
-		return SV.MongooseBite;
+		return MongooseBite;
 	end
 
 	-- chakrams;
@@ -390,11 +391,11 @@ function Hunter:SurvivalCleave()
 
 	-- mongoose_bite,target_if=max:debuff.latent_poison.stack;
 	if talents[SV.MongooseBite] and focusWithRegen > mongooseBiteCost then
-		return SV.MongooseBite;
+		return MongooseBite;
 	end
 
 	-- raptor_strike,target_if=max:debuff.latent_poison.stack;
-	return SV.RaptorStrike;
+	return RaptorStrike;
 end
 
 function Hunter:SurvivalMbApWfiSt()
@@ -408,6 +409,7 @@ function Hunter:SurvivalMbApWfiSt()
 	local focusWithRegen = focus + castRegen;
 	local gcdRegen = focusRegen * gcd;
 	local mongooseBiteCost = 30;
+	local MongooseBite = MaxDps:FindSpell(265888) and 265888 or SV.MongooseBite;
 
 	-- serpent_sting,if=!dot.serpent_sting.ticking;
 	if focus >= 20 and not debuff[SV.SerpentSting].up then
@@ -436,7 +438,7 @@ function Hunter:SurvivalMbApWfiSt()
 
 	-- mongoose_bite,if=buff.mongoose_fury.remains&next_wi_bomb.pheromone;
 	if focus >= 27 and buff[SV.MongooseFury].up and nextWiBomb == SV.PheromoneBomb then
-		return SV.MongooseBite;
+		return MongooseBite;
 	end
 
 	-- kill_command,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost);
@@ -470,7 +472,7 @@ function Hunter:SurvivalMbApWfiSt()
 	if focus >= 27 and
 		(buff[SV.MongooseFury].up or focus > 60 or debuff[SV.ShrapnelBomb].up)
 	then
-		return SV.MongooseBite;
+		return MongooseBite;
 	end
 
 	-- serpent_sting,if=refreshable;
@@ -501,6 +503,9 @@ function Hunter:SurvivalSingleTarget()
 	local focusWithRegen = focus + castRegen;
 	local gcdRegen = focusRegen * gcd;
 	local mongooseBiteCost = 30;
+	local MongooseBite = MaxDps:FindSpell(265888) and 265888 or SV.MongooseBite;
+	local RaptorStrike = MaxDps:FindSpell(265189) and 265189 or SV.RaptorStrike;
+
 
 	-- a_murder_of_crows;
 	if talents[SV.AMurderOfCrows] and focusWithRegen >= 30 and cooldown[SV.AMurderOfCrows].ready then
@@ -512,7 +517,7 @@ function Hunter:SurvivalSingleTarget()
 		buff[SV.CoordinatedAssault].remains < gcd or
 		buff[A.BlurOfTalons].up and buff[A.BlurOfTalons].remains < gcd
 	) then
-		return SV.MongooseBite;
+		return MongooseBite;
 	end
 
 	-- raptor_strike,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd);
@@ -520,7 +525,7 @@ function Hunter:SurvivalSingleTarget()
 		buff[SV.CoordinatedAssault].remains < gcd or
 		buff[A.BlurOfTalons].up and buff[A.BlurOfTalons].remains < gcd
 	) then
-		return SV.RaptorStrike;
+		return RaptorStrike;
 	end
 
 	-- serpent_sting,if=buff.vipers_venom.up&buff.vipers_venom.remains<gcd;
@@ -587,12 +592,12 @@ function Hunter:SurvivalSingleTarget()
 
 	-- mongoose_bite,if=buff.mongoose_fury.up|focus>60;
 	if talents[SV.MongooseBite] and focusWithRegen >= 30 and (buff[SV.MongooseFury].up or focus > 60) then
-		return SV.MongooseBite;
+		return MongooseBite;
 	end
 
 	-- raptor_strike;
 	if not talents[SV.MongooseBite] and focus >= 30 then
-		return SV.RaptorStrike;
+		return RaptorStrike;
 	end
 
 	-- serpent_sting,if=dot.serpent_sting.refreshable&!buff.coordinated_assault.up;
@@ -617,6 +622,8 @@ function Hunter:SurvivalWfiSt()
 	local focusWithRegen = focus + castRegen;
 	local gcdRegen = focusRegen * gcd;
 	local mongooseBiteCost = 30;
+	local MongooseBite = MaxDps:FindSpell(265888) and 265888 or SV.MongooseBite;
+	local RaptorStrike = MaxDps:FindSpell(265189) and 265189 or SV.RaptorStrike;
 
 	-- a_murder_of_crows;
 	if talents[SV.AMurderOfCrows] and focus >= 30 and cooldown[SV.AMurderOfCrows].ready then
@@ -628,7 +635,7 @@ function Hunter:SurvivalWfiSt()
 		debuff[SV.SerpentSting].remains > 2.1 * gcd and debuff[SV.SerpentSting].remains < 3.5 * gcd
 		and cooldown[SV.WildfireBomb].remains > 2.5 * gcd
 	then
-		return SV.MongooseBite;
+		return MongooseBite;
 	end
 
 	-- wildfire_bomb,if=full_recharge_time<gcd|(focus+cast_regen<focus.max)&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3);
@@ -650,7 +657,7 @@ function Hunter:SurvivalWfiSt()
 
 	-- raptor_strike,if=dot.internal_bleeding.stack<3&dot.shrapnel_bomb.ticking&!talent.mongoose_bite.enabled;
 	if focus >= 30 and debuff[SV.InternalBleeding].count < 3 and debuff[SV.ShrapnelBomb].up and not talents[SV.MongooseBite] then
-		return SV.RaptorStrike;
+		return RaptorStrike;
 	end
 
 	-- wildfire_bomb,if=next_wi_bomb.shrapnel&buff.mongoose_fury.down&(cooldown.kill_command.remains>gcd|focus>60)&!dot.serpent_sting.refreshable;
@@ -690,12 +697,12 @@ function Hunter:SurvivalWfiSt()
 
 	-- mongoose_bite,if=buff.mongoose_fury.up|focus>60|dot.shrapnel_bomb.ticking;
 	if talents[SV.MongooseBite] and (buff[SV.MongooseFury].up or focus > 60 or debuff[SV.ShrapnelBomb].up) then
-		return SV.MongooseBite;
+		return MongooseBite;
 	end
 
 	-- raptor_strike;
 	if not talents[SV.MongooseBite] and focus >= 30 then
-		return SV.RaptorStrike;
+		return RaptorStrike;
 	end
 
 	-- serpent_sting,if=refreshable;
