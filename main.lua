@@ -427,7 +427,7 @@ function Hunter:SurvivalMbApWfiSt()
 	end
 
 	-- a_murder_of_crows;
-	if focus >= 30 and cooldown[SV.AMurderOfCrows].ready then
+	if talents[SV.AMurderOfCrows] and focus >= 30 and cooldown[SV.AMurderOfCrows].ready then
 		return SV.AMurderOfCrows;
 	end
 
