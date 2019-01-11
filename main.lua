@@ -552,12 +552,20 @@ function Hunter:SurvivalSingleTarget()
 		return SV.WildfireBomb;
 	end
 
-	-- serpent_sting,if=buff.vipers_venom.up&dot.serpent_sting.remains<4*gcd|!talent.vipers_venom.enabled&!dot.serpent_sting.ticking&!buff.coordinated_assault.up|refreshable&(azerite.latent_poison.enabled|azerite.venomous_fangs.enabled);
+	-- serpent_sting,if=buff.vipers_venom.react&dot.serpent_sting.remains<4*gcd|!talent.vipers_venom.enabled&!dot.serpent_sting.ticking&!buff.coordinated_assault.up
 	if buff[SV.VipersVenom].up and debuff[SV.SerpentSting].remains < 4 * gcd or
-		not talents[SV.VipersVenom] and not debuff[SV.SerpentSting].up and not buff[SV.CoordinatedAssault].up or
-		debuff[SV.SerpentSting].refreshable and (
-			azerite[A.LatentPoison] > 0 or
-			azerite[A.VenomousFangs] > 0
+		not talents[SV.VipersVenom] and not debuff[SV.SerpentSting].up and not buff[SV.CoordinatedAssault].up
+	then
+		return SV.SerpentSting;
+	end
+
+	-- serpent_sting,if=refreshable&(azerite.latent_poison.rank>2|azerite.latent_poison.enabled&azerite.venomous_fangs.enabled|(azerite.latent_poison.enabled|azerite.venomous_fangs.enabled)&(!azerite.blur_of_talons.enabled|!talent.birds_of_prey.enabled|!buff.coordinated_assault.up))
+	if debuff[SV.SerpentSting].refreshable and (
+		azerite[A.LatentPoison] > 2 or
+		azerite[A.LatentPoison] > 0 and azerite[A.VenomousFangs] > 0 or
+		(azerite[A.LatentPoison] > 0 or azerite[A.VenomousFangs] > 0) and (
+			azerite[A.BlurOfTalons] == 0 or not talents[SV.BirdsOfPrey] or not buff[SV.CoordinatedAssault].up
+		)
 	) then
 		return SV.SerpentSting;
 	end
