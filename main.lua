@@ -195,7 +195,7 @@ function Hunter:BeastMastery()
 		return BM.DireBeast;
 	end
 
-	if focus > 60 and cooldown[BM.KillCommand].remains > 2 then
+	if focus > 50 and cooldown[BM.KillCommand].remains > 2 then
 		return BM.CobraShot;
 	else
 		return nil;
@@ -497,11 +497,8 @@ function Hunter:SurvivalSingleTarget()
 	local cooldown, buff, debuff, talents, azerite, currentSpell, targets, focus, focusMax, focusRegen, gcd, timeShift =
 	fd.cooldown, fd.buff, fd.debuff, fd.talents, fd.azerite, fd.currentSpell, fd.targets, fd.focus, fd.focusMax, fd.focusRegen, fd.gcd, fd.timeShift;
 
-	local BombSpell = self:SurvivalBombId();
-	local nextWiBomb = select(7, GetSpellInfo(GetSpellInfo(259495)));
 	local castRegen = focusRegen * timeShift;
 	local focusWithRegen = focus + castRegen;
-	local gcdRegen = focusRegen * gcd;
 	local mongooseBiteCost = 30;
 	local MongooseBite = MaxDps:FindSpell(265888) and 265888 or SV.MongooseBite;
 	local RaptorStrike = MaxDps:FindSpell(265189) and 265189 or SV.RaptorStrike;
