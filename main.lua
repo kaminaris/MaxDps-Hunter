@@ -31,7 +31,7 @@ local MM = {
 -- BM
 local BM = {
 	SpittingCobra    = 194407,
-	MultiShotBM      = 2643,
+	MultiShot        = 2643,
 	CounterShot      = 147362,
 	AspectOfTheWild  = 193530,
 	DireBeast        = 120679,
@@ -44,6 +44,7 @@ local BM = {
 	KillCommand      = 34026,
 	BarbedShot       = 217200,
 	Barrage          = 120360,
+	PrimalInstincts  = 279810,
 
 	-- Player Auras
 	BestialWrathAura = 186254,
@@ -100,7 +101,8 @@ local A = {
 	LatentPoison       = 273283,
 	VenomousFangs      = 274590,
 	WildernessSurvival = 278532,
-	BlurOfTalons       = 277653
+	BlurOfTalons       = 277653,
+	PrimalInstincts    = 279806,
 };
 
 local spellMeta = {
@@ -134,6 +136,242 @@ function Hunter:Enable()
 	return true;
 end
 
+--local BM = {
+--	AspectOfTheWild = 193530,
+--	BestialWrath = 19574,
+--	BarbedShot = 217200,
+--	Multishot = 2643,
+--	Stampede = 201430,
+--	ChimaeraShot = 53209,
+--	AMurderOfCrows = 131894,
+--	Barrage = 120360,
+--	KillCommand = 34026,
+--	DireBeast = 120679,
+--	CobraShot = 193455,
+--	SpittingCobra = 194407,
+--};
+
+local auraMetaTable = {
+	__index = function()
+		return {
+			up          = false,
+			count       = 0,
+			remains     = 0,
+			duration    = 0,
+			refreshable = true,
+		};
+	end
+};
+
+function Hunter:BeastMastery()
+	local fd = MaxDps.FrameData;
+	local targets = MaxDps:SmartAoe();
+	local timeShift = fd.timeShift;
+	local cooldown = fd.cooldown;
+	local talents = fd.talents;
+	local buff = fd.buff;
+	local bw, bwCd = cooldown[BM.BestialWrath].ready, cooldown[BM.BestialWrath].remains;
+
+	if not fd.pet then
+		fd.pet = {};
+		setmetatable(fd.pet, auraMetaTable);
+	end
+	MaxDps:CollectAura('pet', timeShift, fd.pet);
+
+	fd.targets = targets;
+	local focus, focusMax, focusRegen = Hunter:Focus(0, timeShift);
+	fd.focus = focus;
+	fd.focusRegen = focusRegen;
+
+	MaxDps:GlowCooldown(BM.AspectOfTheWild, cooldown[BM.AspectOfTheWild].ready);
+
+	-- stampede,if=buff.aspect_of_the_wild.up&buff.bestial_wrath.up|target.time_to_die<15;
+	if talents[BM.Stampede] then
+		MaxDps:GlowCooldown(BM.Stampede, cooldown[BM.Stampede].ready and (buff[BM.AspectOfTheWild].up and buff[BM.BestialWrath].up));
+	end
+
+	-- call_action_list,name=cleave,if=active_enemies>1;
+	if targets > 1 then
+		return Hunter:BeastMasteryCleave();
+	else
+		return Hunter:BeastMasterySt();
+	end
+end
+
+function Hunter:BeastMasteryCleave()
+	local fd = MaxDps.FrameData;
+	local cooldown = fd.cooldown;
+	local azerite = fd.azerite;
+	local buff = fd.buff;
+	local talents = fd.talents;
+	local timeShift = fd.timeShift;
+	local gcd = fd.gcd;
+	local pet = fd.pet;
+	local focus = fd.focus;
+	local focusTimeToMax = Hunter:FocusTimeToMax();
+
+	local realFrenzyRemains = pet[BM.Frenzy].remains + timeShift;
+
+	-- just in case we know its going to be in time
+	if realFrenzyRemains < 2 and cooldown[BM.BarbedShot].remains <= pet[BM.Frenzy].remains then
+		return BM.BarbedShot;
+	end
+
+	-- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max;
+	--print(pet[BM.Frenzy].remains);
+	if pet[BM.Frenzy].up and pet[BM.Frenzy].remains <= gcd
+		and cooldown[BM.BarbedShot].remains <= gcd
+	then
+		return BM.BarbedShot;
+	end
+
+	-- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25;
+	if gcd - buff[BM.BeastCleave].remains > 0.25 then
+		return BM.MultiShot;
+	end
+
+	-- barbed_shot,if=full_recharge_time<gcd.max&cooldown.bestial_wrath.remains;
+	if cooldown[BM.BarbedShot].fullRecharge < gcd and not cooldown[BM.BestialWrath].ready then
+		return BM.BarbedShot;
+	end
+
+	-- bestial_wrath,if=cooldown.aspect_of_the_wild.remains>20|target.time_to_die<15;
+	if cooldown[BM.BestialWrath].ready and (cooldown[BM.AspectOfTheWild].remains > 20 or cooldown[BM.AspectOfTheWild].ready) then
+		return BM.BestialWrath;
+	end
+
+	-- chimaera_shot;
+	if cooldown[BM.ChimaeraShot].ready then
+		return BM.ChimaeraShot;
+	end
+
+	-- a_murder_of_crows;
+	if cooldown[BM.AMurderOfCrows].ready and focus >= 30 then
+		return BM.AMurderOfCrows;
+	end
+
+	-- barrage;
+	if talents[BM.Barrage] and cooldown[BM.Barrage].ready and focus >= 60 then
+		return BM.Barrage;
+	end
+
+	-- kill_command;
+	if cooldown[BM.KillCommand].ready and focus >= 30 then
+		return BM.KillCommand;
+	end
+
+	-- dire_beast;
+	if talents[BM.DireBeast] and cooldown[BM.DireBeast].ready and focus >= 25 then
+		return BM.DireBeast;
+	end
+
+	if cooldown[BM.BarbedShot].fullRecharge < gcd then
+		return BM.BarbedShot;
+	end
+
+	-- barbed_shot,if=pet.cat.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.cat.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|target.time_to_die<9;
+	if not pet[BM.Frenzy].up and (cooldown[BM.BarbedShot].charges > 1.8 or buff[BM.BestialWrath].up) --or
+		--cooldown[BM.AspectOfTheWild].remains < pet[BM.Frenzy].duration - gcd and azerite[A.PrimalInstincts] > 0
+	then
+		return BM.BarbedShot;
+	end
+
+	-- cobra_shot,if=cooldown.kill_command.remains>focus.time_to_max;
+	if focus >= 35 and (cooldown[BM.KillCommand].remains > focusTimeToMax) then
+		return BM.CobraShot;
+	end
+
+	-- spitting_cobra;
+	if talents[BM.SpittingCobra] and cooldown[BM.SpittingCobra].ready then
+		return BM.SpittingCobra;
+	end
+end
+
+function Hunter:BeastMasterySt()
+	local fd = MaxDps.FrameData;
+	local cooldown = fd.cooldown;
+	local azerite = fd.azerite;
+	local buff = fd.buff;
+	local talents = fd.talents;
+	local timeShift = fd.timeShift;
+	local gcd = fd.gcd;
+	local focus = fd.focus;
+	local pet = fd.pet;
+	local timeToDie = fd.timeToDie;
+	local focusRegen = fd.focusRegen;
+
+	local realFrenzyRemains = pet[BM.Frenzy].remains + timeShift;
+
+	-- just in case we know its going to be in time
+	if realFrenzyRemains < 2 and cooldown[BM.BarbedShot].remains < pet[BM.Frenzy].remains then
+		return BM.BarbedShot;
+	end
+
+	-- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max|full_recharge_time<gcd.max&cooldown.bestial_wrath.remains|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd;
+
+	if pet[BM.Frenzy].up and pet[BM.Frenzy].remains <= gcd or
+		cooldown[BM.BarbedShot].fullRecharge < gcd and not cooldown[BM.BestialWrath].ready --or
+		--azerite[A.PrimalInstincts] > 0 and cooldown[BM.AspectOfTheWild].remains < gcd
+	then
+		return BM.BarbedShot;
+	end
+
+	-- a_murder_of_crows;
+	if cooldown[BM.AMurderOfCrows].ready and focus >= 30 then
+		return BM.AMurderOfCrows;
+	end
+
+
+	-- bestial_wrath,if=cooldown.aspect_of_the_wild.remains>20|target.time_to_die<15;
+	if cooldown[BM.BestialWrath].ready and (cooldown[BM.AspectOfTheWild].remains > 20 or cooldown[BM.AspectOfTheWild].ready) then
+		return BM.BestialWrath;
+	end
+
+	-- kill_command;
+	if cooldown[BM.KillCommand].ready and focus >= 30 then
+		return BM.KillCommand;
+	end
+
+	-- chimaera_shot;
+	if cooldown[BM.ChimaeraShot].ready then
+		return BM.ChimaeraShot;
+	end
+
+	-- dire_beast;
+	if talents[BM.DireBeast] and cooldown[BM.DireBeast].ready and focus >= 25 then
+		return BM.DireBeast;
+	end
+
+	-- barbed_shot,if=pet.cat.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.cat.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|target.time_to_die<9;
+	if not pet[BM.Frenzy].up and (cooldown[BM.BarbedShot].charges > 1.8 or buff[BM.BestialWrath].up) -- or
+		--cooldown[BM.AspectOfTheWild].remains < pet[BM.Frenzy].duration - gcd and azerite[A.PrimalInstincts] > 0
+	then
+		return BM.BarbedShot;
+	end
+
+	-- barrage;
+	if talents[BM.Barrage] and cooldown[BM.Barrage].ready and focus >= 60 then
+		return BM.Barrage;
+	end
+
+	local CobraShotCost = 35;
+	local KillCommandCost = 30;
+	-- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)&cooldown.kill_command.remains>1;
+	if (
+		focus - CobraShotCost + focusRegen * ( cooldown[BM.KillCommand].remains - 1 ) > KillCommandCost or
+		cooldown[BM.KillCommand].remains > 1 + gcd
+	) and cooldown[BM.KillCommand].remains > 1
+	then
+		return BM.CobraShot;
+	end
+
+	-- spitting_cobra;
+	if talents[BM.SpittingCobra] and cooldown[BM.SpittingCobra].ready then
+		return BM.SpittingCobra;
+	end
+end
+
+--[[
 function Hunter:BeastMastery()
 	local fd = MaxDps.FrameData;
 	local cooldown, buff, debuff, timeShift, talents, azerite, currentSpell =
@@ -201,7 +439,7 @@ function Hunter:BeastMastery()
 		return nil;
 	end
 end
-
+]]--
 function Hunter:Marksmanship()
 	local fd = MaxDps.FrameData;
 	local cooldown, buff, debuff, timeShift, talents, azerite, currentSpell =
@@ -736,6 +974,19 @@ function Hunter:Focus(minus, timeShift)
 	end ;
 	power = power - minus;
 	return power, powerMax, casting;
+end
+
+function Hunter:FocusTimeToMax()
+	local regen = GetPowerRegen();
+	local focusMax = UnitPowerMax('player', Enum.PowerType.Focus);
+	local focus = UnitPower('player', Enum.PowerType.Focus);
+
+	local ttm = (focusMax - focus) / regen;
+	if ttm < 0 then
+		ttm = 0;
+	end
+
+	return ttm;
 end
 
 function Hunter:SurvivalBombId()
