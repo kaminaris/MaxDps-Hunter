@@ -246,7 +246,7 @@ function Hunter:BeastMasteryCleave()
 	end
 
 	-- a_murder_of_crows;
-	if cooldown[BM.AMurderOfCrows].ready and focus >= 30 then
+	if talents[BM.AMurderOfCrows] and cooldown[BM.AMurderOfCrows].ready and focus >= 30 then
 		return BM.AMurderOfCrows;
 	end
 
@@ -317,7 +317,7 @@ function Hunter:BeastMasterySt()
 	end
 
 	-- a_murder_of_crows;
-	if cooldown[BM.AMurderOfCrows].ready and focus >= 30 then
+	if talents[BM.AMurderOfCrows] and cooldown[BM.AMurderOfCrows].ready and focus >= 30 then
 		return BM.AMurderOfCrows;
 	end
 
