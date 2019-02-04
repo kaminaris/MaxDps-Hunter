@@ -8,3 +8,7 @@
 ## X-WoWI-ID: 24642
 
 main.lua
+beastmastery.lua
+survival.lua
+marksmanship.lua
+config.lua
