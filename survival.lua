@@ -49,6 +49,18 @@ local A = {
 
 setmetatable(SV, Hunter.spellMeta);
 
+function Hunter:SurvivalBombId()
+	if MaxDps:FindSpell(SV.PheromoneBomb) then
+		return SV.PheromoneBomb;
+	elseif MaxDps:FindSpell(SV.VolatileBomb) then
+		return SV.VolatileBomb;
+	elseif MaxDps:FindSpell(SV.ShrapnelBomb) then
+		return SV.ShrapnelBomb
+	else
+		return SV.WildfireBomb;
+	end
+end
+
 function Hunter:Survival()
 	local fd = MaxDps.FrameData;
 	local cooldown, buff, debuff, timeShift, talents, azerite, currentSpell =
@@ -94,7 +106,7 @@ function Hunter:SurvivalCleave()
 	local cooldown, buff, debuff, talents, azerite, currentSpell, targets, focus, focusMax, focusRegen, gcd, timeShift =
 	fd.cooldown, fd.buff, fd.debuff, fd.talents, fd.azerite, fd.currentSpell, fd.targets, fd.focus, fd.focusMax, fd.focusRegen, fd.gcd, fd.timeShift;
 
-	local BombSpell = self:SurvivalBombId();
+	local BombSpell = Hunter:SurvivalBombId();
 	local castRegen = focusRegen * timeShift;
 	local focusWithRegen = focus + castRegen;
 	local mongooseBiteCost = 30;
@@ -197,7 +209,7 @@ function Hunter:SurvivalMbApWfiSt()
 	local cooldown, buff, debuff, talents, azerite, currentSpell, targets, focus, focusMax, focusRegen, gcd, timeShift =
 		fd.cooldown, fd.buff, fd.debuff, fd.talents, fd.azerite, fd.currentSpell, fd.targets, fd.focus, fd.focusMax, fd.focusRegen, fd.gcd, fd.timeShift;
 
-	local BombSpell = self:SurvivalBombId();
+	local BombSpell = Hunter:SurvivalBombId();
 	local nextWiBomb = select(7, GetSpellInfo(GetSpellInfo(259495)));
 	local castRegen = focusRegen * timeShift;
 	local focusWithRegen = focus + castRegen;
@@ -415,7 +427,7 @@ function Hunter:SurvivalWfiSt()
 	local cooldown, buff, debuff, talents, azerite, currentSpell, targets, focus, focusMax, focusRegen, gcd, timeShift =
 	fd.cooldown, fd.buff, fd.debuff, fd.talents, fd.azerite, fd.currentSpell, fd.targets, fd.focus, fd.focusMax, fd.focusRegen, fd.gcd, fd.timeShift;
 
-	local BombSpell = self:SurvivalBombId();
+	local BombSpell = Hunter:SurvivalBombId();
 	local nextWiBomb = select(7, GetSpellInfo(GetSpellInfo(259495)));
 	local castRegen = focusRegen * timeShift;
 	local focusWithRegen = focus + castRegen;

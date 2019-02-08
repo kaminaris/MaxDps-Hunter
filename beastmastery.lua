@@ -36,7 +36,6 @@ local BM = {
 
 	-- Target Auras
 	BarbedShotAura   = 217200,
-	--AMurderofCrows = 131894,
 }
 
 local A = {
@@ -60,7 +59,13 @@ local auraMetaTable = {
 
 function Hunter:BeastMastery()
 	local fd = MaxDps.FrameData;
-	local targets = MaxDps:SmartAoe();
+	local targets;
+	if Hunter.db.advancedAoeBM then
+		targets = Hunter:TargetsInPetRange();
+	else
+		targets = MaxDps:SmartAoe();
+	end
+
 	local timeShift = fd.timeShift;
 	local cooldown = fd.cooldown;
 	local talents = fd.talents;
@@ -141,7 +146,7 @@ function Hunter:BeastMasteryCleave()
 	end
 
 	-- a_murder_of_crows;
-	if cooldown[BM.AMurderOfCrows].ready and focus >= 30 then
+	if talents[BM.AMurderOfCrows] and cooldown[BM.AMurderOfCrows].ready then
 		return BM.AMurderOfCrows;
 	end
 
@@ -212,7 +217,7 @@ function Hunter:BeastMasterySt()
 	end
 
 	-- a_murder_of_crows;
-	if cooldown[BM.AMurderOfCrows].ready and focus >= 30 then
+	if talents[BM.AMurderOfCrows] and cooldown[BM.AMurderOfCrows].ready then
 		return BM.AMurderOfCrows;
 	end
 

@@ -1,9 +1,10 @@
 ## Title: MaxDps_Hunter
-## Version: 8.1.1
+## Version: 8.1.3
 ## Author: Kaminaris
 ## Interface: 80100
 ## Dependencies: MaxDps
 ## LoadOnDemand: 1
+## SavedVariables: MaxDpsHunterOptions
 ## X-Curse-Project-ID: 98966
 ## X-WoWI-ID: 24642
 
