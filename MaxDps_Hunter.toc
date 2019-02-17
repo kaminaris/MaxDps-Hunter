@@ -1,5 +1,5 @@
 ## Title: MaxDps_Hunter
-## Version: 8.1.3
+## Version: 8.1.4
 ## Author: Kaminaris
 ## Interface: 80100
 ## Dependencies: MaxDps
@@ -8,8 +8,8 @@
 ## X-Curse-Project-ID: 98966
 ## X-WoWI-ID: 24642
 
-main.lua
-beastmastery.lua
-survival.lua
-marksmanship.lua
-config.lua
+Main.lua
+Specialization\Beastmastery.lua
+Specialization\Survival.lua
+Specialization\Marksmanship.lua
+Config.lua

@@ -90,20 +90,27 @@ function Hunter:FindPetBasicSlot()
 end
 
 -- Requires a pet's basic ability to be on an action bar somewhere.
+local lastWarning;
 function Hunter:TargetsInPetRange()
 	local slot = self:FindPetBasicSlot();
 
 	if slot == nil then
-		MaxDps:Print(MaxDps.Colors.Error .. 'Pet basic ability needs to be on YOUR action bar (Smack, Claw, Bite)');
+		local t = GetTime();
+		if not lastWarning or t - lastWarning > 5 then
+			MaxDps:Print(MaxDps.Colors.Error .. 'At lest one pet basic ability needs to be on YOUR action bar (One of those: Smack, Claw, Bite).');
+			MaxDps:Print(MaxDps.Colors.Error .. 'Read this for more information: goo.gl/ZF6FXt');
+			lastWarning = t;
+		end
 		return 1;
 	end
 
 	local count = 0;
-	for i, unit in ipairs(MaxDps.visibleNameplates) do
+	for _, unit in ipairs(MaxDps.visibleNameplates) do
 		if IsActionInRange(slot, unit) then
 			count = count + 1;
 		end
 	end
 
+	if WeakAuras then WeakAuras.ScanEvents('MAXDPS_TARGET_COUNT', count); end
 	return count;
 end
