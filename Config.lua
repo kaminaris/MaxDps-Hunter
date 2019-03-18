@@ -7,7 +7,9 @@ local MaxDps = MaxDps;
 local Hunter = addonTable.Hunter;
 
 local defaultOptions = {
-	advancedAoeBM = true
+	advancedAoeBM = true,
+	huntersMarkCooldown = false,
+	doubleTapCooldown = false,
 };
 
 function Hunter:GetConfig()
@@ -26,6 +28,24 @@ function Hunter:GetConfig()
 					type   = 'checkbox',
 					label  = 'Advanced AOE detection (need to put pet basic attack on YOUR action bars)',
 					column = 12
+				},
+			},
+			[3] = {
+				beastmastery = {
+					type = 'header',
+					label = 'Marksmanship options'
+				}
+			},
+			[4] = {
+				huntersMarkCooldown = {
+					type   = 'checkbox',
+					label  = 'Hunters Mark as cooldown',
+					column = 6
+				},
+				doubleTapCooldown = {
+					type   = 'checkbox',
+					label  = 'Double Tap as cooldown',
+					column = 6
 				},
 			},
 		},

@@ -44,8 +44,6 @@ setmetatable(MM, Hunter.spellMeta);
 function Hunter:Marksmanship()
 	local fd = MaxDps.FrameData;
 	local cooldown = fd.cooldown;
-	local timeToDie = fd.timeToDie;
-	local talents = fd.talents;
 	local currentSpell = fd.currentSpell;
 	local timeShift = fd.timeShift;
 	local targets = MaxDps:SmartAoe();
@@ -63,21 +61,13 @@ function Hunter:Marksmanship()
 	local focus, focusMax, castRegen = Hunter:Focus(minus);
 	castRegen = castRegen * timeShift;
 
+	local canAimed = cooldown[MM.AimedShot].charges >= 2 or (cooldown[MM.AimedShot].ready and currentSpell ~= MM.AimedShot);
+	fd.canAimed = canAimed;
 	fd.focus = focus;
 	fd.focusMax = focusMax;
 	fd.castRegen = castRegen;
 	fd.targetHp = targetHp;
 	fd.targets = targets;
-
-	-- trueshot,if=cooldown.rapid_fire.remains&target.time_to_die>cooldown.trueshot.duration_guess+duration|(target.health.pct<20|!talent.careful_aim.enabled)|target.time_to_die<15;
-	MaxDps:GlowCooldown(
-		MM.Trueshot,
-		cooldown[MM.Trueshot].ready and (
-			not cooldown[MM.RapidFire].up and timeToDie > cooldown[MM.Trueshot].duration + cooldown[MM.Trueshot].duration or
-			(targetHp < 20 or not talents[MM.CarefulAim]) or
-			timeToDie < 15
-		)
-	);
 
 	-- call_action_list,name=cds;
 	local result = Hunter:MarksmanshipCds();
@@ -99,15 +89,38 @@ function Hunter:MarksmanshipCds()
 	local talents = fd.talents;
 	local gcd = fd.gcd;
 	local timeToDie = fd.timeToDie;
+	local targetHp = fd.targetHp;
+
+	-- trueshot,if=cooldown.rapid_fire.remains&target.time_to_die>cooldown.trueshot.duration_guess+duration|(target.health.pct<20|!talent.careful_aim.enabled)|target.time_to_die<15;
+	MaxDps:GlowCooldown(
+		MM.Trueshot,
+		cooldown[MM.Trueshot].ready and (
+			not cooldown[MM.RapidFire].up and timeToDie > cooldown[MM.Trueshot].duration + cooldown[MM.Trueshot].duration or
+			(targetHp < 20 or not talents[MM.CarefulAim]) or
+			timeToDie < 15
+		)
+	);
+
+	if Hunter.db.doubleTapCooldown then
+		MaxDps:GlowCooldown(MM.HuntersMark, cooldown[MM.DoubleTap].ready and (cooldown[MM.RapidFire].remains < gcd or timeToDie < 20));
+	end
 
 	-- hunters_mark,if=debuff.hunters_mark.down;
-	if talents[MM.HuntersMark] and not debuff[MM.HuntersMark].up then
-		return MM.HuntersMark;
+	if Hunter.db.huntersMarkCooldown then
+		MaxDps:GlowCooldown(MM.HuntersMark, not debuff[MM.HuntersMark].up);
+	end
+
+	if not Hunter.db.huntersMarkCooldown then
+		if talents[MM.HuntersMark] and not debuff[MM.HuntersMark].up then
+			return MM.HuntersMark;
+		end
 	end
 
 	-- double_tap,if=cooldown.rapid_fire.remains<gcd.max|target.time_to_die<20;
-	if talents[MM.DoubleTap] and cooldown[MM.DoubleTap].ready and (cooldown[MM.RapidFire].remains < gcd or timeToDie < 20) then
-		return MM.DoubleTap;
+	if not Hunter.db.doubleTapCooldown then
+		if talents[MM.DoubleTap] and cooldown[MM.DoubleTap].ready and (cooldown[MM.RapidFire].remains < gcd or timeToDie < 20) then
+			return MM.DoubleTap;
+		end
 	end
 end
 
@@ -128,6 +141,7 @@ function Hunter:MarksmanshipSt()
 	local focusMax = fd.focusMax;
 
 	local caExecute = targetHp < 20 or targetHp > 80;
+	local canAimed = fd.canAimed;
 
 	-- explosive_shot;
 	if talents[MM.ExplosiveShot] and cooldown[MM.ExplosiveShot].ready and focus >= 20 then
@@ -161,11 +175,11 @@ function Hunter:MarksmanshipSt()
 	end
 
 	-- aimed_shot,if=(!buff.double_tap.up|ca_execute|(!azerite.focused_fire.enabled&!azerite.surging_shots.enabled&!talent.streamline.enabled))&buff.precise_shots.down|cooldown.aimed_shot.full_recharge_time<action.aimed_shot.cast_time|buff.trueshot.up;
-	if focus >= 30 and currentSpell ~= MM.AimedShot and cooldown[MM.AimedShot].ready and (
+	if focus >= 30 and canAimed and (
 		(
 			not buff[MM.DoubleTap].up or
 			caExecute or
-			(not azerite[MM.FocusedFire] > 0 and azerite[MM.SurgingShots] == 0 and not talents[MM.Streamline])
+			(azerite[MM.FocusedFire] == 0 and azerite[MM.SurgingShots] == 0 and not talents[MM.Streamline])
 		) and not buff[MM.PreciseShotsAura].up or
 		cooldown[MM.AimedShot].fullRecharge < 2 or
 		buff[MM.Trueshot].up
@@ -191,7 +205,7 @@ function Hunter:MarksmanshipSt()
 
 	-- arcane_shot,if=focus>75|(buff.precise_shots.up|focus>45&cooldown.trueshot.remains&target.time_to_die<25)&buff.trueshot.down|target.time_to_die<5;
 	if focus >= 15 and (
-		focus > 65 or
+		focus > 60 or
 		(
 			buff[MM.PreciseShotsAura].up or
 			focus > 45 and not cooldown[MM.Trueshot].ready and timeToDie < 25
@@ -213,8 +227,13 @@ function Hunter:MarksmanshipTrickshots()
 	local debuff = fd.debuff;
 	local currentSpell = fd.currentSpell;
 	local talents = fd.talents;
-	local timeShift = fd.timeShift;
 	local focus = fd.focus;
+	local canAimed = fd.canAimed;
+
+	local trickShots = buff[MM.TrickShots].up;
+	if currentSpell == MM.RapidFire or currentSpell == MM.AimedShot then
+		trickShots = false;
+	end
 
 	-- barrage;
 	if talents[MM.Barrage] and cooldown[MM.Barrage].ready and focus >= 30 then
@@ -227,8 +246,7 @@ function Hunter:MarksmanshipTrickshots()
 	end
 
 	-- rapid_fire,if=buff.trick_shots.up&(azerite.focused_fire.enabled|azerite.in_the_rhythm.rank>1|azerite.surging_shots.enabled|talent.streamline.enabled);
-	if cooldown[MM.RapidFire].ready and
-		buff[MM.TrickShots].up and
+	if cooldown[MM.RapidFire].ready and trickShots and
 		(
 			azerite[MM.FocusedFire] > 0 or
 			azerite[MM.InTheRhythm] > 1 or
@@ -240,20 +258,20 @@ function Hunter:MarksmanshipTrickshots()
 	end
 
 	-- aimed_shot,if=buff.trick_shots.up&(buff.precise_shots.down|cooldown.aimed_shot.full_recharge_time<action.aimed_shot.cast_time);
-	if focus >= 30 and currentSpell ~= MM.AimedShot and cooldown[MM.AimedShot].ready and buff[MM.TrickShots].up and
+	if focus >= 30 and canAimed and trickShots and
 		(not buff[MM.PreciseShotsAura].up or cooldown[MM.AimedShot].fullRecharge < 2)
 	then
 		return MM.AimedShot;
 	end
 
 	-- rapid_fire,if=buff.trick_shots.up;
-	if cooldown[MM.RapidFire].ready and buff[MM.TrickShots].up then
+	if cooldown[MM.RapidFire].ready and trickShots then
 		return MM.RapidFire;
 	end
 
 	-- multishot,if=buff.trick_shots.down|buff.precise_shots.up|focus>70;
 	if focus >= 15 and (
-		not buff[MM.TrickShots].up or
+		not trickShots or
 		buff[MM.PreciseShotsAura].up or
 		focus > 70
 	) then

@@ -1,5 +1,5 @@
 ## Title: MaxDps_Hunter
-## Version: 8.1.4
+## Version: 8.1.5
 ## Author: Kaminaris
 ## Interface: 80100
 ## Dependencies: MaxDps
