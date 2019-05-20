@@ -30,16 +30,18 @@ local _PetBasics = {
 }
 
 function Hunter:Enable()
-	MaxDps:Print(MaxDps.Colors.Info .. 'Hunter [Beast Mastery, Marksmanship, Survival]');
 	Hunter:InitializeDatabase();
 	Hunter:CreateConfig();
 
 	if MaxDps.Spec == 1 then
 		MaxDps.NextSpell = Hunter.BeastMastery;
+		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Beast Mastery');
 	elseif MaxDps.Spec == 2 then
 		MaxDps.NextSpell = Hunter.Marksmanship;
+		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Marksmanship');
 	elseif MaxDps.Spec == 3 then
 		MaxDps.NextSpell = Hunter.Survival;
+		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Survival');
 	end ;
 
 	return true;

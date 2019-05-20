@@ -141,7 +141,7 @@ function Hunter:BeastMasteryCleave()
 	end
 
 	-- chimaera_shot;
-	if cooldown[BM.ChimaeraShot].ready then
+	if talents[BM.ChimaeraShot] and cooldown[BM.ChimaeraShot].ready then
 		return BM.ChimaeraShot;
 	end
 
@@ -233,7 +233,7 @@ function Hunter:BeastMasterySt()
 	end
 
 	-- chimaera_shot;
-	if cooldown[BM.ChimaeraShot].ready then
+	if talents[BM.ChimaeraShot] and cooldown[BM.ChimaeraShot].ready then
 		return BM.ChimaeraShot;
 	end
 
