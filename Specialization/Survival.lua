@@ -93,6 +93,8 @@ end
 function Hunter:Cds()
 	local cooldown = MaxDps.FrameData.cooldown;
 
+	MaxDps:GlowEssences();
+
 	MaxDps:GlowCooldown(SV.CoordinatedAssault, cooldown[SV.CoordinatedAssault].ready);
 
 	MaxDps:GlowCooldown(

@@ -91,6 +91,8 @@ function Hunter:MarksmanshipCds()
 	local timeToDie = fd.timeToDie;
 	local targetHp = fd.targetHp;
 
+	MaxDps:GlowEssences();
+
 	-- trueshot,if=cooldown.rapid_fire.remains&target.time_to_die>cooldown.trueshot.duration_guess+duration|(target.health.pct<20|!talent.careful_aim.enabled)|target.time_to_die<15;
 	MaxDps:GlowCooldown(
 		MM.Trueshot,

@@ -83,6 +83,7 @@ function Hunter:BeastMastery()
 	fd.focus = focus;
 	fd.focusRegen = focusRegen;
 
+	MaxDps:GlowEssences();
 	MaxDps:GlowCooldown(BM.AspectOfTheWild, cooldown[BM.AspectOfTheWild].ready);
 
 	-- stampede,if=buff.aspect_of_the_wild.up&buff.bestial_wrath.up|target.time_to_die<15;
