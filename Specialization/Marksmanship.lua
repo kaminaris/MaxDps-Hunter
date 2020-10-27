@@ -175,7 +175,7 @@ function Hunter:MarksmanshipSt()
 	-- arcane_shot,if=buff.master_marksman.up&buff.trueshot.up&focus+cast_regen<focus.max;
 	if focus >= 15 and (buff[MM.MasterMarksman].up and buff[MM.Trueshot].up and focus + castRegen < focusMax) then
 		if talents[MM.ChimaeraShot] then
-			return MM.ChimaeraShot
+			return MM.ChimaeraShot;
 		end
 		return MM.ArcaneShot;
 	end
@@ -219,7 +219,7 @@ function Hunter:MarksmanshipSt()
 		timeToDie < 5
 	) then
 		if talents[MM.ChimaeraShot] then
-			return MM.ChimaeraShot
+			return MM.ChimaeraShot;
 		end
 		return MM.ArcaneShot;
 	end
