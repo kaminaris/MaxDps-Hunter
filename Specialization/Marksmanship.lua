@@ -24,6 +24,7 @@ local MM = {
 	AMurderOfCrows   = 131894,
 	SerpentSting     = 271788,
 	ArcaneShot       = 185358,
+	ChimaeraShot     = 53209,
 	MasterMarksman   = 269576,
 	Streamline       = 260367,
 	PreciseShots     = 260240,
@@ -173,6 +174,9 @@ function Hunter:MarksmanshipSt()
 
 	-- arcane_shot,if=buff.master_marksman.up&buff.trueshot.up&focus+cast_regen<focus.max;
 	if focus >= 15 and (buff[MM.MasterMarksman].up and buff[MM.Trueshot].up and focus + castRegen < focusMax) then
+		if talents[MM.ChimaeraShot] then
+			return MM.ChimaeraShot
+		end
 		return MM.ArcaneShot;
 	end
 
@@ -214,6 +218,9 @@ function Hunter:MarksmanshipSt()
 		) and not buff[MM.Trueshot].up or
 		timeToDie < 5
 	) then
+		if talents[MM.ChimaeraShot] then
+			return MM.ChimaeraShot
+		end
 		return MM.ArcaneShot;
 	end
 
