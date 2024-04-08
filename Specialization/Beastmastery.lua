@@ -1,294 +1,374 @@
-local _, addonTable = ...;
-
---- @type MaxDps
+local _, addonTable = ...
+local Hunter = addonTable.Hunter
+local MaxDps = _G.MaxDps
 if not MaxDps then return end
-local MaxDps = MaxDps;
-local Hunter = addonTable.Hunter;
 
-local BM = {
-	AMurderOfCrows = 131894,
-	AspectOfTheWild = 193530,
-	BarbedShot = 217200,
-	Barrage = 120360,
-	BestialWrath = 19574,
-	Bloodshed = 321530,
-	CallOfTheWild = 359844,
-	CobraShot = 193455,
-	DeathChakram = 375891,
-	DireBeast = 120679,
-	ExplosiveShot = 212431,
-	Flare = 1543,
-	FreezingTrap = 187650,
-	KillCommand = 34026,
-	KillShot = 53351,
-	Multishot = 2643,
-	ScentOfBlood = 193532,
-	SerpentSting = 271788,
-	Stampede = 201430,
-	SteelTrap = 162488,
-	TarTrap = 187698,
-	WailingArrow = 392060,
-	Frenzy = 272790,
-	BeastCleave = 115939,
-	BeastCleaveBuff = 118455
-}
+local UnitPower = UnitPower
+local UnitHealth = UnitHealth
+local UnitAura = UnitAura
+local GetSpellDescription = GetSpellDescription
+local UnitHealthMax = UnitHealthMax
+local UnitPowerMax = UnitPowerMax
+local SpellHaste
+local SpellCrit
 
-setmetatable(BM, Hunter.spellMeta);
+local ManaPT = Enum.PowerType.Mana
+local RagePT = Enum.PowerType.Rage
+local FocusPT = Enum.PowerType.Focus
+local EnergyPT = Enum.PowerType.Energy
+local ComboPointsPT = Enum.PowerType.ComboPoints
+local RunesPT = Enum.PowerType.Runes
+local RunicPowerPT = Enum.PowerType.RunicPower
+local SoulShardsPT = Enum.PowerType.SoulShards
+local LunarPowerPT = Enum.PowerType.LunarPower
+local HolyPowerPT = Enum.PowerType.HolyPower
+local MaelstromPT = Enum.PowerType.Maelstrom
+local ChiPT = Enum.PowerType.Chi
+local InsanityPT = Enum.PowerType.Insanity
+local ArcaneChargesPT = Enum.PowerType.ArcaneCharges
+local FuryPT = Enum.PowerType.Fury
+local PainPT = Enum.PowerType.Pain
+local EssencePT = Enum.PowerType.Essence
+local RuneBloodPT = Enum.PowerType.RuneBlood
+local RuneFrostPT = Enum.PowerType.RuneFrost
+local RuneUnholyPT = Enum.PowerType.RuneUnholy
 
-local auraMetaTable = {
-	__index = function()
-		return {
-			up          = false,
-			count       = 0,
-			remains     = 0,
-			duration    = 0,
-			refreshable = true,
-		};
-	end
-};
+local fd
+local ttd
+local gcd
+local cooldown
+local buff
+local debuff
+local talents
+local targets
+local targetHP
+local targetmaxHP
+local targethealthPerc
+local curentHP
+local maxHP
+local healthPerc
+local timeInCombat
+local className, classFilename, classId = UnitClass('player')
+local currentSpec = GetSpecialization()
+local currentSpecName = currentSpec and select(2, GetSpecializationInfo(currentSpec)) or 'None'
+local classtable
 
-local function getSpellCost(spellId, defaultCost)
-	local cost = GetSpellPowerCost(spellId);
-	if cost ~= nil then
-		return cost[1].cost;
-	end
+local Focus
+local FocusMax
+local FocusDeficit
 
-	return defaultCost
+local Beast_mastery = {}
+
+local trinket_1_stronger
+local trinket_2_stronger
+local cotw_ready
+local sync_ready
+local sync_active
+local sync_remains
+
+local function CheckSpellCosts(spell,spellstring)
+    if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if spellstring == 'TouchofDeath' then
+        if targethealthPerc < 15 then
+            return true
+        else
+            return false
+        end
+    end
+    if spellstring == 'KillShot' then
+        if targethealthPerc < 20 then
+            return true
+        else
+            return false
+        end
+    end
+    local costs = GetSpellPowerCost(spell)
+    if type(costs) ~= 'table' and spellstring then print('no cost found for ',spellstring) return true end
+    for i,costtable in pairs(costs) do
+        if UnitPower('player', costtable.type) < costtable.cost then
+            return false
+        end
+    end
+    return true
+end
+
+
+
+local function CheckEquipped(checkName)
+    for i=1,14 do
+        local itemID = GetInventoryItemID('player', i)
+        local itemName = itemID and C_Item.GetItemInfo(itemID) or ''
+        if checkName == itemName then
+            return true
+        end
+    end
+    return false
+end
+
+
+
+
+local function CheckTrinketNames(checkName)
+    --if slot == 1 then
+    --    slot = 13
+    --end
+    --if slot == 2 then
+    --    slot = 14
+    --end
+    for i=13,14 do
+        local itemID = GetInventoryItemID('player', i)
+        local itemName = C_Item.GetItemInfo(itemID)
+        if checkName == itemName then
+            return true
+        end
+    end
+    return false
+end
+
+
+local function CheckTrinketCooldown(slot)
+    if slot == 1 then
+        slot = 13
+    end
+    if slot == 2 then
+        slot = 14
+    end
+    if slot == 13 or slot == 14 then
+        local itemID = GetInventoryItemID('player', slot)
+        local _, duration, _ = C_Item.GetItemCooldown(itemID)
+        if duration == 0 then return true else return false end
+    else
+        local tOneitemID = GetInventoryItemID('player', 13)
+        local tTwoitemID = GetInventoryItemID('player', 14)
+        local tOneitemName = C_Item.GetItemInfo(tOneitemID)
+        local tTwoitemName = C_Item.GetItemInfo(tTwoitemID)
+        if tOneitemName == slot then
+            local _, duration, _ = C_Item.GetItemCooldown(tOneitemID)
+            if duration == 0 then return true else return false end
+        end
+        if tTwoitemName == slot then
+            local _, duration, _ = C_Item.GetItemCooldown(tTwoitemID)
+            if duration == 0 then return true else return false end
+        end
+    end
+end
+
+
+function Beast_mastery:precombat()
+    --if (MaxDps:FindSpell(classtable.Flask) and CheckSpellCosts(classtable.Flask, 'Flask')) and cooldown[classtable.Flask].ready then
+    --    return classtable.Flask
+    --end
+    --if (MaxDps:FindSpell(classtable.Augmentation) and CheckSpellCosts(classtable.Augmentation, 'Augmentation')) and cooldown[classtable.Augmentation].ready then
+    --    return classtable.Augmentation
+    --end
+    --if (MaxDps:FindSpell(classtable.Food) and CheckSpellCosts(classtable.Food, 'Food')) and cooldown[classtable.Food].ready then
+    --    return classtable.Food
+    --end
+    --if (MaxDps:FindSpell(classtable.SummonPet) and CheckSpellCosts(classtable.SummonPet, 'SummonPet')) and cooldown[classtable.SummonPet].ready then
+    --    return classtable.SummonPet
+    --end
+    --if (MaxDps:FindSpell(classtable.SnapshotStats) and CheckSpellCosts(classtable.SnapshotStats, 'SnapshotStats')) and cooldown[classtable.SnapshotStats].ready then
+    --    return classtable.SnapshotStats
+    --end
+    --trinket_1_stronger = not trinket.2.has_cooldown or trinket.1.has_use_buff and ( not trinket.2.has_use_buff or not CheckTrinketNames('Mirror of Fractured Tomorrows') and ( CheckTrinketNames('Mirror of Fractured Tomorrows') or trinket.2.cooldown.duration <trinket.1.cooldown.duration or trinket.2.cast_time <trinket.1.cast_time or trinket.2.cast_time == trinket.1.cast_time and trinket.2.cooldown.duration == trinket.1.cooldown.duration ) ) or not trinket.1.has_use_buff and ( not trinket.2.has_use_buff and ( trinket.2.cooldown.duration <trinket.1.cooldown.duration or trinket.2.cast_time <trinket.1.cast_time or trinket.2.cast_time == trinket.1.cast_time and trinket.2.cooldown.duration == trinket.1.cooldown.duration ) )
+    --trinket_2_stronger = not trinket_1_stronger
+    --if (MaxDps:FindSpell(classtable.SteelTrap) and CheckSpellCosts(classtable.SteelTrap, 'SteelTrap')) and (not talents[classtable.WailingArrow] and talents[classtable.SteelTrap]) and cooldown[classtable.SteelTrap].ready then
+    --    return classtable.SteelTrap
+    --end
+end
+function Beast_mastery:cds()
+    --if (MaxDps:FindSpell(classtable.Potion) and CheckSpellCosts(classtable.Potion, 'Potion')) and (buff[classtable.CalloftheWildBuff].up or not talents[classtable.CalloftheWild] and buff[classtable.BestialWrathBuff].up or ttd <31) and cooldown[classtable.Potion].ready then
+    --    return classtable.Potion
+    --end
+end
+function Beast_mastery:cleave()
+    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (debuff[classtable.LatentPoisonDeBuff].count >9 and ( (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') ~= nil ) and (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) <= gcd + 0.25 or talents[classtable.ScentofBlood] and cooldown[classtable.BestialWrath].remains <12 + gcd or (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').applications or 0 ) <3 and ( cooldown[classtable.BestialWrath].ready or cooldown[classtable.CalloftheWild].ready ) )) and cooldown[classtable.BarbedShot].ready then
+        return classtable.BarbedShot
+    end
+    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and ((C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') ~= nil ) and (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) <= gcd + 0.25 or talents[classtable.ScentofBlood] and cooldown[classtable.BestialWrath].remains <12 + gcd or (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').applications or 0 ) <3 and ( cooldown[classtable.BestialWrath].ready or cooldown[classtable.CalloftheWild].ready ) ) and cooldown[classtable.BarbedShot].ready then
+        return classtable.BarbedShot
+    end
+    if (MaxDps:FindSpell(classtable.Multishot) and CheckSpellCosts(classtable.Multishot, 'Multishot')) and ((C_UnitAuras.GetAuraDataBySpellName('Beast Cleave', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Beast Cleave', 'pet', 'HELPFUL').expirationTime or 0 ) <0.25 + gcd and ( not talents[classtable.BloodyFrenzy] or cooldown[classtable.CalloftheWild].remains )) and cooldown[classtable.Multishot].ready then
+        return classtable.Multishot
+    end
+    if (MaxDps:FindSpell(classtable.BestialWrath) and CheckSpellCosts(classtable.BestialWrath, 'BestialWrath')) and cooldown[classtable.BestialWrath].ready then
+        return classtable.BestialWrath
+    end
+    if (MaxDps:FindSpell(classtable.CalloftheWild) and CheckSpellCosts(classtable.CalloftheWild, 'CalloftheWild')) and (cotw_ready) and cooldown[classtable.CalloftheWild].ready then
+        return classtable.CalloftheWild
+    end
+    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (talents[classtable.KillCleave]) and cooldown[classtable.KillCommand].ready then
+        return classtable.KillCommand
+    end
+    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
+        return classtable.ExplosiveShot
+    end
+    if (MaxDps:FindSpell(classtable.Stampede) and CheckSpellCosts(classtable.Stampede, 'Stampede')) and cooldown[classtable.Stampede].ready then
+        return classtable.Stampede
+    end
+    if (MaxDps:FindSpell(classtable.Bloodshed) and CheckSpellCosts(classtable.Bloodshed, 'Bloodshed')) and cooldown[classtable.Bloodshed].ready then
+        return classtable.Bloodshed
+    end
+    if (MaxDps:FindSpell(classtable.DeathChakram) and CheckSpellCosts(classtable.DeathChakram, 'DeathChakram')) and cooldown[classtable.DeathChakram].ready then
+        return classtable.DeathChakram
+    end
+    if (MaxDps:FindSpell(classtable.SteelTrap) and CheckSpellCosts(classtable.SteelTrap, 'SteelTrap')) and cooldown[classtable.SteelTrap].ready then
+        return classtable.SteelTrap
+    end
+    if (MaxDps:FindSpell(classtable.AMurderofCrows) and CheckSpellCosts(classtable.AMurderofCrows, 'AMurderofCrows')) and cooldown[classtable.AMurderofCrows].ready then
+        return classtable.AMurderofCrows
+    end
+    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (debuff[classtable.LatentPoisonDeBuff].count >9 and ( buff[classtable.CalloftheWildBuff].up or ttd <9 or talents[classtable.WildCall] and cooldown[classtable.BarbedShot].charges >1.2 or talents[classtable.Savagery] )) and cooldown[classtable.BarbedShot].ready then
+        return classtable.BarbedShot
+    end
+    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (buff[classtable.CalloftheWildBuff].up or ttd <9 or talents[classtable.WildCall] and cooldown[classtable.BarbedShot].charges >1.2 or talents[classtable.Savagery]) and cooldown[classtable.BarbedShot].ready then
+        return classtable.BarbedShot
+    end
+    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
+        return classtable.KillCommand
+    end
+    if (MaxDps:FindSpell(classtable.DireBeast) and CheckSpellCosts(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
+        return classtable.DireBeast
+    end
+    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and ttd >( select(4,GetSpellInfo(classtable.SerpentSting)) /1000 )) and cooldown[classtable.SerpentSting].ready then
+        return classtable.SerpentSting
+    end
+    if (MaxDps:FindSpell(classtable.Barrage) and CheckSpellCosts(classtable.Barrage, 'Barrage')) and ((C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) >MaxDps:GetTimeToPct(30)) and cooldown[classtable.Barrage].ready then
+        return classtable.Barrage
+    end
+    if (MaxDps:FindSpell(classtable.Multishot) and CheckSpellCosts(classtable.Multishot, 'Multishot')) and ((C_UnitAuras.GetAuraDataBySpellName('Beast Cleave', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Beast Cleave', 'pet', 'HELPFUL').expirationTime or 0 ) <gcd * 2) and cooldown[classtable.Multishot].ready then
+        return classtable.Multishot
+    end
+    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
+        return classtable.KillShot
+    end
+    if (MaxDps:FindSpell(classtable.CobraShot) and CheckSpellCosts(classtable.CobraShot, 'CobraShot')) and (FocusTimeToMax <gcd * 2) and cooldown[classtable.CobraShot].ready then
+        return classtable.CobraShot
+    end
+    if (MaxDps:FindSpell(classtable.WailingArrow) and CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and ((C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) >MaxDps:GetTimeToPct(30) or ttd <5) and cooldown[classtable.WailingArrow].ready then
+        return classtable.WailingArrow
+    end
+end
+function Beast_mastery:st()
+    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and ((C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') ~= nil ) and (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) <= gcd + 0.25 or talents[classtable.ScentofBlood] and (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').applications or 0 ) <3 and ( cooldown[classtable.BestialWrath].ready or cooldown[classtable.CalloftheWild].ready )) and cooldown[classtable.BarbedShot].ready then
+        return classtable.BarbedShot
+    end
+    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (not talents[classtable.WildInstincts] and talents[classtable.AlphaPredator]) and cooldown[classtable.KillCommand].ready then
+        return classtable.KillCommand
+    end
+    if (MaxDps:FindSpell(classtable.CalloftheWild) and CheckSpellCosts(classtable.CalloftheWild, 'CalloftheWild')) and (not talents[classtable.WildInstincts] and cotw_ready) and cooldown[classtable.CalloftheWild].ready then
+        return classtable.CalloftheWild
+    end
+    if (MaxDps:FindSpell(classtable.Stampede) and CheckSpellCosts(classtable.Stampede, 'Stampede')) and cooldown[classtable.Stampede].ready then
+        return classtable.Stampede
+    end
+    if (MaxDps:FindSpell(classtable.Bloodshed) and CheckSpellCosts(classtable.Bloodshed, 'Bloodshed')) and cooldown[classtable.Bloodshed].ready then
+        return classtable.Bloodshed
+    end
+    if (MaxDps:FindSpell(classtable.BestialWrath) and CheckSpellCosts(classtable.BestialWrath, 'BestialWrath')) and cooldown[classtable.BestialWrath].ready then
+        return classtable.BestialWrath
+    end
+    if (MaxDps:FindSpell(classtable.DeathChakram) and CheckSpellCosts(classtable.DeathChakram, 'DeathChakram')) and cooldown[classtable.DeathChakram].ready then
+        return classtable.DeathChakram
+    end
+    if (MaxDps:FindSpell(classtable.CalloftheWild) and CheckSpellCosts(classtable.CalloftheWild, 'CalloftheWild')) and (cotw_ready) and cooldown[classtable.CalloftheWild].ready then
+        return classtable.CalloftheWild
+    end
+    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
+        return classtable.KillCommand
+    end
+    if (MaxDps:FindSpell(classtable.AMurderofCrows) and CheckSpellCosts(classtable.AMurderofCrows, 'AMurderofCrows')) and cooldown[classtable.AMurderofCrows].ready then
+        return classtable.AMurderofCrows
+    end
+    if (MaxDps:FindSpell(classtable.SteelTrap) and CheckSpellCosts(classtable.SteelTrap, 'SteelTrap')) and cooldown[classtable.SteelTrap].ready then
+        return classtable.SteelTrap
+    end
+    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
+        return classtable.ExplosiveShot
+    end
+    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (talents[classtable.WildCall] and cooldown[classtable.BarbedShot].charges >1.4 or buff[classtable.CalloftheWildBuff].up or talents[classtable.ScentofBlood] and ( cooldown[classtable.BestialWrath].remains <12 + gcd ) or talents[classtable.Savagery] or ttd <9) and cooldown[classtable.BarbedShot].ready then
+        return classtable.BarbedShot
+    end
+    if (MaxDps:FindSpell(classtable.DireBeast) and CheckSpellCosts(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
+        return classtable.DireBeast
+    end
+    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and ttd >( select(4,GetSpellInfo(classtable.SerpentSting)) /1000 )) and cooldown[classtable.SerpentSting].ready then
+        return classtable.SerpentSting
+    end
+    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
+        return classtable.KillShot
+    end
+    if (MaxDps:FindSpell(classtable.CobraShot) and CheckSpellCosts(classtable.CobraShot, 'CobraShot')) and cooldown[classtable.CobraShot].ready then
+        return classtable.CobraShot
+    end
+    if (MaxDps:FindSpell(classtable.WailingArrow) and CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and ((C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) >MaxDps:GetTimeToPct(30) or ttd <5) and cooldown[classtable.WailingArrow].ready then
+        return classtable.WailingArrow
+    end
+    if (MaxDps:FindSpell(classtable.ArcanePulse) and CheckSpellCosts(classtable.ArcanePulse, 'ArcanePulse')) and (not buff[classtable.BestialWrathBuff].up or ttd <5) and cooldown[classtable.ArcanePulse].ready then
+        return classtable.ArcanePulse
+    end
+end
+local function trinkets()
 end
 
 function Hunter:BeastMastery()
-	local fd = MaxDps.FrameData
-	fd.targets = MaxDps:SmartAoe()
-	fd.castRegen = UnitPower('player', Enum.PowerType.CastRegen)
-	local focus, focusMax, focusRegen = Hunter:Focus(0, fd.timeShift);
-	fd.focus = focus
-	fd.focusMax = focusMax
-	fd.focusRegen = focusRegen
-	fd.targetHp = MaxDps:TargetPercentHealth();
-	local focusTimeToMax = Hunter:FocusTimeToMax();
-	fd.focusTimeToMax = focusTimeToMax;
-	local cooldown = fd.cooldown
-	local talents = fd.talents
+    fd = MaxDps.FrameData
+    ttd = (fd.timeToDie and fd.timeToDie) or 500
+    gcd = fd.gcd
+    cooldown = fd.cooldown
+    buff = fd.buff
+    debuff = fd.debuff
+    talents = fd.talents
+    targets = MaxDps:SmartAoe()
+    Mana = UnitPower('player', ManaPT)
+    ManaMax = UnitPowerMax('player', ManaPT)
+    ManaDeficit = ManaMax - Mana
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP / targetmaxHP) * 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
+    timeInCombat = MaxDps.combatTime or 0
+    classtable = MaxDps.SpellTable
+    SpellHaste = UnitSpellHaste('target')
+    SpellCrit = GetCritChance()
+    Focus = UnitPower('player', FocusPT)
+    FocusMax = UnitPowerMax('player', FocusPT)
+    FocusDeficit = FocusMax - Focus
+    Focus = UnitPower('player', FocusPT)
+    FocusMax = UnitPowerMax('player', FocusPT)
+    FocusDeficit = FocusMax - Focus
+    FocusRegen = GetPowerRegenForPowerType(Enum.PowerType.Focus)
+    FocusTimeToMax = FocusDeficit / FocusRegen
+    FocusPerc = (Focus / FocusMax) * 100
+    classtable.CalloftheWildBuff = 361582
+    classtable.BestialWrathBuff = 19574
+    classtable.LatentPoisonDeBuff = 273283
 
-	if not fd.pet then
-		fd.pet = {};
-		setmetatable(fd.pet, auraMetaTable);
-	end
-	MaxDps:CollectAura('pet', fd.timeShift, fd.pet);
+    cotw_ready = true --targets <2 and ( ( not trinket.1.has_use_buff or CheckTrinketCooldown('1') >30 or trinket.1.cooldown.ready or CheckTrinketCooldown('1') + cooldown[classtable.CalloftheWild].duration + 15 >ttd ) and ( not trinket.2.has_use_buff or CheckTrinketCooldown('2') >30 or trinket.2.cooldown.ready or CheckTrinketCooldown('2') + cooldown[classtable.CalloftheWild].duration + 15 >ttd ) or ttd <cooldown[classtable.CalloftheWild].duration + 20 ) or targets >1 and ( not targets >1 and ( TODO + TODO <25 or TODO ) or targets >1 and TODO ) or ttd <25
+    if (MaxDps:FindSpell(classtable.AutoShot) and CheckSpellCosts(classtable.AutoShot, 'AutoShot')) and cooldown[classtable.AutoShot].ready then
+        return classtable.AutoShot
+    end
+    local cdsCheck = Beast_mastery:cds()
+    if cdsCheck then
+        return cdsCheck
+    end
+    --local trinketsCheck = Beast_mastery:trinkets()
+    --if trinketsCheck then
+    --    return trinketsCheck
+    --end
+    if (targets <2 or not talents[classtable.BeastCleave] and targets <3) then
+        local stCheck = Beast_mastery:st()
+        if stCheck then
+            return Beast_mastery:st()
+        end
+    end
+    if (targets >2 or talents[classtable.BeastCleave] and targets >1) then
+        local cleaveCheck = Beast_mastery:cleave()
+        if cleaveCheck then
+            return Beast_mastery:cleave()
+        end
+    end
 
-	MaxDps:GlowCooldown(BM.AspectOfTheWild, talents[BM.AspectOfTheWild] and cooldown[BM.AspectOfTheWild].ready);
-
-	-- call_action_list,name=st,if=active_enemies<2
-	if fd.targets < 2 then
-		return Hunter:BeastMasterySt()
-	end
-
-	return Hunter:BeastMasteryCleave()
-end
-
-function Hunter:BeastMasteryCleave()
-	local fd = MaxDps.FrameData
-	local pet = fd.pet
-	local cooldown = fd.cooldown
-	local buff = fd.buff
-	local debuff = fd.debuff
-	local talents = fd.talents
-	local timeShift = fd.timeShift
-	local gcd = fd.gcd
-	local timeToDie = fd.timeToDie
-	local focus = fd.focus
-	local castRegen = fd.castRegen
-	local focusMax = fd.focusMax
-	local targetHp = fd.targetHp
-	local focusTimeToMax = fd.focusTimeToMax
-
-	local killCommandCost = getSpellCost(BM.KillCommand, 30)
-	local multiShotCost = getSpellCost(BM.Multishot, 40)
-
-	-- aspect_of_the_wild,if=!raid_event.adds.exists|raid_event.adds.remains>=10|active_enemies>=raid_event.adds.count*2
-	if talents[BM.AspectOfTheWild] and cooldown[BM.AspectOfTheWild].ready then
-		return BM.AspectOfTheWild
-	end
-
-	-- call_of_the_wild
-	if talents[BM.CallOfTheWild] and cooldown[BM.CallOfTheWild].ready then
-		return BM.CallOfTheWild
-	end
-
-	-- multishot,if=gcd-pet.main.buff.beast_cleave.remains>0.25
-	if talents[BM.BeastCleave] and talents[BM.Multishot] and (gcd - pet[BM.BeastCleaveBuff].remains > 0.25) then
-		return BM.Multishot
-	end
-
-	-- explosive_shot
-	if talents[BM.ExplosiveShot] and cooldown[BM.ExplosiveShot].ready then
-		return BM.ExplosiveShot
-	end
-
-	-- steel_trap
-	if talents[BM.SteelTrap] and cooldown[BM.SteelTrap].ready then
-		return BM.SteelTrap
-	end
-
-	-- death_chakram,if=focus+cast_regen<focus.max
-	if talents[BM.DeathChakram] and cooldown[BM.DeathChakram].ready and (focus + castRegen < focusMax) then
-		return BM.DeathChakram
-	end
-
-	-- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd&cooldown.bestial_wrath.remains|cooldown.bestial_wrath.remains<12+gcd&talent.scent_of_blood
-	if talents[BM.BarbedShot] and cooldown[BM.BarbedShot].ready and (cooldown[BM.BarbedShot].fullRecharge < gcd and not cooldown[BM.BestialWrath].ready or cooldown[BM.BestialWrath].remains < 12 + gcd and talents[BM.ScentOfBlood]) then
-		return BM.BarbedShot
-	end
-
-	-- bestial_wrath,if=!raid_event.adds.exists|raid_event.adds.remains>=5|active_enemies>=raid_event.adds.count*2
-	if talents[BM.BestialWrath] and cooldown[BM.BestialWrath].ready then
-		return BM.BestialWrath
-	end
-
-	-- stampede,if=buff.bestial_wrath.up|target.time_to_die<15
-	if talents[BM.Stampede] and cooldown[BM.Stampede].ready and (buff[BM.BestialWrath].up or timeToDie < 15) then
-		return BM.Stampede
-	end
-
-	-- wailing_arrow,if=pet.main.buff.frenzy.remains>execute_time
-	if talents[BM.WailingArrow] and cooldown[BM.WailingArrow].ready and (pet[BM.Frenzy].remains > timeShift) then
-		return BM.WailingArrow
-	end
-
-	-- kill_shot
-	if talents[BM.KillShot] and cooldown[BM.KillShot].ready and targetHp < 0.2 then
-		return BM.KillShot
-	end
-
-	-- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable
-	if talents[BM.SerpentSting] and (debuff[BM.SerpentSting].refreshable) then
-		return BM.SerpentSting
-	end
-
-	-- bloodshed
-	if talents[BM.Bloodshed] and cooldown[BM.Bloodshed].ready then
-		return BM.Bloodshed
-	end
-
-	-- a_murder_of_crows
-	if talents[BM.AMurderOfCrows] and cooldown[BM.AMurderOfCrows].ready then
-		return BM.AMurderOfCrows
-	end
-
-	-- barrage,if=pet.main.buff.frenzy.remains>execute_time
-	if talents[BM.Barrage] and cooldown[BM.Barrage].ready and (pet[BM.Frenzy].remains > timeShift) then
-		return BM.Barrage
-	end
-
-	-- kill_command,if=focus>cost+action.multishot.cost
-	if talents[BM.KillCommand] and cooldown[BM.KillCommand].ready and focus > (killCommandCost + multiShotCost) then
-		return BM.KillCommand
-	end
-
-	-- dire_beast
-	if talents[BM.DireBeast] and cooldown[BM.DireBeast].ready then
-		return BM.DireBeast
-	end
-
-	local cobraShotCost = getSpellCost(BM.CobraShot, 35)
-
-	-- cobra_shot,if=focus.time_to_max<gcd*2
-	if talents[BM.CobraShot] and focus >= cobraShotCost and (focusTimeToMax < gcd * 2) then
-		return BM.CobraShot
-	end
-end
-
-function Hunter:BeastMasterySt()
-	local fd = MaxDps.FrameData
-	local cooldown = fd.cooldown
-	local buff = fd.buff
-	local debuff = fd.debuff
-	local talents = fd.talents
-	local gcd = fd.gcd
-	local timeToDie = fd.timeToDie
-	local focus = fd.focus
-	local castRegen = fd.castRegen
-	local targetHp = fd.targetHp
-	local focusMax = fd.focusMax
-	local focusRegen = fd.focusRegen;
-	local pet = fd.pet
-	local timeShift = fd.timeShift
-
-	-- call_of_the_wild
-	if talents[BM.CallOfTheWild] and cooldown[BM.CallOfTheWild].ready then
-		return BM.CallOfTheWild
-	end
-
-	-- steel_trap
-	if talents[BM.SteelTrap] and cooldown[BM.SteelTrap].ready then
-		return BM.SteelTrap
-	end
-
-	-- bloodshed
-	if talents[BM.Bloodshed] and cooldown[BM.Bloodshed].ready then
-		return BM.Bloodshed
-	end
-
-	-- kill_shot
-	if talents[BM.KillShot] and cooldown[BM.KillShot].ready and targetHp < 0.2 then
-		return BM.KillShot
-	end
-
-	-- explosive_shot
-	if talents[BM.ExplosiveShot] and cooldown[BM.ExplosiveShot].ready then
-		return BM.ExplosiveShot
-	end
-
-	-- wailing_arrow,if=pet.main.buff.frenzy.remains>execute_time&(cooldown.resonating_arrow.remains<gcd&(!talent.explosive_shot|buff.bloodlust.up)|!covenant.kyrian)|target.time_to_die<5
-	if talents[BM.WailingArrow] and cooldown[BM.WailingArrow].ready and (pet[BM.Frenzy].remains > timeShift or timeToDie < 5) then
-		return BM.WailingArrow
-	end
-
-	-- barbed_shot,if=cooldown.bestial_wrath.remains<12*charges_fractional+gcd&talent.scent_of_blood|full_recharge_time<gcd&cooldown.bestial_wrath.remains|target.time_to_die<9
-	if talents[BM.BarbedShot] and cooldown[BM.BarbedShot].ready and (cooldown[BM.BestialWrath].remains < 12 * cooldown[BM.BarbedShot].charges + gcd and talents[BM.ScentOfBlood] or cooldown[BM.BarbedShot].fullRecharge < gcd and not cooldown[BM.BestialWrath].ready or timeToDie < 9) then
-		return BM.BarbedShot
-	end
-
-	-- death_chakram,if=focus+cast_regen<focus.max
-	if talents[BM.DeathChakram] and cooldown[BM.DeathChakram].ready and (focus + castRegen < focusMax) then
-		return BM.DeathChakram
-	end
-
-	-- stampede,if=buff.bestial_wrath.up|target.time_to_die<15
-	if talents[BM.Stampede] and cooldown[BM.Stampede].ready and (buff[BM.BestialWrath].up or timeToDie < 15) then
-		return BM.Stampede
-	end
-
-	-- a_murder_of_crows
-	if talents[BM.AMurderOfCrows] and cooldown[BM.AMurderOfCrows].ready then
-		return BM.AMurderOfCrows
-	end
-
-	-- bestial_wrath,if=(cooldown.wild_spirits.remains>15|covenant.kyrian&(cooldown.resonating_arrow.remains<5|cooldown.resonating_arrow.remains>20)|target.time_to_die<15|(!covenant.night_fae&!covenant.kyrian))&(!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<20|raid_event.adds.count=1)|raid_event.adds.up&raid_event.adds.remains>19)
-	if talents[BM.BestialWrath] and cooldown[BM.BestialWrath].ready then
-		return BM.BestialWrath
-	end
-
-	-- kill_command
-	if talents[BM.KillCommand] and cooldown[BM.KillCommand].ready then
-		return BM.KillCommand
-	end
-
-	-- dire_beast
-	if talents[BM.DireBeast] and cooldown[BM.DireBeast].ready then
-		return BM.DireBeast
-	end
-
-	-- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>duration
-	if talents[BM.SerpentSting] and (debuff[BM.SerpentSting].refreshable and timeToDie > debuff[BM.SerpentSting].duration) then
-		return BM.SerpentSting
-	end
-
-	local cobraShotCost = getSpellCost(BM.CobraShot, 35)
-	local killCommandCost = getSpellCost(BM.KillCommand, 30)
-
-	-- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)|(buff.bestial_wrath.up|buff.nesingwarys_trapping_apparatus.up)&!runeforge.qapla_eredun_war_order|target.time_to_die<3
-	if talents[BM.CobraShot] and (( focus - cobraShotCost + focusRegen * ( cooldown[BM.KillCommand].remains - 1 ) > killCommandCost or cooldown[BM.KillCommand].remains > 1 + gcd ) or ( buff[BM.BestialWrath].up) or timeToDie < 3) then
-		return BM.CobraShot
-	end
 end
