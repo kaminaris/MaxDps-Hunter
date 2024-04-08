@@ -1,7 +1,7 @@
 ## Title: MaxDps_Hunter
-## Version: 10.0.1
+## Version: 10.0.2
 ## Author: Kaminaris
-## Interface: 100002
+## Interface: 100206
 ## Dependencies: MaxDps
 ## LoadOnDemand: 1
 ## SavedVariables: MaxDpsHunterOptions
