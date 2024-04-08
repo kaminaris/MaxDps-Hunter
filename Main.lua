@@ -35,13 +35,13 @@ function Hunter:Enable()
 
 	if MaxDps.Spec == 1 then
 		MaxDps.NextSpell = Hunter.BeastMastery
-		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Beast Mastery')
+		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Beast Mastery', "info")
 	elseif MaxDps.Spec == 2 then
 		MaxDps.NextSpell = Hunter.Marksmanship
-		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Marksmanship')
+		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Marksmanship', "info")
 	elseif MaxDps.Spec == 3 then
 		MaxDps.NextSpell = Hunter.Survival
-		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Survival')
+		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Survival', "info")
 	end 
 
 	return true
@@ -99,8 +99,8 @@ function Hunter:TargetsInPetRange()
 	if slot == nil then
 		local t = GetTime()
 		if not lastWarning or t - lastWarning > 5 then
-			MaxDps:Print(MaxDps.Colors.Error .. 'At least one pet basic ability needs to be on YOUR action bar (One of those: Smack, Claw, Bite).')
-			MaxDps:Print(MaxDps.Colors.Error .. 'Read this for more information: goo.gl/ZF6FXt')
+			MaxDps:Print(MaxDps.Colors.Error .. 'At least one pet basic ability needs to be on YOUR action bar (One of those: Smack, Claw, Bite).', "error")
+			MaxDps:Print(MaxDps.Colors.Error .. 'Read this for more information: goo.gl/ZF6FXt', "error")
 			lastWarning = t
 		end
 		return 1
