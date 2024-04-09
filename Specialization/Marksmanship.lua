@@ -1,400 +1,419 @@
-local _, addonTable = ...;
+local _, addonTable = ...
+local Hunter = addonTable.Hunter
+local MaxDps = _G.MaxDps
+if not MaxDps then return end
 
---- @type MaxDps
-if not MaxDps then
-	return
+local UnitPower = UnitPower
+local UnitHealth = UnitHealth
+local UnitAura = UnitAura
+local GetSpellDescription = GetSpellDescription
+local UnitHealthMax = UnitHealthMax
+local UnitPowerMax = UnitPowerMax
+local SpellHaste
+local SpellCrit
+
+local ManaPT = Enum.PowerType.Mana
+local RagePT = Enum.PowerType.Rage
+local FocusPT = Enum.PowerType.Focus
+local EnergyPT = Enum.PowerType.Energy
+local ComboPointsPT = Enum.PowerType.ComboPoints
+local RunesPT = Enum.PowerType.Runes
+local RunicPowerPT = Enum.PowerType.RunicPower
+local SoulShardsPT = Enum.PowerType.SoulShards
+local LunarPowerPT = Enum.PowerType.LunarPower
+local HolyPowerPT = Enum.PowerType.HolyPower
+local MaelstromPT = Enum.PowerType.Maelstrom
+local ChiPT = Enum.PowerType.Chi
+local InsanityPT = Enum.PowerType.Insanity
+local ArcaneChargesPT = Enum.PowerType.ArcaneCharges
+local FuryPT = Enum.PowerType.Fury
+local PainPT = Enum.PowerType.Pain
+local EssencePT = Enum.PowerType.Essence
+local RuneBloodPT = Enum.PowerType.RuneBlood
+local RuneFrostPT = Enum.PowerType.RuneFrost
+local RuneUnholyPT = Enum.PowerType.RuneUnholy
+
+local fd
+local ttd
+local timeShift
+local gcd
+local cooldown
+local buff
+local debuff
+local talents
+local targets
+local targetHP
+local targetmaxHP
+local targethealthPerc
+local curentHP
+local maxHP
+local healthPerc
+local timeInCombat
+local className, classFilename, classId = UnitClass('player')
+local currentSpec = GetSpecialization()
+local currentSpecName = currentSpec and select(2, GetSpecializationInfo(currentSpec)) or 'None'
+local classtable
+
+local Focus
+local FocusMax
+local FocusDeficit
+
+local Marksmanship = {}
+
+local trinket_1_stronger
+local trinket_2_stronger
+local trueshot_ready
+local sync_ready
+local sync_active
+local sync_remains
+
+local function CheckSpellCosts(spell,spellstring)
+    if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if spellstring == 'TouchofDeath' then
+        if targethealthPerc < 15 then
+            return true
+        else
+            return false
+        end
+    end
+    if spellstring == 'KillShot' then
+        if targethealthPerc < 15 or buff[classtable.DeathblowBuff].up then
+            return true
+        else
+            return false
+        end
+    end
+    local costs = GetSpellPowerCost(spell)
+    if type(costs) ~= 'table' and spellstring then print('no cost found for ',spellstring) return true end
+    for i,costtable in pairs(costs) do
+        if UnitPower('player', costtable.type) < costtable.cost then
+            return false
+        end
+    end
+    return true
 end
-local MaxDps = MaxDps;
-local Hunter = addonTable.Hunter;
+local function MaxGetSpellCost(spell,power)
+    local costs = GetSpellPowerCost(spell)
+    if type(costs) ~= 'table' then return 0 end
+    for i,costtable in pairs(costs) do
+        if costtable.name == power then
+            return costtable.cost
+        end
+    end
+    return 0
+end
 
---local MM = {
---	--PreciseShots   = 260242,
---	SteadyFocus      = 193534,
---	LoneWolf         = 164273,
---	--TrickShots     = 257622,
---	LockAndLoad      = 194594,
---
---
---	HuntersMark      = 257284,
---	DoubleTap        = 260402,
---	Trueshot         = 288613,
---	AimedShot        = 19434,
---	RapidFire        = 257044,
---	CarefulAim       = 260228,
---	ExplosiveShot    = 212431,
---	Barrage          = 120360,
---	AMurderOfCrows   = 131894,
---	SerpentSting     = 271788,
---	ArcaneShot       = 185358,
---	MasterMarksman   = 269576,
---	Streamline       = 260367,
---	PreciseShots     = 260240,
---	PreciseShotsAura = 260242,
---	PiercingShot     = 198670,
---	SteadyShot       = 56641,
---	TrickShots       = 257622,
---	Multishot        = 257620,
---
---	--Azerite
---	InTheRhythm      = 272733,
---	FocusedFire      = 278531,
---	SurgingShots     = 287707,
---}
 
-local MM = {
-	TarTrap              = 187698,
-	SoulforgeEmbers      = 336745,
-	DoubleTap            = 260402,
-	Volley               = 260243,
-	AimedShot            = 19434,
-	SteadyShot           = 56641,
-	CounterShot          = 147362,
-	CarefulAim           = 260228,
-	SteadyFocus          = 193533,
-	SteadyFocusAura      = 193534,
-	KillShot             = 53351,
-	ResonatingArrow      = 308491,
-	RapidFire            = 257044,
-	Flare                = 1543,
-	ExplosiveShot        = 212431,
-	WildSpirits          = 328231,
-	FlayedShot           = 324149,
-	DeathChakram         = 325028,
-	PreciseShots         = 260242,
-	ChimaeraShot         = 342049,
-	AMurderOfCrows       = 131894,
-	Trueshot             = 288613,
-	SerpentSting         = 271788,
-	TrickShots           = 257622,
-	EagletalonsTrueFocus = 336849,
-	Streamline           = 260367,
-	ArcaneShot           = 185358,
-	Barrage              = 120360,
-	SurgingShots         = 336867,
-	Multishot            = 257620,
-	DeadEye              = 321460,
-};
 
-setmetatable(MM, Hunter.spellMeta);
+local function CheckEquipped(checkName)
+    for i=1,14 do
+        local itemID = GetInventoryItemID('player', i)
+        local itemName = itemID and C_Item.GetItemInfo(itemID) or ''
+        if checkName == itemName then
+            return true
+        end
+    end
+    return false
+end
+
+
+
+
+local function CheckTrinketNames(checkName)
+    --if slot == 1 then
+    --    slot = 13
+    --end
+    --if slot == 2 then
+    --    slot = 14
+    --end
+    for i=13,14 do
+        local itemID = GetInventoryItemID('player', i)
+        local itemName = C_Item.GetItemInfo(itemID)
+        if checkName == itemName then
+            return true
+        end
+    end
+    return false
+end
+
+
+local function CheckTrinketCooldown(slot)
+    if slot == 1 then
+        slot = 13
+    end
+    if slot == 2 then
+        slot = 14
+    end
+    if slot == 13 or slot == 14 then
+        local itemID = GetInventoryItemID('player', slot)
+        local _, duration, _ = C_Item.GetItemCooldown(itemID)
+        if duration == 0 then return true else return false end
+    else
+        local tOneitemID = GetInventoryItemID('player', 13)
+        local tTwoitemID = GetInventoryItemID('player', 14)
+        local tOneitemName = C_Item.GetItemInfo(tOneitemID)
+        local tTwoitemName = C_Item.GetItemInfo(tTwoitemID)
+        if tOneitemName == slot then
+            local _, duration, _ = C_Item.GetItemCooldown(tOneitemID)
+            if duration == 0 then return true else return false end
+        end
+        if tTwoitemName == slot then
+            local _, duration, _ = C_Item.GetItemCooldown(tTwoitemID)
+            if duration == 0 then return true else return false end
+        end
+    end
+end
+
+
+
+
+local function SteadyFocusTrack()
+    if MaxDps.spellHistory and MaxDps.spellHistory[1] and MaxDps.spellHistory[2] then
+        --if MaxDps.spellHistory[1] == classtable.SteadyShot and MaxDps.spellHistory[2] ~= classtable.SteadyShot then
+        --    return true
+        if MaxDps.spellHistory[1] == classtable.SteadyShot and MaxDps.spellHistory[2] == classtable.SteadyShot then
+            return false
+        else
+            return true
+        end
+    end
+    return true
+end
+
+
+function Marksmanship:precombat()
+    if (MaxDps:FindSpell(classtable.Flask) and CheckSpellCosts(classtable.Flask, 'Flask')) and cooldown[classtable.Flask].ready then
+        return classtable.Flask
+    end
+    if (MaxDps:FindSpell(classtable.Augmentation) and CheckSpellCosts(classtable.Augmentation, 'Augmentation')) and cooldown[classtable.Augmentation].ready then
+        return classtable.Augmentation
+    end
+    if (MaxDps:FindSpell(classtable.Food) and CheckSpellCosts(classtable.Food, 'Food')) and cooldown[classtable.Food].ready then
+        return classtable.Food
+    end
+    if (MaxDps:FindSpell(classtable.SummonPet) and CheckSpellCosts(classtable.SummonPet, 'SummonPet')) and (not talents[classtable.LoneWolf]) and cooldown[classtable.SummonPet].ready then
+        return classtable.SummonPet
+    end
+    if (MaxDps:FindSpell(classtable.SnapshotStats) and CheckSpellCosts(classtable.SnapshotStats, 'SnapshotStats')) and cooldown[classtable.SnapshotStats].ready then
+        return classtable.SnapshotStats
+    end
+    --trinket_1_stronger = not trinket.2.has_cooldown or trinket.1.has_use_buff and ( not trinket.2.has_use_buff or not CheckTrinketNames('Mirror of Fractured Tomorrows') and ( CheckTrinketNames('Mirror of Fractured Tomorrows') or trinket.2.cooldown.duration <trinket.1.cooldown.duration or trinket.2.cast_time <trinket.1.cast_time or trinket.2.cast_time == trinket.1.cast_time and trinket.2.cooldown.duration == trinket.1.cooldown.duration ) ) or not trinket.1.has_use_buff and ( not trinket.2.has_use_buff and ( trinket.2.cooldown.duration <trinket.1.cooldown.duration or trinket.2.cast_time <trinket.1.cast_time or trinket.2.cast_time == trinket.1.cast_time and trinket.2.cooldown.duration == trinket.1.cooldown.duration ) )
+    --trinket_2_stronger = not trinket_1_stronger
+    if (MaxDps:FindSpell(classtable.Salvo) and CheckSpellCosts(classtable.Salvo, 'Salvo')) and cooldown[classtable.Salvo].ready then
+        return classtable.Salvo
+    end
+    if (MaxDps:FindSpell(classtable.AimedShot) and CheckSpellCosts(classtable.AimedShot, 'AimedShot')) and (targets <3 and ( not talents[classtable.Volley] or targets <2 )) and cooldown[classtable.AimedShot].ready then
+        return classtable.AimedShot
+    end
+    if (MaxDps:FindSpell(classtable.WailingArrow) and CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and (targets >2 or not talents[classtable.SteadyFocus]) and cooldown[classtable.WailingArrow].ready then
+        return classtable.WailingArrow
+    end
+    if (MaxDps:FindSpell(classtable.SteadyShot) and CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and (targets >2 or talents[classtable.Volley] and targets == 2) and cooldown[classtable.SteadyShot].ready then
+        return classtable.SteadyShot
+    end
+end
+function Marksmanship:cds()
+    if (MaxDps:FindSpell(classtable.Potion) and CheckSpellCosts(classtable.Potion, 'Potion')) and (buff[classtable.TrueshotBuff].up and ( MaxDps:Bloodlust() or targetHP <20 ) or ttd <26) and cooldown[classtable.Potion].ready then
+        return classtable.Potion
+    end
+    if (MaxDps:FindSpell(classtable.Salvo) and CheckSpellCosts(classtable.Salvo, 'Salvo')) and (targets >2 or cooldown[classtable.Volley].remains <10) and cooldown[classtable.Salvo].ready then
+        return classtable.Salvo
+    end
+end
+function Marksmanship:st()
+    if (MaxDps:FindSpell(classtable.SteadyShot) and CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.SteadyFocus] and SteadyFocusTrack() and ( buff[classtable.SteadyFocusBuff].remains <8 or not buff[classtable.SteadyFocusBuff].up and not buff[classtable.TrueshotBuff].up )) and cooldown[classtable.SteadyShot].ready then
+        return classtable.SteadyShot
+    end
+    if (MaxDps:FindSpell(classtable.RapidFire) and CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].remains <timeShift) and cooldown[classtable.RapidFire].ready then
+        return classtable.RapidFire
+    end
+    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (Focus + FocusRegen <FocusMax) and cooldown[classtable.KillShot].ready then
+        return classtable.KillShot
+    end
+    if (MaxDps:FindSpell(classtable.Volley) and CheckSpellCosts(classtable.Volley, 'Volley')) and (buff[classtable.SalvoBuff].up or trueshot_ready or cooldown[classtable.Trueshot].remains >45 or ttd <12) and cooldown[classtable.Volley].ready then
+        return classtable.Volley
+    end
+    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and not talents[classtable.SerpentstalkersTrickery] and not buff[classtable.TrueshotBuff].up) and cooldown[classtable.SerpentSting].ready then
+        return classtable.SerpentSting
+    end
+    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
+        return classtable.ExplosiveShot
+    end
+    if (MaxDps:FindSpell(classtable.Stampede) and CheckSpellCosts(classtable.Stampede, 'Stampede')) and cooldown[classtable.Stampede].ready then
+        return classtable.Stampede
+    end
+    if (MaxDps:FindSpell(classtable.DeathChakram) and CheckSpellCosts(classtable.DeathChakram, 'DeathChakram')) and cooldown[classtable.DeathChakram].ready then
+        return classtable.DeathChakram
+    end
+    if (MaxDps:FindSpell(classtable.WailingArrow) and CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and (targets >1) and cooldown[classtable.WailingArrow].ready then
+        return classtable.WailingArrow
+    end
+    if (MaxDps:FindSpell(classtable.RapidFire) and CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (( talents[classtable.SurgingShots] or cooldown[classtable.AimedShot].fullRecharge >( select(4,GetSpellInfo(classtable.AimedShot)) / 1000 ) + ( select(4,GetSpellInfo(classtable.RapidFire)) /1000) ) and ( Focus + FocusRegen <FocusMax )) and cooldown[classtable.RapidFire].ready then
+        return classtable.RapidFire
+    end
+    if (MaxDps:FindSpell(classtable.Trueshot) and CheckSpellCosts(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
+        return classtable.Trueshot
+    end
+    if (MaxDps:FindSpell(classtable.MultiShot) and CheckSpellCosts(classtable.MultiShot, 'Multishot')) and (buff[classtable.SalvoBuff].up and not talents[classtable.Volley]) and cooldown[classtable.MultiShot].ready then
+        return classtable.MultiShot
+    end
+    if (MaxDps:FindSpell(classtable.AimedShot) and CheckSpellCosts(classtable.AimedShot, 'AimedShot')) and (talents[classtable.SerpentstalkersTrickery] and ( not buff[classtable.PreciseShotsBuff].up or ( buff[classtable.TrueshotBuff].up ) and ( not talents[classtable.ChimaeraShot] or targets <2 or (targethealthPerc >70) ) or buff[classtable.TrickShotsBuff].remains >timeShift and targets >1 )) and cooldown[classtable.AimedShot].ready then
+        return classtable.AimedShot
+    end
+    if (MaxDps:FindSpell(classtable.AimedShot) and CheckSpellCosts(classtable.AimedShot, 'AimedShot')) and (not buff[classtable.PreciseShotsBuff].up or ( buff[classtable.TrueshotBuff].up ) and ( not talents[classtable.ChimaeraShot] or targets <2 or (targethealthPerc >70) ) or buff[classtable.TrickShotsBuff].remains >timeShift and targets >1) and cooldown[classtable.AimedShot].ready then
+        return classtable.AimedShot
+    end
+    if (MaxDps:FindSpell(classtable.WailingArrow) and CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and (not buff[classtable.TrueshotBuff].up) and cooldown[classtable.WailingArrow].ready then
+        return classtable.WailingArrow
+    end
+    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (not buff[classtable.TrueshotBuff].up) and cooldown[classtable.KillCommand].ready then
+        return classtable.KillCommand
+    end
+    if (MaxDps:FindSpell(classtable.SteelTrap) and CheckSpellCosts(classtable.SteelTrap, 'SteelTrap')) and cooldown[classtable.SteelTrap].ready then
+        return classtable.SteelTrap
+    end
+    if (MaxDps:FindSpell(classtable.ChimaeraShot) and CheckSpellCosts(classtable.ChimaeraShot, 'ChimaeraShot')) and (buff[classtable.PreciseShotsBuff].up or Focus >(MaxGetSpellCost(classtable.ChimaeraShot,'FOCUS')) + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.ChimaeraShot].ready then
+        return classtable.ChimaeraShot
+    end
+    if (MaxDps:FindSpell(classtable.ArcaneShot) and CheckSpellCosts(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.PreciseShotsBuff].up or Focus >(MaxGetSpellCost(classtable.ArcaneShot,'FOCUS')) + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.ArcaneShot].ready then
+        return classtable.ArcaneShot
+    end
+    if (MaxDps:FindSpell(classtable.SteadyShot) and CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
+        return classtable.SteadyShot
+    end
+end
+function Marksmanship:trickshots()
+    if (MaxDps:FindSpell(classtable.SteadyShot) and CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.SteadyFocus] and SteadyFocusTrack() and buff[classtable.SteadyFocusBuff].remains <8) and cooldown[classtable.SteadyShot].ready then
+        return classtable.SteadyShot
+    end
+    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.RazorFragmentsBuff].up) and cooldown[classtable.KillShot].ready then
+        return classtable.KillShot
+    end
+    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
+        return classtable.ExplosiveShot
+    end
+    if (MaxDps:FindSpell(classtable.DeathChakram) and CheckSpellCosts(classtable.DeathChakram, 'DeathChakram')) and cooldown[classtable.DeathChakram].ready then
+        return classtable.DeathChakram
+    end
+    if (MaxDps:FindSpell(classtable.Stampede) and CheckSpellCosts(classtable.Stampede, 'Stampede')) and cooldown[classtable.Stampede].ready then
+        return classtable.Stampede
+    end
+    if (MaxDps:FindSpell(classtable.WailingArrow) and CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and cooldown[classtable.WailingArrow].ready then
+        return classtable.WailingArrow
+    end
+    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and talents[classtable.HydrasBite] and not talents[classtable.SerpentstalkersTrickery]) and cooldown[classtable.SerpentSting].ready then
+        return classtable.SerpentSting
+    end
+    if (MaxDps:FindSpell(classtable.Barrage) and CheckSpellCosts(classtable.Barrage, 'Barrage')) and (targets >7) and cooldown[classtable.Barrage].ready then
+        return classtable.Barrage
+    end
+    if (MaxDps:FindSpell(classtable.Volley) and CheckSpellCosts(classtable.Volley, 'Volley')) and cooldown[classtable.Volley].ready then
+        return classtable.Volley
+    end
+    if (MaxDps:FindSpell(classtable.RapidFire) and CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].remains >= timeShift and talents[classtable.SurgingShots]) and cooldown[classtable.RapidFire].ready then
+        return classtable.RapidFire
+    end
+    if (MaxDps:FindSpell(classtable.Trueshot) and CheckSpellCosts(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
+        return classtable.Trueshot
+    end
+    if (MaxDps:FindSpell(classtable.AimedShot) and CheckSpellCosts(classtable.AimedShot, 'AimedShot')) and (talents[classtable.SerpentstalkersTrickery] and ( buff[classtable.TrickShotsBuff].remains >= timeShift and ( not buff[classtable.PreciseShotsBuff].up or buff[classtable.TrueshotBuff].up ) )) and cooldown[classtable.AimedShot].ready then
+        return classtable.AimedShot
+    end
+    if (MaxDps:FindSpell(classtable.AimedShot) and CheckSpellCosts(classtable.AimedShot, 'AimedShot')) and (( buff[classtable.TrickShotsBuff].remains >= timeShift and ( not buff[classtable.PreciseShotsBuff].up or buff[classtable.TrueshotBuff].up ) )) and cooldown[classtable.AimedShot].ready then
+        return classtable.AimedShot
+    end
+    if (MaxDps:FindSpell(classtable.RapidFire) and CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].remains >= timeShift) and cooldown[classtable.RapidFire].ready then
+        return classtable.RapidFire
+    end
+    if (MaxDps:FindSpell(classtable.ChimaeraShot) and CheckSpellCosts(classtable.ChimaeraShot, 'ChimaeraShot')) and (buff[classtable.TrickShotsBuff].up and buff[classtable.PreciseShotsBuff].up and Focus >(MaxGetSpellCost(classtable.ChimaeraShot,'FOCUS')) + MaxGetSpellCost(classtable.AimedShot, 'FOCUS') and targets <4) and cooldown[classtable.ChimaeraShot].ready then
+        return classtable.ChimaeraShot
+    end
+    if (MaxDps:FindSpell(classtable.MultiShot) and CheckSpellCosts(classtable.MultiShot, 'Multishot')) and (not buff[classtable.TrickShotsBuff].up or ( buff[classtable.PreciseShotsBuff].up or buff[classtable.BulletstormBuff].count == 10 ) and Focus >(MaxGetSpellCost(classtable.MultiShot,'FOCUS')) + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.MultiShot].ready then
+        return classtable.MultiShot
+    end
+    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and talents[classtable.PoisonInjection] and not talents[classtable.SerpentstalkersTrickery]) and cooldown[classtable.SerpentSting].ready then
+        return classtable.SerpentSting
+    end
+    if (MaxDps:FindSpell(classtable.SteelTrap) and CheckSpellCosts(classtable.SteelTrap, 'SteelTrap')) and (not buff[classtable.TrueshotBuff].up) and cooldown[classtable.SteelTrap].ready then
+        return classtable.SteelTrap
+    end
+    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (Focus >(MaxGetSpellCost(classtable.KillShot,'FOCUS')) + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.KillShot].ready then
+        return classtable.KillShot
+    end
+    if (MaxDps:FindSpell(classtable.MultiShot) and CheckSpellCosts(classtable.MultiShot, 'Multishot')) and (Focus >(MaxGetSpellCost(classtable.MultiShot,'FOCUS')) + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.MultiShot].ready then
+        return classtable.MultiShot
+    end
+    if (MaxDps:FindSpell(classtable.SteadyShot) and CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
+        return classtable.SteadyShot
+    end
+end
+local function trinkets()
+end
 
 function Hunter:Marksmanship()
-	local fd = MaxDps.FrameData;
-	local cooldown = fd.cooldown;
-	local currentSpell = fd.currentSpell;
-	local timeShift = fd.timeShift;
-	local targets = MaxDps:SmartAoe();
-	local targetHp = MaxDps:TargetPercentHealth() * 100;
-	local minus = 0;
+    fd = MaxDps.FrameData
+    ttd = (fd.timeToDie and fd.timeToDie) or 500
+	timeShift = fd.timeShift
+    gcd = fd.gcd
+    cooldown = fd.cooldown
+    buff = fd.buff
+    debuff = fd.debuff
+    talents = fd.talents
+    targets = MaxDps:SmartAoe()
+    Mana = UnitPower('player', ManaPT)
+    ManaMax = UnitPowerMax('player', ManaPT)
+    ManaDeficit = ManaMax - Mana
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP / targetmaxHP) * 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
+    timeInCombat = MaxDps.combatTime or 0
+    classtable = MaxDps.SpellTable
+    SpellHaste = UnitSpellHaste('target')
+    SpellCrit = GetCritChance()
+    Focus = UnitPower('player', FocusPT)
+    FocusMax = UnitPowerMax('player', FocusPT)
+    FocusDeficit = FocusMax - Focus
+    Focus = UnitPower('player', FocusPT)
+    FocusMax = UnitPowerMax('player', FocusPT)
+    FocusDeficit = FocusMax - Focus
+    FocusRegen = GetPowerRegenForPowerType(Enum.PowerType.Focus)
+    FocusTimeToMax = FocusDeficit / FocusRegen
+    FocusPerc = (Focus / FocusMax) * 100
+    classtable.TrueshotBuff = 288613
+    classtable.SteadyFocusBuff = 193534
+    classtable.TrickShotsBuff = 257622
+    classtable.SalvoBuff = 400456
+    classtable.PreciseShotsBuff = 260242
+    classtable.RazorFragmentsBuff = 388998
+    classtable.BulletstormBuff = 389020
+	classtable.DeathblowBuff = 378770
 
-	if currentSpell == MM.SteadyShot then
-		minus = -10;
-	elseif currentSpell == MM.AimedShot then
-		minus = 30;
-	elseif currentSpell == MM.RapidFire then
-		minus = -10;
-	end
+    trueshot_ready = cooldown[classtable.Trueshot].ready and ( targets <2 and ( not talents[classtable.Bullseye] or ttd >cooldown[classtable.Trueshot].duration + buff[classtable.TrueshotBuff].duration % 2 or buff[classtable.BullseyeBuff].count == buff[classtable.BullseyeBuff].maxStacks ))-- and ( not trinket.1.has_use_buff or CheckTrinketCooldown('1') >30 or trinket.1.cooldown.ready ) and ( not trinket.2.has_use_buff or CheckTrinketCooldown('2') >30 or trinket.2.cooldown.ready ) or targets >1 and ( not targets >1 and ( TODO + TODO <25 or TODO ) or targets >1 and TODO ) or ttd <25 )
+    --if (MaxDps:FindSpell(classtable.AutoShot) and CheckSpellCosts(classtable.AutoShot, 'AutoShot')) and cooldown[classtable.AutoShot].ready then
+    --    return classtable.AutoShot
+    --end
+    local cdsCheck = Marksmanship:cds()
+    if cdsCheck then
+        return cdsCheck
+    end
+    --local trinketsCheck = Marksmanship:trinkets()
+    --if trinketsCheck then
+    --    return trinketsCheck
+    --end
+    if (targets <3 or not talents[classtable.TrickShots]) then
+        local stCheck = Marksmanship:st()
+        if stCheck then
+            return Marksmanship:st()
+        end
+    end
+    if (targets >2) then
+        local trickshotsCheck = Marksmanship:trickshots()
+        if trickshotsCheck then
+            return Marksmanship:trickshots()
+        end
+    end
 
-	local focus, focusMax, castRegen = Hunter:Focus(minus);
-	castRegen = castRegen * timeShift;
-
-	local canAimed = cooldown[MM.AimedShot].charges >= 2 or (cooldown[MM.AimedShot].ready and currentSpell ~= MM.AimedShot);
-	fd.canAimed = canAimed;
-	fd.focus = focus;
-	fd.focusMax = focusMax;
-	fd.castRegen = castRegen;
-	fd.targetHp = targetHp;
-	fd.targets = targets;
-	-- call_action_list,name=cds;
-	Hunter:MarksmanshipCds();
-
-	-- call_action_list,name=st,if=active_enemies<3;
-	if targets < 3 then
-		return Hunter:MarksmanshipSt();
-	else
-		-- call_action_list,name=trickshots,if=active_enemies>2;
-		return Hunter:MarksmanshipTrickshots();
-	end
-end
-
-function Hunter:MarksmanshipCds()
-	local fd = MaxDps.FrameData;
-	local cooldown = fd.cooldown;
-	local debuff = fd.debuff;
-	local talents = fd.talents;
-	local gcd = fd.gcd;
-	local timeToDie = fd.timeToDie;
-	local targetHp = fd.targetHp;
-	local covenantId = fd.covenant.covenantId;
-
-	-- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1;
-	--if cooldown[MM.Trueshot].ready and (not buff[MM.PreciseShots].up or buff[MM.ResonatingArrow].up or buff[MM.WildSpirits].up or buff[MM.Volley].up and targets > 1) then
-	--	return MM.Trueshot;
-	--end
-	MaxDps:GlowCooldown(
-		MM.Trueshot,
-		cooldown[MM.Trueshot].ready and (
-			not cooldown[MM.RapidFire].up and timeToDie > cooldown[MM.Trueshot].duration + cooldown[MM.Trueshot].duration or
-			(targetHp < 20 or not talents[MM.CarefulAim]) or
-			timeToDie < 15
-		)
-	);
-
-	-- double_tap,if=cooldown.rapid_fire.remains<gcd.max|target.time_to_die<20;
-	MaxDps:GlowCooldown(
-		MM.DoubleTap,
-		talents[MM.DoubleTap] and cooldown[MM.DoubleTap].ready and (cooldown[MM.RapidFire].remains < gcd or timeToDie < 20)
-	);
-
-	if covenantId == Enum.CovenantType.Kyrian then
-		MaxDps:GlowCooldown(MM.ResonatingArrow, cooldown[MM.ResonatingArrow].ready);
-	elseif covenantId == Enum.CovenantType.NightFae then
-		MaxDps:GlowCooldown(MM.WildSpirits, cooldown[MM.WildSpirits].ready);
-	elseif covenantId == Enum.CovenantType.Necrolord then
-		MaxDps:GlowCooldown(MM.DeathChakram, cooldown[MM.DeathChakram].ready);
-	elseif covenantId == Enum.CovenantType.Venthyr then
-		MaxDps:GlowCooldown(MM.FlayedShot, cooldown[MM.FlayedShot].ready);
-	end
-end
-
-function Hunter:MarksmanshipSt()
-	local fd = MaxDps.FrameData;
-	local cooldown = fd.cooldown;
-	local buff = fd.buff;
-	local debuff = fd.debuff;
-	local currentSpell = fd.currentSpell;
-	local talents = fd.talents;
-	local gcd = fd.gcd;
-	local timeShift = fd.timeShift;
-	local targets = fd.targets;
-	local targetHp = fd.targetHp;
-	local spellHistory = fd.spellHistory;
-	local timeToDie = fd.timeToDie;
-	local focus = fd.focus;
-	local castRegen = fd.castRegen;
-	local focusMax = fd.focusMax;
-
-	local caExecute = targetHp < 20 or targetHp > 70;
-	local canAimed = fd.canAimed;
-
-	local AimedShotCost = 35;
-	local ChimaeraShotCost = 20;
-	local ArcaneShotCost = 20;
-
-	local PreciseShotsUp = buff[MM.PreciseShots].up or currentSpell == MM.AimedShot;
-	local TrickShotsUp = buff[MM.TrickShots].up and not (currentSpell == MM.RapidFire or currentSpell == MM.AimedShot);
-
-	-- steady_shot,if=talent.steady_focus&(prev_gcd.1.steady_shot&buff.steady_focus.remains<5|buff.steady_focus.down);
-	if talents[MM.SteadyFocus] and buff[MM.SteadyFocusAura].remains < 6 then
-		-- first cast
-		if spellHistory[1] ~= MM.SteadyShot and currentSpell ~= MM.SteadyShot then
-			return MM.SteadyShot;
-		else
-			if spellHistory[1] ~= MM.SteadyShot and currentSpell == MM.SteadyShot then
-				return MM.SteadyShot;
-			end
-		end
-
-		-- second cast
-		if spellHistory[1] == MM.SteadyShot and currentSpell == nil then
-			return MM.SteadyShot;
-		end
-	end
-
-	-- kill_shot;
-	if cooldown[MM.KillShot].ready and targetHp < 20 and focus >= 10 then
-		return MM.KillShot;
-	end
-
-	-- explosive_shot;
-	if talents[MM.ExplosiveShot] and cooldown[MM.ExplosiveShot].ready and focus >= 20 then
-		return MM.ExplosiveShot;
-	end
-
-	-- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2;
-	if talents[MM.Volley] and cooldown[MM.Volley].ready and
-		(not PreciseShotsUp or not talents[MM.ChimaeraShot] or targets < 2)
-	then
-		return MM.Volley;
-	end
-
-	-- a_murder_of_crows;
-	if talents[MM.AMurderOfCrows] and cooldown[MM.AMurderOfCrows].ready and focus >= 20 then
-		return MM.AMurderOfCrows;
-	end
-
-	-- aimed_shot,target_if=min:(dot.serpent_sting.remains<?action.serpent_sting.in_flight_to_target*dot.serpent_sting.duration),if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1;
-	if focus >= 30 and canAimed and (
-		not PreciseShotsUp
-			or
-		(buff[MM.Trueshot].up or cooldown[MM.AimedShot].fullRecharge < gcd + timeShift) and (not talents[MM.ChimaeraShot] or targets < 2)
-			or
-		TrickShotsUp and targets > 1
-	) then
-		return MM.AimedShot;
-	end
-
-	-- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline);
-	if cooldown[MM.RapidFire].ready and (
-		focus + castRegen < focusMax and (
-			not buff[MM.Trueshot].up --or
-			--not runeforge[MM.EagletalonsTrueFocus]
-		) and (
-			not buff[MM.DoubleTap].up or talents[MM.Streamline]
-		)
-	) then
-		return MM.RapidFire;
-	end
-
-	if talents[MM.ChimaeraShot] then
-		-- chimaera_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost;
-		if (PreciseShotsUp or focus > ChimaeraShotCost + AimedShotCost) then
-			return MM.ChimaeraShot;
-		end
-	else
-		-- arcane_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost;
-		if focus >= 15 and (PreciseShotsUp or focus > ArcaneShotCost + AimedShotCost) then
-			return MM.ArcaneShot;
-		end
-	end
-
-	-- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>duration;
-	if talents[MM.SerpentSting] and focus >= 10 and
-		debuff[MM.SerpentSting].remains > 0 and
-		debuff[MM.SerpentSting].refreshable and
-		timeToDie > cooldown[MM.SerpentSting].duration
-	then
-		return MM.SerpentSting;
-	end
-
-	-- barrage,if=active_enemies>1;
-	if talents[MM.Barrage] and cooldown[MM.Barrage].ready and focus >= 30 and targets > 1 then
-		return MM.Barrage;
-	end
-
-	-- rapid_fire,if=focus+cast_regen<focus.max&(buff.double_tap.down|talent.streamline);
-	if cooldown[MM.RapidFire].ready and
-		focus + castRegen < focusMax and
-		(not buff[MM.DoubleTap].up or talents[MM.Streamline])
-	then
-		return MM.RapidFire;
-	end
-
-	-- steady_shot;
-	return MM.SteadyShot;
-end
-
-function Hunter:MarksmanshipTrickshots()
-	local fd = MaxDps.FrameData;
-	local cooldown = fd.cooldown;
-	local buff = fd.buff;
-	local debuff = fd.debuff;
-	local currentSpell = fd.currentSpell;
-	local talents = fd.talents;
-	local focus = fd.focus;
-	local targets = fd.targets;
-	local timeShift = fd.timeShift;
-	local gcd = fd.gcd;
-	local canAimed = fd.canAimed;
-	local targetHp = fd.targetHp;
-	local spellHistory = fd.spellHistory;
-
-	local PreciseShotsUp = buff[MM.PreciseShots].up or currentSpell == MM.AimedShot;
-	local TrickShotsUp = buff[MM.TrickShots].up and not (currentSpell == MM.RapidFire or currentSpell == MM.AimedShot);
-
-	local MultishotCost = 20;
-	local AimedShotCost = 35;
-	local ChimaeraShotCost = 20;
-
-	-- steady_shot,if=talent.steady_focus&in_flight&buff.steady_focus.remains<5;
-	if talents[MM.SteadyFocus] and buff[MM.SteadyFocusAura].remains < 5 then
-		-- first cast
-		if spellHistory[1] ~= MM.SteadyShot and currentSpell ~= MM.SteadyShot then
-			return MM.SteadyShot;
-		else
-			if spellHistory[1] ~= MM.SteadyShot and currentSpell == MM.SteadyShot then
-				return MM.SteadyShot;
-			end
-		end
-
-		-- second cast
-		if spellHistory[1] == MM.SteadyShot and currentSpell == nil then
-			return MM.SteadyShot;
-		end
-	end
-
-	-- explosive_shot;
-	if talents[MM.ExplosiveShot] and cooldown[MM.ExplosiveShot].ready and focus >= 20 then
-		return MM.ExplosiveShot;
-	end
-
-	-- volley;
-	if talents[MM.Volley] and cooldown[MM.Volley].ready then
-		return MM.Volley;
-	end
-
-	-- barrage;
-	if talents[MM.Barrage] and cooldown[MM.Barrage].ready and focus >= 30 then
-		return MM.Barrage;
-	end
-
-	-- rapid_fire,if=buff.trick_shots.remains>=execute_time&runeforge.surging_shots&buff.double_tap.down;
-	-- TODO: NOT POSSIBLE FOR NOW
-	--if cooldown[MM.RapidFire].ready and (
-	--	buff[MM.TrickShots].remains >= timeShift and
-	--	runeforge[MM.SurgingShots] and
-	--	not buff[MM.DoubleTap].up
-	--) then
-	--	return MM.RapidFire;
-	--end
-
-	-- aimed_shot,target_if=min:(dot.serpent_sting.remains<?action.serpent_sting.in_flight_to_target*dot.serpent_sting.duration),if=buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|full_recharge_time<cast_time+gcd|buff.trueshot.up);
-	if focus >= 30 and canAimed and (
-		TrickShotsUp and
-		(not PreciseShotsUp or cooldown[MM.AimedShot].fullRecharge < timeShift + gcd or buff[MM.Trueshot].up)
-	) then
-		return MM.AimedShot;
-	end
-
-	-- rapid_fire,if=buff.trick_shots.remains>=execute_time;
-	if cooldown[MM.RapidFire].ready and TrickShotsUp then
-		return MM.RapidFire;
-	end
-
-	-- multishot,if=buff.trick_shots.down|buff.precise_shots.up&focus>cost+action.aimed_shot.cost&(!talent.chimaera_shot|active_enemies>3);
-	if focus >= 15 and (
-		not TrickShotsUp or
-		PreciseShotsUp and focus > MultishotCost + AimedShotCost and (not talents[MM.ChimaeraShot] or targets > 3)
-	) then
-		return MM.Multishot;
-	end
-
-	-- chimaera_shot,if=buff.precise_shots.up&focus>cost+action.aimed_shot.cost&active_enemies<4;
-	if talents[MM.ChimaeraShot] and PreciseShotsUp and
-		focus > ChimaeraShotCost + AimedShotCost and targets < 4
-	then
-		return MM.ChimaeraShot;
-	end
-
-	-- kill_shot,if=buff.dead_eye.down;
-	if cooldown[MM.KillShot].ready and targetHp < 20 and focus >= 10 and not buff[MM.DeadEye].up then
-		return MM.KillShot;
-	end
-
-	-- a_murder_of_crows;
-	if talents[MM.AMurderOfCrows] and cooldown[MM.AMurderOfCrows].ready and focus >= 20 then
-		return MM.AMurderOfCrows;
-	end
-
-	-- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable;
-	if talents[MM.SerpentSting] and focus >= 10 and debuff[MM.SerpentSting].refreshable then
-		return MM.SerpentSting;
-	end
-
-	-- multishot,if=focus>cost+action.aimed_shot.cost;
-	if focus > MultishotCost + AimedShotCost then
-		return MM.Multishot;
-	end
-
-	-- steady_shot;
-	return MM.SteadyShot;
 end
