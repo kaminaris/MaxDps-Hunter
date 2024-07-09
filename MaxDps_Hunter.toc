@@ -7,6 +7,7 @@
 ## SavedVariables: MaxDpsHunterOptions
 ## X-Curse-Project-ID: 98966
 ## X-WoWI-ID: 24642
+## X-Wago-ID: XKq9w5Ky
 
 Main.lua
 Specialization\Beastmastery.lua
