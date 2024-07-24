@@ -5,7 +5,7 @@ if not MaxDps then return end
 
 local UnitPower = UnitPower
 local UnitHealth = UnitHealth
-local UnitAura = UnitAura
+local UnitAura = C_UnitAuras.GetAuraDataByIndex
 local GetSpellDescription = GetSpellDescription
 local GetSpellPowerCost = C_Spell.GetSpellPowerCost
 local UnitHealthMax = UnitHealthMax
@@ -231,7 +231,7 @@ function Beast_mastery:cleave()
     if (MaxDps:FindSpell(classtable.DireBeast) and CheckSpellCosts(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
         return classtable.DireBeast
     end
-    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and ttd >( select(4,GetSpellInfo(classtable.SerpentSting)) /1000 )) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and ttd >( (GetSpellInfo(classtable.SerpentSting).castTime) /1000 )) and cooldown[classtable.SerpentSting].ready then
         return classtable.SerpentSting
     end
     if (MaxDps:FindSpell(classtable.Barrage) and CheckSpellCosts(classtable.Barrage, 'Barrage')) and ((C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) >MaxDps:GetTimeToPct(30)) and cooldown[classtable.Barrage].ready then
@@ -293,7 +293,7 @@ function Beast_mastery:st()
     if (MaxDps:FindSpell(classtable.DireBeast) and CheckSpellCosts(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
         return classtable.DireBeast
     end
-    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and ttd >( select(4,GetSpellInfo(classtable.SerpentSting)) /1000 )) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:FindSpell(classtable.SerpentSting) and CheckSpellCosts(classtable.SerpentSting, 'SerpentSting')) and (debuff[classtable.SerpentSting].refreshable and ttd >( (GetSpellInfo(classtable.SerpentSting).castTime) /1000 )) and cooldown[classtable.SerpentSting].ready then
         return classtable.SerpentSting
     end
     if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
