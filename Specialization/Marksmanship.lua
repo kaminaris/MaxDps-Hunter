@@ -5,7 +5,7 @@ if not MaxDps then return end
 
 local UnitPower = UnitPower
 local UnitHealth = UnitHealth
-local UnitAura = UnitAura
+local UnitAura = C_UnitAuras.GetAuraDataByIndex
 local GetSpellDescription = GetSpellDescription
 local GetSpellPowerCost = C_Spell.GetSpellPowerCost
 local UnitHealthMax = UnitHealthMax
@@ -249,7 +249,7 @@ function Marksmanship:st()
     if (MaxDps:FindSpell(classtable.WailingArrow) and CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and (targets >1) and cooldown[classtable.WailingArrow].ready then
         return classtable.WailingArrow
     end
-    if (MaxDps:FindSpell(classtable.RapidFire) and CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (( talents[classtable.SurgingShots] or cooldown[classtable.AimedShot].fullRecharge >( select(4,GetSpellInfo(classtable.AimedShot)) / 1000 ) + ( select(4,GetSpellInfo(classtable.RapidFire)) /1000) ) and ( Focus + FocusRegen <FocusMax )) and cooldown[classtable.RapidFire].ready then
+    if (MaxDps:FindSpell(classtable.RapidFire) and CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (( talents[classtable.SurgingShots] or cooldown[classtable.AimedShot].fullRecharge >( GetSpellInfo(classtable.AimedShot).castTime / 1000 ) + ( GetSpellInfo(classtable.RapidFire).castTime /1000) ) and ( Focus + FocusRegen <FocusMax )) and cooldown[classtable.RapidFire].ready then
         return classtable.RapidFire
     end
     if (MaxDps:FindSpell(classtable.Trueshot) and CheckSpellCosts(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
