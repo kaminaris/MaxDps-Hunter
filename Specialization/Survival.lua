@@ -158,7 +158,7 @@ function Survival:cds()
         MaxDps:GlowCooldown(classtable.Harpoon, cooldown[classtable.Harpoon].ready)
     end
     if (MaxDps:FindSpell(classtable.Muzzle) and CheckSpellCosts(classtable.Muzzle, 'Muzzle')) and cooldown[classtable.Muzzle].ready then
-        MaxDps:GlowCooldown(classtable.Muzzle, cooldown[classtable.Muzzle].ready)
+        MaxDps:GlowCooldown(classtable.Muzzle, select(8,UnitCastingInfo('target') == false) and cooldown[classtable.Muzzle].ready)
     end
     if (MaxDps:FindSpell(classtable.AspectoftheEagle) and CheckSpellCosts(classtable.AspectoftheEagle, 'AspectoftheEagle')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) or 0) >= 6) and cooldown[classtable.AspectoftheEagle].ready then
         MaxDps:GlowCooldown(classtable.AspectoftheEagle, cooldown[classtable.AspectoftheEagle].ready)
@@ -343,7 +343,7 @@ function Hunter:Survival()
     buff = fd.buff
     debuff = fd.debuff
     talents = fd.talents
-    targets = 1--MaxDps:SmartAoe()
+    targets = MaxDps:SmartAoe()
     Mana = UnitPower('player', ManaPT)
     ManaMax = UnitPowerMax('player', ManaPT)
     ManaDeficit = ManaMax - Mana
@@ -385,9 +385,9 @@ function Hunter:Survival()
 
 	Survival:precombat()
 
-    if (MaxDps:FindSpell(classtable.AutoAttack) and CheckSpellCosts(classtable.AutoAttack, 'AutoAttack')) and cooldown[classtable.AutoAttack].ready then
-        return classtable.AutoAttack
-    end
+    --if (MaxDps:FindSpell(classtable.AutoAttack) and CheckSpellCosts(classtable.AutoAttack, 'AutoAttack')) and cooldown[classtable.AutoAttack].ready then
+    --    return classtable.AutoAttack
+    --end
     local cdsCheck = Survival:cds()
     if cdsCheck then
         return cdsCheck
