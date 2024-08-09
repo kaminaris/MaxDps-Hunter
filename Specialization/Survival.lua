@@ -77,7 +77,7 @@ local function CheckSpellCosts(spell,spellstring)
         end
     end
     if spellstring == 'KillShot' then
-        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) and targethealthPerc > 15 then
+        if ( (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) ) and targethealthPerc > 15 then
             return false
         end
     end
