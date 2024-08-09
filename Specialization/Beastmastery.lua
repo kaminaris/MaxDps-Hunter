@@ -191,8 +191,8 @@ function BeastMastery:cleave()
     if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (buff[classtable.FrenzyBuff].up and buff[classtable.FrenzyBuff].remains <= gcd + 0.25 or talents[classtable.ScentofBlood] and cooldown[classtable.BestialWrath].remains <12 + gcd or buff[classtable.FrenzyBuff].count <3 and ( cooldown[classtable.BestialWrath].ready or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready ) or FocusTimeToMax <gcd and cooldown[classtable.BestialWrath].remains) and cooldown[classtable.BarbedShot].ready then
         return classtable.BarbedShot
     end
-    if (MaxDps:FindSpell(classtable.Multishot) and CheckSpellCosts(classtable.Multishot, 'Multishot')) and (buff[classtable.BeastCleaveBuff].remains <0.25 + gcd and ( not talents[classtable.BloodyFrenzy] or cooldown[classtable.CalloftheWild].ready==false )) and cooldown[classtable.Multishot].ready then
-        return classtable.Multishot
+    if (MaxDps:FindSpell(classtable.MultiShot) and CheckSpellCosts(classtable.MultiShot, 'MultiShot')) and (buff[classtable.BeastCleaveBuff].remains <0.25 + gcd and ( not talents[classtable.BloodyFrenzy] or cooldown[classtable.CalloftheWild].ready==false )) and cooldown[classtable.MultiShot].ready then
+        return classtable.MultiShot
     end
     if (MaxDps:FindSpell(classtable.BestialWrath) and CheckSpellCosts(classtable.BestialWrath, 'BestialWrath')) and cooldown[classtable.BestialWrath].ready then
         return classtable.BestialWrath
@@ -221,8 +221,8 @@ function BeastMastery:cleave()
     if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.Multishot) and CheckSpellCosts(classtable.Multishot, 'Multishot')) and (buff[classtable.BeastCleaveBuff].remains <gcd * 2) and cooldown[classtable.Multishot].ready then
-        return classtable.Multishot
+    if (MaxDps:FindSpell(classtable.MultiShot) and CheckSpellCosts(classtable.MultiShot, 'MultiShot')) and (buff[classtable.BeastCleaveBuff].remains <gcd * 2) and cooldown[classtable.MultiShot].ready then
+        return classtable.MultiShot
     end
     if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot

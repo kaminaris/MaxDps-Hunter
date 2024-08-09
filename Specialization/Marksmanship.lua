@@ -221,8 +221,8 @@ function Marksmanship:st()
     if (MaxDps:FindSpell(classtable.Trueshot) and CheckSpellCosts(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
         MaxDps:GlowCooldown(classtable.Trueshot, cooldown[classtable.Trueshot].ready)
     end
-    if (MaxDps:FindSpell(classtable.Multishot) and CheckSpellCosts(classtable.Multishot, 'Multishot')) and (buff[classtable.SalvoBuff].up and not talents[classtable.Volley]) and cooldown[classtable.Multishot].ready then
-        return classtable.Multishot
+    if (MaxDps:FindSpell(classtable.MultiShot) and CheckSpellCosts(classtable.MultiShot, 'MultiShot')) and (buff[classtable.SalvoBuff].up and not talents[classtable.Volley]) and cooldown[classtable.MultiShot].ready then
+        return classtable.MultiShot
     end
     if (MaxDps:FindSpell(classtable.WailingArrow) and CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and (not buff[classtable.PreciseShotsBuff].up or buff[classtable.TrueshotBuff].up or targets >1) and cooldown[classtable.WailingArrow].ready then
         return classtable.WailingArrow
@@ -286,14 +286,14 @@ function Marksmanship:trickshots()
     if (MaxDps:FindSpell(classtable.ChimaeraShot) and CheckSpellCosts(classtable.ChimaeraShot, 'ChimaeraShot')) and (buff[classtable.TrickShotsBuff].up and buff[classtable.PreciseShotsBuff].up and Focus >MaxGetSpellCost(classtable.ChimaeraShot, 'FOCUS') + MaxGetSpellCost(classtable.AimedShot, 'FOCUS') and targets <4) and cooldown[classtable.ChimaeraShot].ready then
         return classtable.ChimaeraShot
     end
-    if (MaxDps:FindSpell(classtable.Multishot) and CheckSpellCosts(classtable.Multishot, 'Multishot')) and (not buff[classtable.TrickShotsBuff].up or ( buff[classtable.PreciseShotsBuff].up or buff[classtable.BulletstormBuff].count == 10 ) and Focus >MaxGetSpellCost(classtable.Multishot, 'FOCUS') + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.Multishot].ready then
-        return classtable.Multishot
+    if (MaxDps:FindSpell(classtable.MultiShot) and CheckSpellCosts(classtable.MultiShot, 'MultiShot')) and (not buff[classtable.TrickShotsBuff].up or ( buff[classtable.PreciseShotsBuff].up or buff[classtable.BulletstormBuff].count == 10 ) and Focus >MaxGetSpellCost(classtable.MultiShot, 'FOCUS') + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.MultiShot].ready then
+        return classtable.MultiShot
     end
     if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (Focus >MaxGetSpellCost(classtable.KillShot, 'FOCUS') + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (MaxDps:FindSpell(classtable.Multishot) and CheckSpellCosts(classtable.Multishot, 'Multishot')) and (Focus >MaxGetSpellCost(classtable.Multishot, 'FOCUS') + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.Multishot].ready then
-        return classtable.Multishot
+    if (MaxDps:FindSpell(classtable.MultiShot) and CheckSpellCosts(classtable.MultiShot, 'MultiShot')) and (Focus >MaxGetSpellCost(classtable.MultiShot, 'FOCUS') + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.MultiShot].ready then
+        return classtable.MultiShot
     end
     if (MaxDps:FindSpell(classtable.SteadyShot) and CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
         return classtable.SteadyShot
