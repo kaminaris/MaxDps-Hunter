@@ -75,6 +75,7 @@ local sync_remains
 
 local function CheckSpellCosts(spell,spellstring)
     if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if not C_Spell.IsSpellUsable(spell) then return false end
     if spellstring == 'TouchofDeath' then
         if targethealthPerc > 15 then
             return false
@@ -180,8 +181,25 @@ local function CheckPrevSpell(spell)
 end
 
 
+local function boss()
+    if UnitExists('boss1')
+    or UnitExists('boss2')
+    or UnitExists('boss3')
+    or UnitExists('boss4')
+    or UnitExists('boss5')
+    or UnitExists('boss6')
+    or UnitExists('boss7')
+    or UnitExists('boss8')
+    or UnitExists('boss9')
+    or UnitExists('boss10') then
+        return true
+    end
+    return false
+end
+
+
 function BeastMastery:precombat()
-    if (MaxDps:FindSpell(classtable.HuntersMark) and CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and ( not debuff[classtable.HuntersMarkDebuff].up and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
+    if (MaxDps:FindSpell(classtable.HuntersMark) and CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
         return classtable.HuntersMark
     end
 end
@@ -215,7 +233,7 @@ function BeastMastery:cleave()
     if (MaxDps:FindSpell(classtable.DireBeast) and CheckSpellCosts(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
         return classtable.DireBeast
     end
-    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (buff[classtable.CalloftheWildBuff].up or talents[classtable.WildCall] and cooldown[classtable.BarbedShot].charges >1.2 or talents[classtable.Savagery]) and cooldown[classtable.BarbedShot].ready then
+    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (buff[classtable.CalloftheWildBuff].up or boss and ttd <9 or talents[classtable.WildCall] and cooldown[classtable.BarbedShot].charges >1.2 or talents[classtable.Savagery]) and cooldown[classtable.BarbedShot].ready then
         return classtable.BarbedShot
     end
     if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
@@ -241,7 +259,7 @@ function BeastMastery:st()
     if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (( FocusTimeToMax <gcd and talents[classtable.AlphaPredator] ) or talents[classtable.CalloftheWild]) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.DireBeast) and CheckSpellCosts(classtable.DireBeast, 'DireBeast')) and (talents[classtable.HuntmastersCall] and ( not buff[classtable.BestialWrathBuff].up and talents[classtable.KillerCobra] or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready )) and cooldown[classtable.DireBeast].ready then
+    if (MaxDps:FindSpell(classtable.DireBeast) and CheckSpellCosts(classtable.DireBeast, 'DireBeast')) and (talents[classtable.HuntmastersCall] and ( not buff[classtable.BestialWrathBuff].up and talents[classtable.KillerCobra] or cooldown[classtable.CalloftheWild].ready )) and cooldown[classtable.DireBeast].ready then
         return classtable.DireBeast
     end
     if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (talents[classtable.VenomsBite] and debuff[classtable.SerpentStingDeBuff].refreshable) and cooldown[classtable.KillShot].ready then
@@ -256,7 +274,7 @@ function BeastMastery:st()
     if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (talents[classtable.WildCall] and cooldown[classtable.BarbedShot].charges >1.4 or buff[classtable.CalloftheWildBuff].up or FocusTimeToMax <gcd and cooldown[classtable.BestialWrath].ready==false or talents[classtable.ScentofBlood] and ( cooldown[classtable.BestialWrath].remains <12 + gcd ) or talents[classtable.Savagery] ) and cooldown[classtable.BarbedShot].ready then
+    if (MaxDps:FindSpell(classtable.BarbedShot) and CheckSpellCosts(classtable.BarbedShot, 'BarbedShot')) and (talents[classtable.WildCall] and cooldown[classtable.BarbedShot].charges >1.4 or buff[classtable.CalloftheWildBuff].up or FocusTimeToMax <gcd and cooldown[classtable.BestialWrath].ready==false or talents[classtable.ScentofBlood] and ( cooldown[classtable.BestialWrath].remains <12 + gcd ) or talents[classtable.Savagery] or boss and ttd <9) and cooldown[classtable.BarbedShot].ready then
         return classtable.BarbedShot
     end
     if (MaxDps:FindSpell(classtable.CobraShot) and CheckSpellCosts(classtable.CobraShot, 'CobraShot')) and (buff[classtable.BestialWrathBuff].up and talents[classtable.KillerCobra]) and cooldown[classtable.CobraShot].ready then
@@ -278,7 +296,7 @@ function BeastMastery:st()
         return classtable.ArcanePulse
     end
 end
-local function trinkets()
+function BeastMastery:trinkets()
 end
 
 function BeastMastery:callaction()
@@ -292,11 +310,11 @@ function BeastMastery:callaction()
     if cdsCheck then
         return cdsCheck
     end
-    --local trinketsCheck = BeastMastery:trinkets()
-    --if trinketsCheck then
-    --    return trinketsCheck
-    --end
-    if (MaxDps:FindSpell(classtable.HuntersMark) and CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (not debuff[classtable.HuntersMarkDebuff].up and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
+    local trinketsCheck = BeastMastery:trinkets()
+    if trinketsCheck then
+        return trinketsCheck
+    end
+    if (MaxDps:FindSpell(classtable.HuntersMark) and CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
         return classtable.HuntersMark
     end
     if (targets <2 or not talents[classtable.BeastCleave] and targets <3) then
@@ -357,6 +375,7 @@ function Hunter:BeastMastery()
     if precombatCheck then
         return BeastMastery:precombat()
     end
+
     local callactionCheck = BeastMastery:callaction()
     if callactionCheck then
         return BeastMastery:callaction()
