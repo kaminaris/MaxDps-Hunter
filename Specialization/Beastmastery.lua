@@ -301,7 +301,7 @@ end
 
 function BeastMastery:callaction()
     if (MaxDps:FindSpell(classtable.CounterShot) and CheckSpellCosts(classtable.CounterShot, 'CounterShot')) and cooldown[classtable.CounterShot].ready then
-        MaxDps:GlowCooldown(classtable.CounterShot, select(8,UnitCastingInfo('target') == false) and cooldown[classtable.CounterShot].ready)
+        MaxDps:GlowCooldown(classtable.CounterShot, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     --if (MaxDps:FindSpell(classtable.TranquilizingShot) and CheckSpellCosts(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
     --    return classtable.TranquilizingShot
