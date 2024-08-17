@@ -71,13 +71,14 @@ local Survival = {}
 
 local function CheckSpellCosts(spell,spellstring)
     if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if not C_Spell.IsSpellUsable(spell) then return false end
     if spellstring == 'TouchofDeath' then
         if targethealthPerc > 15 then
             return false
         end
     end
     if spellstring == 'KillShot' then
-        if ( (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) ) and targethealthPerc > 15 then
+        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) and targethealthPerc > 15 then
             return false
         end
     end
@@ -128,7 +129,27 @@ local function CheckPrevSpell(spell)
 end
 
 
+local function boss()
+    if UnitExists('boss1')
+    or UnitExists('boss2')
+    or UnitExists('boss3')
+    or UnitExists('boss4')
+    or UnitExists('boss5')
+    or UnitExists('boss6')
+    or UnitExists('boss7')
+    or UnitExists('boss8')
+    or UnitExists('boss9')
+    or UnitExists('boss10') then
+        return true
+    end
+    return false
+end
+
+
 function Survival:precombat()
+    if (MaxDps:FindSpell(classtable.HuntersMark) and CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
+        return classtable.HuntersMark
+    end
 end
 function Survival:cds()
     if (MaxDps:FindSpell(classtable.AspectoftheEagle) and CheckSpellCosts(classtable.AspectoftheEagle, 'AspectoftheEagle')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) or 0) >= 6) and cooldown[classtable.AspectoftheEagle].ready then
@@ -142,10 +163,10 @@ function Survival:plst()
     if (MaxDps:FindSpell(classtable.Spearhead) and CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
         return classtable.Spearhead
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >12 and ( not talents[classtable.ContagiousReagents] or debuff[classtable.SerpentStingDebuff].count  == 0 )) and cooldown[classtable.RaptorBite].ready then
+    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >12 and ( not talents[classtable.ContagiousReagents] or debuff[classtable.SerpentStingDeBuff].count  == 0 )) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (talents[classtable.ContagiousReagents] and debuff[classtable.SerpentStingDebuff].count  <targets and debuff[classtable.SerpentStingDeBuff].remains) and cooldown[classtable.RaptorBite].ready then
+    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (talents[classtable.ContagiousReagents] and debuff[classtable.SerpentStingDeBuff].count  <targets and debuff[classtable.SerpentStingDeBuff].remains) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
     if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
@@ -213,7 +234,7 @@ function Survival:plcleave()
     if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.SicEmBuff].remains and targets <4) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (Focus + FocusRegen <FocusMax) and cooldown[classtable.KillCommand].ready then
+    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
     if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.WildfireBomb].ready then
@@ -239,10 +260,10 @@ function Survival:sentst()
     if (MaxDps:FindSpell(classtable.Spearhead) and CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
         return classtable.Spearhead
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >12 and ( not talents[classtable.ContagiousReagents] or debuff[classtable.SerpentStingDebuff].count  == 0 )) and cooldown[classtable.RaptorBite].ready then
+    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >12 and ( not talents[classtable.ContagiousReagents] or debuff[classtable.SerpentStingDeBuff].count  == 0 )) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (talents[classtable.ContagiousReagents] and debuff[classtable.SerpentStingDebuff].count  <targets and debuff[classtable.SerpentStingDeBuff].remains) and cooldown[classtable.RaptorBite].ready then
+    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (talents[classtable.ContagiousReagents] and debuff[classtable.SerpentStingDeBuff].count  <targets and debuff[classtable.SerpentStingDeBuff].remains) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
     if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
@@ -334,6 +355,9 @@ function Survival:callaction()
     if (MaxDps:FindSpell(classtable.Muzzle) and CheckSpellCosts(classtable.Muzzle, 'Muzzle')) and cooldown[classtable.Muzzle].ready then
         MaxDps:GlowCooldown(classtable.Muzzle, select(8,UnitCastingInfo('target') == false) and cooldown[classtable.Muzzle].ready)
     end
+    if (MaxDps:FindSpell(classtable.HuntersMark) and CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
+        return classtable.HuntersMark
+    end
     local cdsCheck = Survival:cds()
     if cdsCheck then
         return cdsCheck
@@ -361,6 +385,9 @@ function Survival:callaction()
         if sentcleaveCheck then
             return Survival:sentcleave()
         end
+    end
+    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
+        return classtable.KillCommand
     end
 end
 function Hunter:Survival()
@@ -393,7 +420,8 @@ function Hunter:Survival()
     FocusTimeToMax = FocusDeficit / FocusRegen
     FocusPerc = (Focus / FocusMax) * 100
     next_wi_bomb = function()
-        local spellinfo = GetSpellInfo(GetSpellInfo(259495))
+        local firstSpell = GetSpellInfo(259495)
+        local spellinfo = firstSpell and GetSpellInfo(firstSpell.spellID)
         return spellinfo and spellinfo.spellID or 0
     end
     if talents[classtable.MongooseBite] then
@@ -419,6 +447,7 @@ function Hunter:Survival()
     if precombatCheck then
         return Survival:precombat()
     end
+
     local callactionCheck = Survival:callaction()
     if callactionCheck then
         return Survival:callaction()
