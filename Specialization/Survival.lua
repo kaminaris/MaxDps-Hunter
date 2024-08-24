@@ -72,26 +72,6 @@ local Survival = {}
 local function CheckSpellCosts(spell,spellstring)
     if not IsSpellKnown(spell) then return false end
     if not C_Spell.IsSpellUsable(spell) then return false end
-    if spellstring == 'TouchofDeath' then
-        if targethealthPerc > 15 then
-            return false
-        end
-    end
-    if spellstring == 'KillShot' then
-        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) and targethealthPerc > 15 then
-            return false
-        end
-    end
-    if spellstring == 'HammerofWrath' then
-        if ( (classtable.AvengingWrathBuff and not buff[classtable.AvengingWrathBuff].up) or (classtable.FinalVerdictBuff and not buff[classtable.FinalVerdictBuff].up) ) and targethealthPerc > 20 then
-            return false
-        end
-    end
-    if spellstring == 'Execute' then
-        if (classtable.SuddenDeathBuff and not buff[classtable.SuddenDeathBuff].up) and targethealthPerc > 35 then
-            return false
-        end
-    end
     local costs = C_Spell.GetSpellPowerCost(spell)
     if type(costs) ~= 'table' and spellstring then return true end
     for i,costtable in pairs(costs) do
@@ -152,6 +132,9 @@ function Survival:precombat()
     end
 end
 function Survival:cds()
+    if (CheckSpellCosts(classtable.Harpoon, 'Harpoon')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) or 0) >= 8) and cooldown[classtable.Harpoon].ready then
+        MaxDps:GlowCooldown(classtable.Harpoon, cooldown[classtable.Harpoon].ready)
+    end
     if (CheckSpellCosts(classtable.AspectoftheEagle, 'AspectoftheEagle')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) or 0) >= 6) and cooldown[classtable.AspectoftheEagle].ready then
         MaxDps:GlowCooldown(classtable.AspectoftheEagle, cooldown[classtable.AspectoftheEagle].ready)
     end
@@ -355,9 +338,9 @@ function Survival:callaction()
     if (CheckSpellCosts(classtable.Muzzle, 'Muzzle')) and cooldown[classtable.Muzzle].ready then
         MaxDps:GlowCooldown(classtable.Muzzle, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
-    if (CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
-        MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
-    end
+    --if (CheckSpellCosts(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
+    --    return classtable.TranquilizingShot
+    --end
     local cdsCheck = Survival:cds()
     if cdsCheck then
         return cdsCheck

@@ -77,26 +77,6 @@ local sync_remains
 local function CheckSpellCosts(spell,spellstring)
     if not IsSpellKnown(spell) then return false end
     if not C_Spell.IsSpellUsable(spell) then return false end
-    if spellstring == 'TouchofDeath' then
-        if targethealthPerc > 15 then
-            return false
-        end
-    end
-    if spellstring == 'KillShot' then
-        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) and targethealthPerc > 15 then
-            return false
-        end
-    end
-    if spellstring == 'HammerofWrath' then
-        if ( (classtable.AvengingWrathBuff and not buff[classtable.AvengingWrathBuff].up) or (classtable.FinalVerdictBuff and not buff[classtable.FinalVerdictBuff].up) ) and targethealthPerc > 20 then
-            return false
-        end
-    end
-    if spellstring == 'Execute' then
-        if (classtable.SuddenDeathBuff and not buff[classtable.SuddenDeathBuff].up) and targethealthPerc > 35 then
-            return false
-        end
-    end
     local costs = C_Spell.GetSpellPowerCost(spell)
     if type(costs) ~= 'table' and spellstring then return true end
     for i,costtable in pairs(costs) do
@@ -236,7 +216,7 @@ function Marksmanship:st()
     if (CheckSpellCosts(classtable.Volley, 'Volley')) and cooldown[classtable.Volley].ready then
         return classtable.Volley
     end
-    if (CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (not talents[classtable.LunarStorm] or ( not cooldown[classtable.LunarStormIcd].ready==false or cooldown[classtable.LunarStormIcd].remains >5 )) and cooldown[classtable.RapidFire].ready then
+    if (CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (not talents[classtable.LunarStorm] or ( not cooldown[classtable.LunarStorm].ready==false or cooldown[classtable.LunarStorm].remains >5 )) and cooldown[classtable.RapidFire].ready then
         return classtable.RapidFire
     end
     if (CheckSpellCosts(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
@@ -324,7 +304,10 @@ function Marksmanship:callaction()
     if (CheckSpellCosts(classtable.CounterShot, 'CounterShot')) and cooldown[classtable.CounterShot].ready then
         MaxDps:GlowCooldown(classtable.CounterShot, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
-    trueshot_ready = cooldown[classtable.Trueshot].ready and ( (targets <2) and ( not talents[classtable.Bullseye] or ttd >cooldown[classtable.Trueshot].duration + buff[classtable.TrueshotBuff].duration % 2 or buff[classtable.BullseyeBuff].count == 30 ) or (targets >1) and ( not (targets >1) and ( (targets>1 and MaxDps:MaxAddDuration() or 0) + math.huge <25 or math.huge >60 ) or (targets >1) and targets >10 ) or boss and ttd <25 )
+    --if (CheckSpellCosts(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
+    --    return classtable.TranquilizingShot
+    --end
+    trueshot_ready = cooldown[classtable.Trueshot].ready-- and ( (targets <2) and ( not talents[classtable.Bullseye] or ttd >cooldown[classtable.Trueshot].duration + buff[classtable.TrueshotBuff].duration % 2 or buff[classtable.BullseyeBuff].count == buff[classtable.BullseyeBuff].maxStacks ) or (targets >1) and ( not (targets >1) and ( (targets>1 and MaxDps:MaxAddDuration() or 0) + math.huge <25 or math.huge >60 ) or (targets >1) and targets >10 ) or boss and ttd <25 )
     local cdsCheck = Marksmanship:cds()
     if cdsCheck then
         return cdsCheck
