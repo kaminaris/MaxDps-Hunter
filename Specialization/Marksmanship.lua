@@ -334,7 +334,7 @@ function Marksmanship:callaction()
         return trinketsCheck
     end
     if (CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
-        return classtable.HuntersMark
+        MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
     if (targets <3 or not talents[classtable.TrickShots]) then
         local stCheck = Marksmanship:st()

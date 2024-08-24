@@ -200,7 +200,7 @@ end
 
 function BeastMastery:precombat()
     if (CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
-        return classtable.HuntersMark
+        MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
 end
 function BeastMastery:cds()
@@ -315,7 +315,7 @@ function BeastMastery:callaction()
         return trinketsCheck
     end
     if (CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
-        return classtable.HuntersMark
+        MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
     if (targets <2 or not talents[classtable.BeastCleave] and targets <3) then
         local stCheck = BeastMastery:st()
