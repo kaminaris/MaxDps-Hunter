@@ -70,7 +70,7 @@ local Survival = {}
 
 
 local function CheckSpellCosts(spell,spellstring)
-    if not IsSpellKnownOrOverridesKnown(spell) then return false end
+    if not IsSpellKnown(spell) then return false end
     if not C_Spell.IsSpellUsable(spell) then return false end
     if spellstring == 'TouchofDeath' then
         if targethealthPerc > 15 then
@@ -147,215 +147,215 @@ end
 
 
 function Survival:precombat()
-    if (MaxDps:FindSpell(classtable.HuntersMark) and CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
+    if (CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
         return classtable.HuntersMark
     end
 end
 function Survival:cds()
-    if (MaxDps:FindSpell(classtable.AspectoftheEagle) and CheckSpellCosts(classtable.AspectoftheEagle, 'AspectoftheEagle')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) or 0) >= 6) and cooldown[classtable.AspectoftheEagle].ready then
+    if (CheckSpellCosts(classtable.AspectoftheEagle, 'AspectoftheEagle')) and ((LibRangeCheck and LibRangeCheck:GetRange('target', false, true) or 0) >= 6) and cooldown[classtable.AspectoftheEagle].ready then
         MaxDps:GlowCooldown(classtable.AspectoftheEagle, cooldown[classtable.AspectoftheEagle].ready)
     end
 end
 function Survival:plst()
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (( buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1 )) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (( buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1 )) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.Spearhead) and CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
+    if (CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
         return classtable.Spearhead
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >12 and ( not talents[classtable.ContagiousReagents] or debuff[classtable.SerpentStingDeBuff].count  == 0 )) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >12 and ( not talents[classtable.ContagiousReagents] or debuff[classtable.SerpentStingDeBuff].count  == 0 )) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (talents[classtable.ContagiousReagents] and debuff[classtable.SerpentStingDeBuff].count  <targets and debuff[classtable.SerpentStingDeBuff].remains) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (talents[classtable.ContagiousReagents] and debuff[classtable.SerpentStingDeBuff].count  <targets and debuff[classtable.SerpentStingDeBuff].remains) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
+    if (CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
         return classtable.WildfireBomb
     end
-    if (MaxDps:FindSpell(classtable.CoordinatedAssault) and CheckSpellCosts(classtable.CoordinatedAssault, 'CoordinatedAssault')) and (not talents[classtable.Bombardier] or talents[classtable.Bombardier] and cooldown[classtable.WildfireBomb].charges <1) and cooldown[classtable.CoordinatedAssault].ready then
+    if (CheckSpellCosts(classtable.CoordinatedAssault, 'CoordinatedAssault')) and (not talents[classtable.Bombardier] or talents[classtable.Bombardier] and cooldown[classtable.WildfireBomb].charges <1) and cooldown[classtable.CoordinatedAssault].ready then
         return classtable.CoordinatedAssault
     end
-    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (( buff[classtable.TipoftheSpearBuff].count >0 or talents[classtable.SicEm] )) and cooldown[classtable.KillShot].ready then
+    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and (( buff[classtable.TipoftheSpearBuff].count >0 or talents[classtable.SicEm] )) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (MaxDps:FindSpell(classtable.FlankingStrike) and CheckSpellCosts(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count <2) and cooldown[classtable.FlankingStrike].ready then
+    if (CheckSpellCosts(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count <2) and cooldown[classtable.FlankingStrike].ready then
         return classtable.FlankingStrike
     end
-    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (( talents[classtable.Spearhead] and ( not talents[classtable.SymbioticAdrenaline] and ( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.Spearhead].remains >20 or cooldown[classtable.Spearhead].remains <2 ) ) or ( ( talents[classtable.SymbioticAdrenaline] or not talents[classtable.Spearhead] ) and ( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.CoordinatedAssault].remains >20 or cooldown[classtable.CoordinatedAssault].remains <2 )) and cooldown[classtable.ExplosiveShot].ready then
+    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (( talents[classtable.Spearhead] and ( not talents[classtable.SymbioticAdrenaline] and ( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.Spearhead].remains >20 or cooldown[classtable.Spearhead].remains <2 ) ) or ( ( talents[classtable.SymbioticAdrenaline] or not talents[classtable.Spearhead] ) and ( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.CoordinatedAssault].remains >20 or cooldown[classtable.CoordinatedAssault].remains <2 )) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (( buff[classtable.FuriousAssaultBuff].up and buff[classtable.TipoftheSpearBuff].count >0 ) and ( not talents[classtable.MongooseBite] or buff[classtable.MongooseFuryBuff].count >4 )) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (( buff[classtable.FuriousAssaultBuff].up and buff[classtable.TipoftheSpearBuff].count >0 ) and ( not talents[classtable.MongooseBite] or buff[classtable.MongooseFuryBuff].count >4 )) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and ( (targets <2) or (targets >1) and math.huge >15 )) and cooldown[classtable.WildfireBomb].ready then
+    if (CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and ( (targets <2) or (targets >1) and math.huge >15 )) and cooldown[classtable.WildfireBomb].ready then
         return classtable.WildfireBomb
     end
-    if (MaxDps:FindSpell(classtable.FuryoftheEagle) and CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (( (targets <2) or (targets >1) and math.huge >40 )) and cooldown[classtable.FuryoftheEagle].ready then
+    if (CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (( (targets <2) or (targets >1) and math.huge >40 )) and cooldown[classtable.FuryoftheEagle].ready then
         return classtable.FuryoftheEagle
     end
-    if (MaxDps:FindSpell(classtable.Butchery) and CheckSpellCosts(classtable.Butchery, 'Butchery')) and (targets >1 and ( talents[classtable.MercilessBlows] and not buff[classtable.MercilessBlowsBuff].up or not talents[classtable.MercilessBlows] )) and cooldown[classtable.Butchery].ready then
+    if (CheckSpellCosts(classtable.Butchery, 'Butchery')) and (targets >1 and ( talents[classtable.MercilessBlows] and not buff[classtable.MercilessBlowsBuff].up or not talents[classtable.MercilessBlows] )) and cooldown[classtable.Butchery].ready then
         return classtable.Butchery
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not talents[classtable.ContagiousReagents]) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not talents[classtable.ContagiousReagents]) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
 end
 function Survival:plcleave()
-    if (MaxDps:FindSpell(classtable.Spearhead) and CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
+    if (CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
         return classtable.Spearhead
     end
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (buff[classtable.BombardierBuff].remains) and cooldown[classtable.ExplosiveShot].ready then
+    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (buff[classtable.BombardierBuff].remains) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
+    if (CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
         return classtable.WildfireBomb
     end
-    if (MaxDps:FindSpell(classtable.CoordinatedAssault) and CheckSpellCosts(classtable.CoordinatedAssault, 'CoordinatedAssault')) and (not talents[classtable.Bombardier] or talents[classtable.Bombardier] and cooldown[classtable.WildfireBomb].charges <1) and cooldown[classtable.CoordinatedAssault].ready then
+    if (CheckSpellCosts(classtable.CoordinatedAssault, 'CoordinatedAssault')) and (not talents[classtable.Bombardier] or talents[classtable.Bombardier] and cooldown[classtable.WildfireBomb].charges <1) and cooldown[classtable.CoordinatedAssault].ready then
         return classtable.CoordinatedAssault
     end
-    if (MaxDps:FindSpell(classtable.FlankingStrike) and CheckSpellCosts(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count <2) and cooldown[classtable.FlankingStrike].ready then
+    if (CheckSpellCosts(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count <2) and cooldown[classtable.FlankingStrike].ready then
         return classtable.FlankingStrike
     end
-    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.CoordinatedAssault].remains >20 or cooldown[classtable.CoordinatedAssault].remains <2) and cooldown[classtable.ExplosiveShot].ready then
+    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.CoordinatedAssault].remains >20 or cooldown[classtable.CoordinatedAssault].remains <2) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (MaxDps:FindSpell(classtable.FuryoftheEagle) and CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.FuryoftheEagle].ready then
+    if (CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.FuryoftheEagle].ready then
         return classtable.FuryoftheEagle
     end
-    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.SicEmBuff].remains and targets <4) and cooldown[classtable.KillShot].ready then
+    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.SicEmBuff].remains and targets <4) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.WildfireBomb].ready then
+    if (CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.WildfireBomb].ready then
         return classtable.WildfireBomb
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (buff[classtable.MercilessBlowsBuff].up) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (buff[classtable.MercilessBlowsBuff].up) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.Butchery) and CheckSpellCosts(classtable.Butchery, 'Butchery')) and cooldown[classtable.Butchery].ready then
+    if (CheckSpellCosts(classtable.Butchery, 'Butchery')) and cooldown[classtable.Butchery].ready then
         return classtable.Butchery
     end
-    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
+    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
 end
 function Survival:sentst()
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (( buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1 )) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (( buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1 )) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.Spearhead) and CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
+    if (CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
         return classtable.Spearhead
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >12 and ( not talents[classtable.ContagiousReagents] or debuff[classtable.SerpentStingDeBuff].count  == 0 )) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >12 and ( not talents[classtable.ContagiousReagents] or debuff[classtable.SerpentStingDeBuff].count  == 0 )) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (talents[classtable.ContagiousReagents] and debuff[classtable.SerpentStingDeBuff].count  <targets and debuff[classtable.SerpentStingDeBuff].remains) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (talents[classtable.ContagiousReagents] and debuff[classtable.SerpentStingDeBuff].count  <targets and debuff[classtable.SerpentStingDeBuff].remains) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
+    if (CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
         return classtable.WildfireBomb
     end
-    if (MaxDps:FindSpell(classtable.CoordinatedAssault) and CheckSpellCosts(classtable.CoordinatedAssault, 'CoordinatedAssault')) and (not talents[classtable.Bombardier] or talents[classtable.Bombardier] and cooldown[classtable.WildfireBomb].charges <1) and cooldown[classtable.CoordinatedAssault].ready then
+    if (CheckSpellCosts(classtable.CoordinatedAssault, 'CoordinatedAssault')) and (not talents[classtable.Bombardier] or talents[classtable.Bombardier] and cooldown[classtable.WildfireBomb].charges <1) and cooldown[classtable.CoordinatedAssault].ready then
         return classtable.CoordinatedAssault
     end
-    if (MaxDps:FindSpell(classtable.FuryoftheEagle) and CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and ((MaxDps.tier and MaxDps.tier[31].count >= 2)) and cooldown[classtable.FuryoftheEagle].ready then
+    if (CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and ((MaxDps.tier and MaxDps.tier[31].count >= 2)) and cooldown[classtable.FuryoftheEagle].ready then
         return classtable.FuryoftheEagle
     end
-    if (MaxDps:FindSpell(classtable.FlankingStrike) and CheckSpellCosts(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count <2) and cooldown[classtable.FlankingStrike].ready then
+    if (CheckSpellCosts(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count <2) and cooldown[classtable.FlankingStrike].ready then
         return classtable.FlankingStrike
     end
-    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (( talents[classtable.Spearhead] and ( not talents[classtable.SymbioticAdrenaline] and ( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.Spearhead].remains >20 or cooldown[classtable.Spearhead].remains <2 ) ) or ( ( talents[classtable.SymbioticAdrenaline] or not talents[classtable.Spearhead] ) and ( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.CoordinatedAssault].remains >20 or cooldown[classtable.CoordinatedAssault].remains <2 )) and cooldown[classtable.ExplosiveShot].ready then
+    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (( talents[classtable.Spearhead] and ( not talents[classtable.SymbioticAdrenaline] and ( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.Spearhead].remains >20 or cooldown[classtable.Spearhead].remains <2 ) ) or ( ( talents[classtable.SymbioticAdrenaline] or not talents[classtable.Spearhead] ) and ( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.CoordinatedAssault].remains >20 or cooldown[classtable.CoordinatedAssault].remains <2 )) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.TipoftheSpearBuff].count >0 or talents[classtable.SicEm]) and cooldown[classtable.KillShot].ready then
+    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.TipoftheSpearBuff].count >0 or talents[classtable.SicEm]) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (Focus + FocusRegen <FocusMax and ( not buff[classtable.RelentlessPrimalFerocityBuff].up or ( buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <2 ) )) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (Focus + FocusRegen <FocusMax and ( not buff[classtable.RelentlessPrimalFerocityBuff].up or ( buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <2 ) )) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and ( (targets <2) or (targets >1) and math.huge >15 )) and cooldown[classtable.WildfireBomb].ready then
+    if (CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and ( (targets <2) or (targets >1) and math.huge >15 )) and cooldown[classtable.WildfireBomb].ready then
         return classtable.WildfireBomb
     end
-    if (MaxDps:FindSpell(classtable.FuryoftheEagle) and CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (( (targets <2) or (targets >1) and math.huge >40 )) and cooldown[classtable.FuryoftheEagle].ready then
+    if (CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (( (targets <2) or (targets >1) and math.huge >40 )) and cooldown[classtable.FuryoftheEagle].ready then
         return classtable.FuryoftheEagle
     end
-    if (MaxDps:FindSpell(classtable.Butchery) and CheckSpellCosts(classtable.Butchery, 'Butchery')) and (targets >1 and ( talents[classtable.MercilessBlows] and not buff[classtable.MercilessBlowsBuff].up or not talents[classtable.MercilessBlows] )) and cooldown[classtable.Butchery].ready then
+    if (CheckSpellCosts(classtable.Butchery, 'Butchery')) and (targets >1 and ( talents[classtable.MercilessBlows] and not buff[classtable.MercilessBlowsBuff].up or not talents[classtable.MercilessBlows] )) and cooldown[classtable.Butchery].ready then
         return classtable.Butchery
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not talents[classtable.ContagiousReagents]) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (not talents[classtable.ContagiousReagents]) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
 end
 function Survival:sentcleave()
-    if (MaxDps:FindSpell(classtable.Spearhead) and CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
+    if (CheckSpellCosts(classtable.Spearhead, 'Spearhead')) and (cooldown[classtable.CoordinatedAssault].remains) and cooldown[classtable.Spearhead].ready then
         return classtable.Spearhead
     end
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (buff[classtable.BombardierBuff].remains) and cooldown[classtable.ExplosiveShot].ready then
+    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (buff[classtable.BombardierBuff].remains) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
+    if (CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd) and cooldown[classtable.WildfireBomb].ready then
         return classtable.WildfireBomb
     end
-    if (MaxDps:FindSpell(classtable.CoordinatedAssault) and CheckSpellCosts(classtable.CoordinatedAssault, 'CoordinatedAssault')) and (not talents[classtable.Bombardier] or talents[classtable.Bombardier] and cooldown[classtable.WildfireBomb].charges <1) and cooldown[classtable.CoordinatedAssault].ready then
+    if (CheckSpellCosts(classtable.CoordinatedAssault, 'CoordinatedAssault')) and (not talents[classtable.Bombardier] or talents[classtable.Bombardier] and cooldown[classtable.WildfireBomb].charges <1) and cooldown[classtable.CoordinatedAssault].ready then
         return classtable.CoordinatedAssault
     end
-    if (MaxDps:FindSpell(classtable.FlankingStrike) and CheckSpellCosts(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count <2) and cooldown[classtable.FlankingStrike].ready then
+    if (CheckSpellCosts(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count <2) and cooldown[classtable.FlankingStrike].ready then
         return classtable.FlankingStrike
     end
-    if (MaxDps:FindSpell(classtable.ExplosiveShot) and CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.CoordinatedAssault].remains >20 or cooldown[classtable.CoordinatedAssault].remains <2) and cooldown[classtable.ExplosiveShot].ready then
+    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (( buff[classtable.TipoftheSpearBuff].count >0 or buff[classtable.BombardierBuff].remains ) and cooldown[classtable.CoordinatedAssault].remains >20 or cooldown[classtable.CoordinatedAssault].remains <2) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (MaxDps:FindSpell(classtable.FuryoftheEagle) and CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.FuryoftheEagle].ready then
+    if (CheckSpellCosts(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.FuryoftheEagle].ready then
         return classtable.FuryoftheEagle
     end
-    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.SicEmBuff].remains and targets <4) and cooldown[classtable.KillShot].ready then
+    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.SicEmBuff].remains and targets <4) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (Focus + FocusRegen <FocusMax) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and (Focus + FocusRegen <FocusMax) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
-    if (MaxDps:FindSpell(classtable.WildfireBomb) and CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.WildfireBomb].ready then
+    if (CheckSpellCosts(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0) and cooldown[classtable.WildfireBomb].ready then
         return classtable.WildfireBomb
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (buff[classtable.MercilessBlowsBuff].up) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and (buff[classtable.MercilessBlowsBuff].up) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
-    if (MaxDps:FindSpell(classtable.Butchery) and CheckSpellCosts(classtable.Butchery, 'Butchery')) and cooldown[classtable.Butchery].ready then
+    if (CheckSpellCosts(classtable.Butchery, 'Butchery')) and cooldown[classtable.Butchery].ready then
         return classtable.Butchery
     end
-    if (MaxDps:FindSpell(classtable.KillShot) and CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
+    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (MaxDps:FindSpell(classtable.RaptorBite) and CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and cooldown[classtable.RaptorBite].ready then
+    if (CheckSpellCosts(classtable.RaptorBite, 'RaptorBite')) and cooldown[classtable.RaptorBite].ready then
         return classtable.RaptorBite
     end
 end
 
 function Survival:callaction()
-    if (MaxDps:FindSpell(classtable.Muzzle) and CheckSpellCosts(classtable.Muzzle, 'Muzzle')) and cooldown[classtable.Muzzle].ready then
+    if (CheckSpellCosts(classtable.Muzzle, 'Muzzle')) and cooldown[classtable.Muzzle].ready then
         MaxDps:GlowCooldown(classtable.Muzzle, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
-    if (MaxDps:FindSpell(classtable.HuntersMark) and CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
+    if (CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
         return classtable.HuntersMark
     end
     local cdsCheck = Survival:cds()
@@ -386,7 +386,7 @@ function Survival:callaction()
             return Survival:sentcleave()
         end
     end
-    if (MaxDps:FindSpell(classtable.KillCommand) and CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
+    if (CheckSpellCosts(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
         return classtable.KillCommand
     end
 end
