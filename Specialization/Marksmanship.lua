@@ -74,79 +74,6 @@ local sync_ready
 local sync_active
 local sync_remains
 
-local function CheckSpellCosts(spell,spellstring)
-    if not IsSpellKnown(spell) then return false end
-    if not C_Spell.IsSpellUsable(spell) then return false end
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' and spellstring then return true end
-    for i,costtable in pairs(costs) do
-        if UnitPower('player', costtable.type) < costtable.cost then
-            return false
-        end
-    end
-    return true
-end
-local function MaxGetSpellCost(spell,power)
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' then return 0 end
-    for i,costtable in pairs(costs) do
-        if costtable.name == power then
-            return costtable.cost
-        end
-    end
-    return 0
-end
-
-
-
-local function CheckTrinketNames(checkName)
-    --if slot == 1 then
-    --    slot = 13
-    --end
-    --if slot == 2 then
-    --    slot = 14
-    --end
-    for i=13,14 do
-        local itemID = GetInventoryItemID('player', i)
-        local itemName = C_Item.GetItemInfo(itemID)
-        if checkName == itemName then
-            return true
-        end
-    end
-    return false
-end
-
-
-local function CheckTrinketCooldown(slot)
-    if slot == 1 then
-        slot = 13
-    end
-    if slot == 2 then
-        slot = 14
-    end
-    if slot == 13 or slot == 14 then
-        local itemID = GetInventoryItemID('player', slot)
-        local _, duration, _ = C_Item.GetItemCooldown(itemID)
-        if duration == 0 then return true else return false end
-    else
-        local tOneitemID = GetInventoryItemID('player', 13)
-        local tTwoitemID = GetInventoryItemID('player', 14)
-        local tOneitemName = C_Item.GetItemInfo(tOneitemID)
-        local tTwoitemName = C_Item.GetItemInfo(tTwoitemID)
-        if tOneitemName == slot then
-            local _, duration, _ = C_Item.GetItemCooldown(tOneitemID)
-            if duration == 0 then return true else return false end
-        end
-        if tTwoitemName == slot then
-            local _, duration, _ = C_Item.GetItemCooldown(tTwoitemID)
-            if duration == 0 then return true else return false end
-        end
-    end
-end
-
-
-
-
 local function SteadyFocusTrack()
     if MaxDps.spellHistory and MaxDps.spellHistory[1] and MaxDps.spellHistory[2] then
         --if MaxDps.spellHistory[1] == classtable.SteadyShot and MaxDps.spellHistory[2] ~= classtable.SteadyShot then
@@ -160,140 +87,107 @@ local function SteadyFocusTrack()
     return true
 end
 
-
-local function CheckPrevSpell(spell)
-    if MaxDps and MaxDps.spellHistory then
-        if MaxDps.spellHistory[1] then
-            if MaxDps.spellHistory[1] == spell then
-                return true
-            end
-            if MaxDps.spellHistory[1] ~= spell then
-                return false
-            end
-        end
-    end
-    return true
-end
-
-
-local function boss()
-    if UnitExists('boss1')
-    or UnitExists('boss2')
-    or UnitExists('boss3')
-    or UnitExists('boss4')
-    or UnitExists('boss5')
-    or UnitExists('boss6')
-    or UnitExists('boss7')
-    or UnitExists('boss8')
-    or UnitExists('boss9')
-    or UnitExists('boss10') then
-        return true
-    end
-    return false
-end
-
-
 function Marksmanship:precombat()
 end
 function Marksmanship:cds()
-    if (CheckSpellCosts(classtable.Salvo, 'Salvo')) and (targets >2 or cooldown[classtable.Volley].remains <10) and cooldown[classtable.Salvo].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Salvo, 'Salvo')) and (targets >2 or cooldown[classtable.Volley].remains <10) and cooldown[classtable.Salvo].ready then
         MaxDps:GlowCooldown(classtable.Salvo, cooldown[classtable.Salvo].ready)
     end
 end
 function Marksmanship:st()
-    if (CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.SteadyFocus] and SteadyFocusTrack() and buff[classtable.SteadyFocusBuff].remains <8) and cooldown[classtable.SteadyShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.SteadyFocus] and SteadyFocusTrack() and buff[classtable.SteadyFocusBuff].remains <8) and cooldown[classtable.SteadyShot].ready then
         return classtable.SteadyShot
     end
-    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.RazorFragmentsBuff].up) and cooldown[classtable.KillShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (buff[classtable.RazorFragmentsBuff].up) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (CheckSpellCosts(classtable.BlackArrow, 'BlackArrow')) and cooldown[classtable.BlackArrow].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow')) and cooldown[classtable.BlackArrow].ready then
         return classtable.BlackArrow
     end
-    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and (targets >1) and cooldown[classtable.ExplosiveShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (targets >1) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (CheckSpellCosts(classtable.Volley, 'Volley')) and cooldown[classtable.Volley].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Volley, 'Volley')) and cooldown[classtable.Volley].ready then
         return classtable.Volley
     end
-    if (CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (not talents[classtable.LunarStorm] or ( not cooldown[classtable.LunarStorm].ready==false or cooldown[classtable.LunarStorm].remains >5 )) and cooldown[classtable.RapidFire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (not talents[classtable.LunarStorm] or ( not cooldown[classtable.LunarStorm].ready==false or cooldown[classtable.LunarStorm].remains >5 )) and cooldown[classtable.RapidFire].ready then
         return classtable.RapidFire
     end
-    if (CheckSpellCosts(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
         MaxDps:GlowCooldown(classtable.Trueshot, cooldown[classtable.Trueshot].ready)
     end
-    if (CheckSpellCosts(classtable.MultiShot, 'MultiShot')) and (buff[classtable.SalvoBuff].up and not talents[classtable.Volley]) and cooldown[classtable.MultiShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (buff[classtable.SalvoBuff].up and not talents[classtable.Volley]) and cooldown[classtable.MultiShot].ready then
         return classtable.MultiShot
     end
-    if (CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and cooldown[classtable.WailingArrow].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WailingArrow, 'WailingArrow')) and cooldown[classtable.WailingArrow].ready then
         return classtable.WailingArrow
     end
-    if (CheckSpellCosts(classtable.AimedShot, 'AimedShot')) and (not buff[classtable.PreciseShotsBuff].up or ( buff[classtable.TrueshotBuff].up or FocusTimeToMax <gcd + ( classtable and classtable.AimedShot and GetSpellInfo(classtable.AimedShot).castTime /1000 ) ) and ( targets <2 or not talents[classtable.ChimaeraShot] ) or ( buff[classtable.TrickShotsBuff].remains >timeShift and targets >1 )) and cooldown[classtable.AimedShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (not buff[classtable.PreciseShotsBuff].up or ( buff[classtable.TrueshotBuff].up or FocusTimeToMax <gcd + ( classtable and classtable.AimedShot and GetSpellInfo(classtable.AimedShot).castTime /1000 ) ) and ( targets <2 or not talents[classtable.ChimaeraShot] ) or ( buff[classtable.TrickShotsBuff].remains >timeShift and targets >1 )) and cooldown[classtable.AimedShot].ready then
         return classtable.AimedShot
     end
-    if (CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.SteadyFocus] and not buff[classtable.SteadyFocusBuff].up and not buff[classtable.TrueshotBuff].up) and cooldown[classtable.SteadyShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.SteadyFocus] and not buff[classtable.SteadyFocusBuff].up and not buff[classtable.TrueshotBuff].up) and cooldown[classtable.SteadyShot].ready then
         return classtable.SteadyShot
     end
-    if (CheckSpellCosts(classtable.ChimaeraShot, 'ChimaeraShot')) and (buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.ChimaeraShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ChimaeraShot, 'ChimaeraShot')) and (buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.ChimaeraShot].ready then
         return classtable.ChimaeraShot
     end
-    if (CheckSpellCosts(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.ArcaneShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.ArcaneShot].ready then
         return classtable.ArcaneShot
     end
-    if (CheckSpellCosts(classtable.Barrage, 'Barrage')) and (talents[classtable.RapidFireBarrage]) and cooldown[classtable.Barrage].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Barrage, 'Barrage')) and (talents[classtable.RapidFireBarrage]) and cooldown[classtable.Barrage].ready then
         return classtable.Barrage
     end
-    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (CheckSpellCosts(classtable.ArcaneShot, 'ArcaneShot')) and (Focus >MaxGetSpellCost(classtable.ArcaneShot, 'FOCUS') + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.ArcaneShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (Focus >MaxDps:GetSpellCost(classtable.ArcaneShot, 'FOCUS') + MaxDps:GetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.ArcaneShot].ready then
         return classtable.ArcaneShot
     end
-    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
         return classtable.SteadyShot
     end
 end
 function Marksmanship:trickshots()
-    if (CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.SteadyFocus] and SteadyFocusTrack() and buff[classtable.SteadyFocusBuff].remains <8) and cooldown[classtable.SteadyShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.SteadyFocus] and SteadyFocusTrack() and buff[classtable.SteadyFocusBuff].remains <8) and cooldown[classtable.SteadyShot].ready then
         return classtable.SteadyShot
     end
-    if (CheckSpellCosts(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
         return classtable.ExplosiveShot
     end
-    if (CheckSpellCosts(classtable.Volley, 'Volley')) and cooldown[classtable.Volley].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Volley, 'Volley')) and cooldown[classtable.Volley].ready then
         return classtable.Volley
     end
-    if (CheckSpellCosts(classtable.Barrage, 'Barrage')) and (talents[classtable.RapidFireBarrage] and buff[classtable.TrickShotsBuff].remains >= timeShift) and cooldown[classtable.Barrage].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Barrage, 'Barrage')) and (talents[classtable.RapidFireBarrage] and buff[classtable.TrickShotsBuff].remains >= timeShift) and cooldown[classtable.Barrage].ready then
         return classtable.Barrage
     end
-    if (CheckSpellCosts(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].remains >= timeShift) and cooldown[classtable.RapidFire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].remains >= timeShift) and cooldown[classtable.RapidFire].ready then
         return classtable.RapidFire
     end
-    if (CheckSpellCosts(classtable.KillShot, 'KillShot')) and (buff[classtable.RazorFragmentsBuff].up) and cooldown[classtable.KillShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (buff[classtable.RazorFragmentsBuff].up) and cooldown[classtable.KillShot].ready then
         return classtable.KillShot
     end
-    if (CheckSpellCosts(classtable.BlackArrow, 'BlackArrow')) and cooldown[classtable.BlackArrow].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow')) and cooldown[classtable.BlackArrow].ready then
         return classtable.BlackArrow
     end
-    if (CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and (not buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.WailingArrow].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WailingArrow, 'WailingArrow')) and (not buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.WailingArrow].ready then
         return classtable.WailingArrow
     end
-    if (CheckSpellCosts(classtable.WailingArrow, 'WailingArrow')) and (not buff[classtable.PreciseShotsBuff].up or buff[classtable.TrueshotBuff].up) and cooldown[classtable.WailingArrow].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WailingArrow, 'WailingArrow')) and (not buff[classtable.PreciseShotsBuff].up or buff[classtable.TrueshotBuff].up) and cooldown[classtable.WailingArrow].ready then
         return classtable.WailingArrow
     end
-    if (CheckSpellCosts(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Trueshot, 'Trueshot')) and (trueshot_ready) and cooldown[classtable.Trueshot].ready then
         MaxDps:GlowCooldown(classtable.Trueshot, cooldown[classtable.Trueshot].ready)
     end
-    if (CheckSpellCosts(classtable.AimedShot, 'AimedShot')) and (buff[classtable.TrickShotsBuff].remains >= timeShift and not buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.AimedShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (buff[classtable.TrickShotsBuff].remains >= timeShift and not buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.AimedShot].ready then
         return classtable.AimedShot
     end
-    if (CheckSpellCosts(classtable.MultiShot, 'MultiShot')) and (not buff[classtable.TrickShotsBuff].up or buff[classtable.PreciseShotsBuff].up or Focus >MaxGetSpellCost(classtable.MultiShot, 'FOCUS') + MaxGetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.MultiShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (not buff[classtable.TrickShotsBuff].up or buff[classtable.PreciseShotsBuff].up or Focus >MaxDps:GetSpellCost(classtable.MultiShot, 'FOCUS') + MaxDps:GetSpellCost(classtable.AimedShot, 'FOCUS')) and cooldown[classtable.MultiShot].ready then
         return classtable.MultiShot
     end
-    if (CheckSpellCosts(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
         return classtable.SteadyShot
     end
 end
@@ -301,13 +195,13 @@ function Marksmanship:trinkets()
 end
 
 function Marksmanship:callaction()
-    if (CheckSpellCosts(classtable.CounterShot, 'CounterShot')) and cooldown[classtable.CounterShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CounterShot, 'CounterShot')) and cooldown[classtable.CounterShot].ready then
         MaxDps:GlowCooldown(classtable.CounterShot, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
-    --if (CheckSpellCosts(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
     --    return classtable.TranquilizingShot
     --end
-    trueshot_ready = cooldown[classtable.Trueshot].ready-- and ( (targets <2) and ( not talents[classtable.Bullseye] or ttd >cooldown[classtable.Trueshot].duration + buff[classtable.TrueshotBuff].duration % 2 or buff[classtable.BullseyeBuff].count == buff[classtable.BullseyeBuff].maxStacks ) or (targets >1) and ( not (targets >1) and ( (targets>1 and MaxDps:MaxAddDuration() or 0) + math.huge <25 or math.huge >60 ) or (targets >1) and targets >10 ) or boss and ttd <25 )
+    trueshot_ready = cooldown[classtable.Trueshot].ready-- and ( (targets <2) and ( not talents[classtable.Bullseye] or ttd >cooldown[classtable.Trueshot].duration + buff[classtable.TrueshotBuff].duration % 2 or buff[classtable.BullseyeBuff].count == buff[classtable.BullseyeBuff].maxStacks ) or (targets >1) and ( not (targets >1) and ( (targets>1 and MaxDps:MaxAddDuration() or 0) + math.huge <25 or math.huge >60 ) or (targets >1) and targets >10 ) or MaxDps:boss() and ttd <25 )
     local cdsCheck = Marksmanship:cds()
     if cdsCheck then
         return cdsCheck
@@ -316,7 +210,7 @@ function Marksmanship:callaction()
     if trinketsCheck then
         return trinketsCheck
     end
-    if (CheckSpellCosts(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (debuff[classtable.HuntersMarkDeBuff].count  == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
         MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
     if (targets <3 or not talents[classtable.TrickShots]) then
