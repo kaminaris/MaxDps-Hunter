@@ -30,8 +30,10 @@ local _PetBasics = {
 }
 
 function Hunter:Enable()
-	Hunter:InitializeDatabase()
-	Hunter:CreateConfig()
+	if MaxDps:IsRetailWow() then
+	    Hunter:InitializeDatabase()
+	    Hunter:CreateConfig()
+	end
 
 	if MaxDps.Spec == 1 then
 		MaxDps.NextSpell = Hunter.BeastMastery
