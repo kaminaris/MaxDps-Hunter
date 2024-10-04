@@ -84,7 +84,7 @@ function BeastMastery:callaction()
     if (MaxDps:CheckSpellUsable(classtable.AutoShot, 'AutoShot')) and cooldown[classtable.AutoShot].ready then
         if not setSpell then setSpell = classtable.AutoShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ExplosiveTrap, 'ExplosiveTrap')) and (target.adds >0) and cooldown[classtable.ExplosiveTrap].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveTrap, 'ExplosiveTrap')) and (targets >0) and cooldown[classtable.ExplosiveTrap].ready then
         if not setSpell then setSpell = classtable.ExplosiveTrap end
     end
     if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire')) and cooldown[classtable.FocusFire].ready then
@@ -96,10 +96,10 @@ function BeastMastery:callaction()
     if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (Focus >60) and cooldown[classtable.BestialWrath].ready then
         if not setSpell then setSpell = classtable.BestialWrath end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (target.adds >5) and cooldown[classtable.MultiShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (targets >5) and cooldown[classtable.MultiShot].ready then
         if not setSpell then setSpell = classtable.MultiShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (target.adds >5) and cooldown[classtable.CobraShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (targets >5) and cooldown[classtable.CobraShot].ready then
         if not setSpell then setSpell = classtable.CobraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
