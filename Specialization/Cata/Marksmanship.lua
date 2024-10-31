@@ -94,15 +94,18 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.TrueshotAura, 'TrueshotAura')) and cooldown[classtable.TrueshotAura].ready then
         if not setSpell then setSpell = classtable.TrueshotAura end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and cooldown[classtable.AspectoftheHawk].ready then
-        if not setSpell then setSpell = classtable.AspectoftheHawk end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
-        if not setSpell then setSpell = classtable.AspectoftheFox end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.AutoShot, 'AutoShot')) and cooldown[classtable.AutoShot].ready then
-        if not setSpell then setSpell = classtable.AutoShot end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.TolvirPotion, 'TolvirPotion')) and (not UnitAffectingCombat('player') or MaxDps:Bloodlust() or ttd <= 60 or buff[classtable.RapidFireBuff].up) and cooldown[classtable.TolvirPotion].ready then
+    --    if not setSpell then setSpell = classtable.TolvirPotion end
+    --end
+    --if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and cooldown[classtable.AspectoftheHawk].ready then
+    --    if not setSpell then setSpell = classtable.AspectoftheHawk end
+    --end
+    --if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
+    --    if not setSpell then setSpell = classtable.AspectoftheFox end
+    --end
+    --if (MaxDps:CheckSpellUsable(classtable.AutoShot, 'AutoShot')) and cooldown[classtable.AutoShot].ready then
+    --    if not setSpell then setSpell = classtable.AutoShot end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveTrap, 'ExplosiveTrap')) and (targets >0) and cooldown[classtable.ExplosiveTrap].ready then
         if not setSpell then setSpell = classtable.ExplosiveTrap end
     end
