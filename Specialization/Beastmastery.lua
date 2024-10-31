@@ -113,7 +113,7 @@ function BeastMastery:cleave()
     if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
         if not setSpell then setSpell = classtable.KillCommand end
     end
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (buff[classtable.CalloftheWildBuff].up or talents[classtable.WildCall] and cooldown[classtable.call_of_the_wild].charges >1.2 or talents[classtable.FuriousAssault] or talents[classtable.BlackArrow] and ( talents[classtable.BarbedScales] or talents[classtable.Savagery] ) or ttd <9) and cooldown[classtable.BarbedShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (buff[classtable.CalloftheWildBuff].up or talents[classtable.WildCall] and cooldown[classtable.BarbedShot].charges >1.2 or talents[classtable.FuriousAssault] or talents[classtable.BlackArrow] and ( talents[classtable.BarbedScales] or talents[classtable.Savagery] ) or ttd <9) and cooldown[classtable.BarbedShot].ready then
         if not setSpell then setSpell = classtable.BarbedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (buff[classtable.BestialWrathBuff].up and talents[classtable.KillerCobra]) and cooldown[classtable.CobraShot].ready then
