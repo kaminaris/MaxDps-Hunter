@@ -73,7 +73,7 @@ local function ClearCDs()
 end
 
 function Survival:callaction()
-    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (ttd >= 21) and cooldown[classtable.HuntersMark].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and not debuff[classtable.HuntersMark].up and (ttd >= 21) and cooldown[classtable.HuntersMark].ready then
         MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
     --if (MaxDps:CheckSpellUsable(classtable.TolvirPotion, 'TolvirPotion')) and (not UnitAffectingCombat('player') or MaxDps:Bloodlust() or ttd <= 60) and cooldown[classtable.TolvirPotion].ready then
@@ -164,7 +164,7 @@ function Hunter:Survival()
     --end
     classtable.bloodlust = 0
     classtable.SerpentStingDeBuff = 259491
-    classtable.ExplosiveShotDeBuff = 0
+    classtable.ExplosiveShotDeBuff = 53301
     setSpell = nil
     ClearCDs()
 

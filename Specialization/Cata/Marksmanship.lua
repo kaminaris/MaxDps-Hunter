@@ -88,7 +88,7 @@ local function ClearCDs()
 end
 
 function Marksmanship:callaction()
-    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (ttd >= 21) and cooldown[classtable.HuntersMark].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and not debuff[classtable.HuntersMark].up and (ttd >= 21) and cooldown[classtable.HuntersMark].ready then
         MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.TrueshotAura, 'TrueshotAura')) and cooldown[classtable.TrueshotAura].ready then
@@ -181,12 +181,12 @@ function Hunter:Marksmanship()
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
     classtable.bloodlust = 0
-    classtable.RapidFireBuff = 0
-    classtable.SerpentStingDeBuff = 0
+    classtable.RapidFireBuff = 3045
+    classtable.SerpentStingDeBuff = 1978
     classtable.PreImprovedSteadyShotBuff = 0
     classtable.ImprovedSteadyShotBuff = 0
-    classtable.MasterMarksmanFireBuff = 0
-    classtable.BerserkingBuff = 0
+    classtable.MasterMarksmanFireBuff = 82925
+    classtable.BerserkingBuff = 26297
     classtable.Tier134pcBuff = 0
     setSpell = nil
     ClearCDs()
