@@ -62,6 +62,9 @@ local FocusDeficit
 local FocusRegen
 local FocusTimeToMax
 local FocusPerc
+local petHP
+local petmaxHP
+local pethealthPerc
 
 local BeastMastery = {}
 
@@ -78,20 +81,20 @@ end
 
 
 function BeastMastery:precombat()
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not buff[classtable.AspectBuff].up and false and assigned_aspect.aspect_of_the_hawk) and cooldown[classtable.AspectoftheHawk].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.AspectoftheHawk end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheHawk')) and (not buff[classtable.AspectoftheHawk].up) and cooldown[classtable.AspectoftheHawk].ready and not UnitAffectingCombat('player') then
+        MaxDps:GlowCooldown(classtable.AspectoftheHawk, cooldown[classtable.AspectoftheHawk].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and (not buff[classtable.AspectBuff].up and false and assigned_aspect.aspect_of_the_fox) and cooldown[classtable.AspectoftheFox].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.AspectoftheFox end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and (not buff[classtable.AspectoftheFox].up) and cooldown[classtable.AspectoftheFox].ready and not UnitAffectingCombat('player') then
+        MaxDps:GlowCooldown(classtable.AspectoftheFox, cooldown[classtable.AspectoftheFox].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheCheetah, 'AspectoftheCheetah')) and (not buff[classtable.AspectBuff].up and false and assigned_aspect.aspect_of_the_cheetah) and cooldown[classtable.AspectoftheCheetah].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.AspectoftheCheetah end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheCheetah, 'AspectoftheCheetah')) and (not buff[classtable.AspectoftheCheetah].up) and cooldown[classtable.AspectoftheCheetah].ready and not UnitAffectingCombat('player') then
+        MaxDps:GlowCooldown(classtable.AspectoftheCheetah, cooldown[classtable.AspectoftheCheetah].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectofthePack, 'AspectofthePack')) and (not buff[classtable.AspectBuff].up and false and assigned_aspect.aspect_of_the_pack) and cooldown[classtable.AspectofthePack].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.AspectofthePack end
+    if (MaxDps:CheckSpellUsable(classtable.AspectofthePack, 'AspectofthePack')) and (not buff[classtable.AspectofthePack].up) and cooldown[classtable.AspectofthePack].ready and not UnitAffectingCombat('player') then
+        MaxDps:GlowCooldown(classtable.AspectofthePack, cooldown[classtable.AspectofthePack].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheWild, 'AspectoftheWild')) and (not buff[classtable.AspectBuff].up and false and assigned_aspect.aspect_of_the_wild) and cooldown[classtable.AspectoftheWild].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.AspectoftheWild end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheWild, 'AspectoftheWild')) and (not buff[classtable.AspectoftheWild].up) and cooldown[classtable.AspectoftheWild].ready and not UnitAffectingCombat('player') then
+        MaxDps:GlowCooldown(classtable.AspectoftheWild, cooldown[classtable.AspectoftheWild].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (not debuff[classtable.HuntersMarkDeBuff].up) and cooldown[classtable.HuntersMark].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.HuntersMark end
@@ -107,8 +110,8 @@ function BeastMastery:aoe()
     if (MaxDps:CheckSpellUsable(classtable.Misdirection, 'Misdirection')) and (false and UnitExists('pet')) and cooldown[classtable.Misdirection].ready then
         if not setSpell then setSpell = classtable.Misdirection end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (false and assigned_aspect.aspect_of_the_hawk and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
-        if not setSpell then setSpell = classtable.AspectoftheHawk end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
+        MaxDps:GlowCooldown(classtable.AspectoftheHawk, cooldown[classtable.AspectoftheHawk].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (Focus >80) and cooldown[classtable.BestialWrath].ready then
         if not setSpell then setSpell = classtable.BestialWrath end
@@ -137,16 +140,16 @@ function BeastMastery:aoe()
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (( not (GetUnitSpeed('player') >0) or buff[classtable.AspectoftheFoxBuff].up ) and UnitLevel('player') <81) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0) and false and false) and cooldown[classtable.AspectoftheFox].ready then
-        if not setSpell then setSpell = classtable.AspectoftheFox end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheFox].ready then
+        MaxDps:GlowCooldown(classtable.AspectoftheFox, cooldown[classtable.AspectoftheFox].ready)
     end
 end
 function BeastMastery:cleave()
     if (MaxDps:CheckSpellUsable(classtable.Misdirection, 'Misdirection')) and (false) and cooldown[classtable.Misdirection].ready then
         if not setSpell then setSpell = classtable.Misdirection end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (false and assigned_aspect.aspect_of_the_hawk and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
-        if not setSpell then setSpell = classtable.AspectoftheHawk end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
+        MaxDps:GlowCooldown(classtable.AspectoftheHawk, cooldown[classtable.AspectoftheHawk].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (Focus >80 and debuff[classtable.SerpentStingDeBuff].remains >12) and cooldown[classtable.BestialWrath].ready then
         if not setSpell then setSpell = classtable.BestialWrath end
@@ -190,16 +193,16 @@ function BeastMastery:cleave()
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (( not (GetUnitSpeed('player') >0) or buff[classtable.AspectoftheFoxBuff].up ) and UnitLevel('player') <81) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0) and false and false) and cooldown[classtable.AspectoftheFox].ready then
-        if not setSpell then setSpell = classtable.AspectoftheFox end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheFox].ready then
+        MaxDps:GlowCooldown(classtable.AspectoftheFox, cooldown[classtable.AspectoftheFox].ready)
     end
 end
 function BeastMastery:single()
     if (MaxDps:CheckSpellUsable(classtable.Misdirection, 'Misdirection')) and (false) and cooldown[classtable.Misdirection].ready then
         if not setSpell then setSpell = classtable.Misdirection end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (false and assigned_aspect.aspect_of_the_hawk and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
-        if not setSpell then setSpell = classtable.AspectoftheHawk end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
+        MaxDps:GlowCooldown(classtable.AspectoftheHawk, cooldown[classtable.AspectoftheHawk].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (not debuff[classtable.HuntersMarkDeBuff].up) and cooldown[classtable.HuntersMark].ready then
         if not setSpell then setSpell = classtable.HuntersMark end
@@ -246,8 +249,8 @@ function BeastMastery:single()
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (( not (GetUnitSpeed('player') >0) or buff[classtable.AspectoftheFoxBuff].up ) and UnitLevel('player') <81) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0) and false and false) and cooldown[classtable.AspectoftheFox].ready then
-        if not setSpell then setSpell = classtable.AspectoftheFox end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheFox].ready then
+        MaxDps:GlowCooldown(classtable.AspectoftheFox, cooldown[classtable.AspectoftheFox].ready)
     end
 end
 
@@ -257,9 +260,9 @@ end
 
 function BeastMastery:callaction()
     BeastMastery:init()
-    if (MaxDps:CheckSpellUsable(classtable.HyperspeedAcceleration, 'HyperspeedAcceleration')) and cooldown[classtable.HyperspeedAcceleration].ready then
-        if not setSpell then setSpell = classtable.HyperspeedAcceleration end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.HyperspeedAcceleration, 'HyperspeedAcceleration')) and cooldown[classtable.HyperspeedAcceleration].ready then
+    --    if not setSpell then setSpell = classtable.HyperspeedAcceleration end
+    --end
     if (targets >2) then
         BeastMastery:aoe()
     end
@@ -297,11 +300,13 @@ function Hunter:BeastMastery()
     FocusRegen = GetPowerRegenForPowerType(Enum.PowerType.Focus)
     FocusTimeToMax = FocusDeficit / FocusRegen
     FocusPerc = (Focus / FocusMax) * 100
+    petHP = UnitHealth('pet')
+    petmaxHP = UnitHealthMax('pet')
+    pethealthPerc = (petHP > 0 and petmaxHP > 0 and (petHP / petmaxHP) * 100)  or 100
     --for spellId in pairs(MaxDps.Flags) do
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
-    classtable.AspectBuff = 0
     classtable.HuntersMarkDeBuff = 1130
     classtable.TrainingDummyDeBuff = 0
     classtable.AspectoftheFoxBuff = 0
@@ -323,6 +328,19 @@ function Hunter:BeastMastery()
     classtable.ArcaneShot = 3044
     classtable.FocusFire = 82692
     classtable.KillCommand = 34026
+    classtable.CalloftheWild = 53434
+    classtable.AspectoftheCheetah = 5118
+    classtable.AspectoftheFox = 82661
+    classtable.AspectoftheHawk = 13165
+    classtable.AspectofthePack = 13159
+    classtable.AspectoftheWild = 20043
+
+    classtable.AspectoftheCheetahBuff = 5118
+    classtable.AspectoftheFoxBuff = 82661
+    classtable.AspectoftheHawkBuff = 13165
+    classtable.AspectofthePackBuff = 13159
+    classtable.AspectoftheWildBuff = 20043
+
 
     local function debugg()
     end
