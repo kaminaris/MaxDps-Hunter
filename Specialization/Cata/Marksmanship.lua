@@ -86,20 +86,20 @@ end
 
 
 function Marksmanship:precombat()
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheHawk')) and (not buff[classtable.AspectoftheHawk].up) and cooldown[classtable.AspectoftheHawk].ready and not UnitAffectingCombat('player') then
-        MaxDps:GlowCooldown(classtable.AspectoftheHawk, cooldown[classtable.AspectoftheHawk].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not buff[classtable.AspectBuff].up and false and false) and cooldown[classtable.AspectoftheHawk].ready and not UnitAffectingCombat('player') then
+        if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and (not buff[classtable.AspectoftheFox].up) and cooldown[classtable.AspectoftheFox].ready and not UnitAffectingCombat('player') then
-        MaxDps:GlowCooldown(classtable.AspectoftheFox, cooldown[classtable.AspectoftheFox].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and (not buff[classtable.AspectBuff].up and false and false) and cooldown[classtable.AspectoftheFox].ready and not UnitAffectingCombat('player') then
+        if not setSpell then setSpell = classtable.AspectoftheFox end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheCheetah, 'AspectoftheCheetah')) and (not buff[classtable.AspectoftheCheetah].up) and cooldown[classtable.AspectoftheCheetah].ready and not UnitAffectingCombat('player') then
-        MaxDps:GlowCooldown(classtable.AspectoftheCheetah, cooldown[classtable.AspectoftheCheetah].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheCheetah, 'AspectoftheCheetah')) and (not buff[classtable.AspectBuff].up and false and false) and cooldown[classtable.AspectoftheCheetah].ready and not UnitAffectingCombat('player') then
+        if not setSpell then setSpell = classtable.AspectoftheCheetah end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectofthePack, 'AspectofthePack')) and (not buff[classtable.AspectofthePack].up) and cooldown[classtable.AspectofthePack].ready and not UnitAffectingCombat('player') then
-        MaxDps:GlowCooldown(classtable.AspectofthePack, cooldown[classtable.AspectofthePack].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectofthePack, 'AspectofthePack')) and (not buff[classtable.AspectBuff].up and false and false) and cooldown[classtable.AspectofthePack].ready and not UnitAffectingCombat('player') then
+        if not setSpell then setSpell = classtable.AspectofthePack end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheWild, 'AspectoftheWild')) and (not buff[classtable.AspectoftheWild].up) and cooldown[classtable.AspectoftheWild].ready and not UnitAffectingCombat('player') then
-        MaxDps:GlowCooldown(classtable.AspectoftheWild, cooldown[classtable.AspectoftheWild].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheWild, 'AspectoftheWild')) and (not buff[classtable.AspectBuff].up and false and false) and cooldown[classtable.AspectoftheWild].ready and not UnitAffectingCombat('player') then
+        if not setSpell then setSpell = classtable.AspectoftheWild end
     end
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (not debuff[classtable.HuntersMarkDeBuff].up) and cooldown[classtable.HuntersMark].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.HuntersMark end
@@ -118,8 +118,8 @@ function Marksmanship:aoe()
     if (MaxDps:CheckSpellUsable(classtable.Misdirection, 'Misdirection')) and (false) and cooldown[classtable.Misdirection].ready then
         if not setSpell then setSpell = classtable.Misdirection end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not buff[classtable.AspectoftheHawk].up and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
-        MaxDps:GlowCooldown(classtable.AspectoftheHawk, cooldown[classtable.AspectoftheHawk].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (false and false and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
+        if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (cooldown[classtable.CalloftheWild].ready and not buff[classtable.RapidFireBuff].up) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
@@ -145,14 +145,14 @@ function Marksmanship:aoe()
     if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (buff[classtable.FireBuff].up) and cooldown[classtable.AimedShot].ready then
         if not setSpell then setSpell = classtable.AimedShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targetHP <20) and cooldown[classtable.KillShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc <20) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (not (GetUnitSpeed('player') >0) or buff[classtable.AspectoftheFoxBuff].up) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and (not buff[classtable.AspectoftheFox].up and (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheFox].ready then
-        MaxDps:GlowCooldown(classtable.AspectoftheFox, cooldown[classtable.AspectoftheFox].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0) and false and false) and cooldown[classtable.AspectoftheFox].ready then
+        if not setSpell then setSpell = classtable.AspectoftheFox end
     end
 end
 function Marksmanship:cleave()
@@ -162,8 +162,8 @@ function Marksmanship:cleave()
     if (MaxDps:CheckSpellUsable(classtable.Misdirection, 'Misdirection')) and (false) and cooldown[classtable.Misdirection].ready then
         if not setSpell then setSpell = classtable.Misdirection end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not buff[classtable.AspectoftheHawk].up and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
-        MaxDps:GlowCooldown(classtable.AspectoftheHawk, cooldown[classtable.AspectoftheHawk].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (false and false and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
+        if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (not debuff[classtable.HuntersMarkDeBuff].up) and cooldown[classtable.HuntersMark].ready then
         if not setSpell then setSpell = classtable.HuntersMark end
@@ -189,10 +189,10 @@ function Marksmanship:cleave()
     if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (buff[classtable.FireBuff].up) and cooldown[classtable.AimedShot].ready then
         if not setSpell then setSpell = classtable.AimedShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targetHP <20) and cooldown[classtable.KillShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc <20) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (targetHP >90) and cooldown[classtable.AimedShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (targethealthPerc >90) and cooldown[classtable.AimedShot].ready then
         if not setSpell then setSpell = classtable.AimedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (Focus >75) and cooldown[classtable.ArcaneShot].ready then
@@ -201,8 +201,8 @@ function Marksmanship:cleave()
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (not (GetUnitSpeed('player') >0) or buff[classtable.AspectoftheFoxBuff].up) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and (not buff[classtable.AspectoftheFox].up and (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheFox].ready then
-        MaxDps:GlowCooldown(classtable.AspectoftheFox, cooldown[classtable.AspectoftheFox].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0) and false and false) and cooldown[classtable.AspectoftheFox].ready then
+        if not setSpell then setSpell = classtable.AspectoftheFox end
     end
 end
 function Marksmanship:single()
@@ -212,8 +212,8 @@ function Marksmanship:single()
     if (MaxDps:CheckSpellUsable(classtable.Misdirection, 'Misdirection')) and (false) and cooldown[classtable.Misdirection].ready then
         if not setSpell then setSpell = classtable.Misdirection end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not buff[classtable.AspectoftheHawk].up and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
-        MaxDps:GlowCooldown(classtable.AspectoftheHawk, cooldown[classtable.AspectoftheHawk].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (false and false and not (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheHawk].ready then
+        if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (not debuff[classtable.HuntersMarkDeBuff].up) and cooldown[classtable.HuntersMark].ready then
         if not setSpell then setSpell = classtable.HuntersMark end
@@ -239,10 +239,10 @@ function Marksmanship:single()
     if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (buff[classtable.FireBuff].up) and cooldown[classtable.AimedShot].ready then
         if not setSpell then setSpell = classtable.AimedShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targetHP <20) and cooldown[classtable.KillShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc <20) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (targetHP >90) and cooldown[classtable.AimedShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (targethealthPerc >90) and cooldown[classtable.AimedShot].ready then
         if not setSpell then setSpell = classtable.AimedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (Focus >75) and cooldown[classtable.ArcaneShot].ready then
@@ -251,8 +251,8 @@ function Marksmanship:single()
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (not (GetUnitSpeed('player') >0) or buff[classtable.AspectoftheFoxBuff].up) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and (not buff[classtable.AspectoftheFox].up and (GetUnitSpeed('player') >0)) and cooldown[classtable.AspectoftheFox].ready then
-        MaxDps:GlowCooldown(classtable.AspectoftheFox, cooldown[classtable.AspectoftheFox].ready)
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and ((GetUnitSpeed('player') >0) and false and false) and cooldown[classtable.AspectoftheFox].ready then
+        if not setSpell then setSpell = classtable.AspectoftheFox end
     end
 end
 
@@ -262,9 +262,6 @@ end
 
 function Marksmanship:callaction()
     Marksmanship:init()
-    --if (MaxDps:CheckSpellUsable(classtable.HyperspeedAcceleration, 'HyperspeedAcceleration')) and cooldown[classtable.HyperspeedAcceleration].ready then
-    --    if not setSpell then setSpell = classtable.HyperspeedAcceleration end
-    --end
     if (targets >2) then
         Marksmanship:aoe()
     end
@@ -310,39 +307,27 @@ function Hunter:Marksmanship()
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
-    classtable.AspectBuff = 0
     classtable.HuntersMarkDeBuff = 1130
-    classtable.TrainingDummyDeBuff = 0
-    classtable.ImprovedSteadyShotBuff = 53220
-    classtable.RapidFireBuff = 3045
-    classtable.FireBuff = 82926
-    classtable.AspectoftheFoxBuff = 0
     classtable.SerpentStingDeBuff = 1978
+    classtable.AspectoftheHawk = 13165
+    classtable.AspectoftheFox = 82661
+    classtable.AspectoftheCheetah = 5118
+    classtable.AspectofthePack = 13159
+    classtable.AspectoftheWild = 20043
     classtable.HuntersMark = 1130
     classtable.Misdirection = 34477
     classtable.SteadyShot = 56641
     classtable.RapidFire = 3045
+    classtable.CalloftheWild = 53434
     classtable.Readiness = 23989
     classtable.TrapLauncher = 77769
     classtable.ExplosiveTrap = 13813
+    classtable.MultiShot = 2643
     classtable.AimedShot = 19434
     classtable.KillShot = 53351
     classtable.SerpentSting = 1978
     classtable.ChimeraShot = 53209
     classtable.ArcaneShot = 3044
-    classtable.CalloftheWild = 53434
-
-    classtable.AspectoftheCheetah = 5118
-    classtable.AspectoftheFox = 82661
-    classtable.AspectoftheHawk = 13165
-    classtable.AspectofthePack = 13159
-    classtable.AspectoftheWild = 20043
-
-    classtable.AspectoftheCheetahBuff = 5118
-    classtable.AspectoftheFoxBuff = 82661
-    classtable.AspectoftheHawkBuff = 13165
-    classtable.AspectofthePackBuff = 13159
-    classtable.AspectoftheWildBuff = 20043
 
     local function debugg()
     end
