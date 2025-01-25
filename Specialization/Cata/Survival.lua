@@ -272,12 +272,8 @@ function Hunter:Survival()
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
-    classtable.HuntersMarkBuff = 1130
     classtable.LockandLoadBuff = 56453
-    classtable.ExplosiveShotBuff = 53301
     classtable.AspectoftheFoxBuff = 82661
-    classtable.SerpentStingBuff = 1978
-    classtable.BlackArrowBuff = 3674
     classtable.HuntersMarkDeBuff = 1130
     classtable.ExplosiveShotDeBuff = 53301
     classtable.SerpentStingDeBuff = 1978

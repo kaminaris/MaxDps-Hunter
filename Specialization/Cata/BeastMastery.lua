@@ -304,9 +304,7 @@ function Hunter:BeastMastery()
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
-    classtable.HuntersMarkBuff = 1130
     classtable.AspectoftheFoxBuff = 82661
-    classtable.SerpentStingBuff = 1978
     classtable.TheBeastWithinBuff = 38373
     classtable.FocusFireBuff = 82692
     classtable.FrenzyEffectBuff = 19615
