@@ -307,6 +307,12 @@ function Hunter:Marksmanship()
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
+    classtable.HuntersMarkBuff = 1130
+    classtable.ImprovedSteadyShotBuff = 53220
+    classtable.RapidFireBuff = 3045
+    classtable.FireBuff = 3045
+    classtable.AspectoftheFoxBuff = 82661
+    classtable.SerpentStingBuff = 1978
     classtable.HuntersMarkDeBuff = 1130
     classtable.SerpentStingDeBuff = 1978
     classtable.AspectoftheHawk = 13165
