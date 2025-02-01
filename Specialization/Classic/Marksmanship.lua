@@ -88,7 +88,7 @@ function Marksmanship:single()
     if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'Aspect of the Hawk')) and (not buff[classtable.AspectoftheHawk].up) and cooldown[classtable.AspectoftheHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
-    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'Hunters Mark')) and (not debuff[classtable.HuntersMark].up) and cooldown[classtable.HuntersMark].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'Hunters Mark')) and (not MaxDps:FindADAuraData(classtable.HuntersMark).up) and cooldown[classtable.HuntersMark].ready then
         if not setSpell then setSpell = classtable.HuntersMark end
     end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'Rapid Fire')) and cooldown[classtable.RapidFire].ready then
@@ -97,7 +97,7 @@ function Marksmanship:single()
     if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'Multi-Shot')) and cooldown[classtable.MultiShot].ready then
         if not setSpell then setSpell = classtable.MultiShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SerpentSting , 'Serpent Sting')) and (not debuff[classtable.SerpentSting].up) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SerpentSting , 'Serpent Sting')) and (not MaxDps:FindADAuraData(classtable.SerpentSting).up) and cooldown[classtable.SerpentSting].ready then
         if not setSpell then setSpell = classtable.SerpentSting end
     end
     if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'Aimed Shot')) and cooldown[classtable.AimedShot].ready then
