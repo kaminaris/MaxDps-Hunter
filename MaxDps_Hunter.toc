@@ -27,3 +27,9 @@ Specialization\Cata\Beastmastery.lua
 Specialization\Cata\Survival.lua
 Specialization\Cata\Marksmanship.lua
 #@end-version-cata@
+
+#@version-classic@
+Specialization\Classic\Beastmastery.lua
+Specialization\Classic\Survival.lua
+Specialization\Classic\Marksmanship.lua
+#@end-version-classic@
