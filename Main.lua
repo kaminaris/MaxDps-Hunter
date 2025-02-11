@@ -44,7 +44,10 @@ function Hunter:Enable()
 	elseif MaxDps.Spec == 3 then
 		MaxDps.NextSpell = Hunter.Survival
 		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter Survival', "info")
-	end 
+	elseif MaxDps:IsClassicWow() then
+		MaxDps.NextSpell = Hunter.Marksmanship
+		MaxDps:Print(MaxDps.Colors.Info .. 'Hunter', "info")
+	end
 
 	return true
 end
