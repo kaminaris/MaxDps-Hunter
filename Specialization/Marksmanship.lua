@@ -131,7 +131,7 @@ function Marksmanship:st()
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.ArcaneShot].ready then
         if not setSpell then setSpell = classtable.ArcaneShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (not (MaxDps.ActiveHeroTree == 'sentinel') or buff[classtable.LunarStormCooldownBuff].remains >cooldown / 3) and cooldown[classtable.RapidFire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (not (MaxDps.ActiveHeroTree == 'sentinel') or buff[classtable.LunarStormCooldownBuff].remains >cooldown[classtable.RapidFire].remains / 3) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and not buff[classtable.PreciseShotsBuff].up) and cooldown[classtable.ExplosiveShot].ready then
@@ -169,7 +169,7 @@ function Marksmanship:trickshots()
     if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (buff[classtable.PreciseShotsBuff].up or not buff[classtable.TrickShotsBuff].up) and cooldown[classtable.MultiShot].ready then
         if not setSpell then setSpell = classtable.MultiShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].up and ( not (MaxDps.ActiveHeroTree == 'sentinel') or buff[classtable.LunarStormCooldownBuff].remains >cooldown / 3 or not buff[classtable.LunarStormCooldownBuff].up )) and cooldown[classtable.RapidFire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].up and ( not (MaxDps.ActiveHeroTree == 'sentinel') or buff[classtable.LunarStormCooldownBuff].remains >cooldown[classtable.RapidFire].remains / 3 or not buff[classtable.LunarStormCooldownBuff].up )) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and not buff[classtable.PreciseShotsBuff].up and buff[classtable.TrickShotsBuff].up) and cooldown[classtable.ExplosiveShot].ready then
