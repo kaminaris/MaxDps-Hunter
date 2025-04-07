@@ -102,7 +102,7 @@ function Survival:plcleave()
     if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and (buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1) and cooldown[classtable.KillCommand].ready then
         if not setSpell then setSpell = classtable.KillCommand end
     end
-    if (MaxDps:CheckSpellUsable(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd or talents[classtable.Butchery] and cooldown[classtable.Butchery].remains <gcd or buff[classtable.HowlofthePackLeaderWyvernBuff].up or buff[classtable.HowlofthePackLeaderBoarBuff].up or buff[classtable.HowlofthePackLeaderBearBuff].up) and cooldown[classtable.WildfireBomb].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.7 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd or talents[classtable.Butchery] and cooldown[classtable.Butchery].remains <gcd or howl_summon_ready()) and cooldown[classtable.WildfireBomb].ready then
         if not setSpell then setSpell = classtable.WildfireBomb end
     end
     if (MaxDps:CheckSpellUsable(classtable.FlankingStrike, 'FlankingStrike')) and (buff[classtable.TipoftheSpearBuff].count == 2 or buff[classtable.TipoftheSpearBuff].count == 1) and cooldown[classtable.FlankingStrike].ready then
@@ -134,7 +134,7 @@ function Survival:plcleave()
     end
 end
 function Survival:plst()
-    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and (( buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1 ) or ( buff[classtable.HowlofthePackLeaderWyvernBuff].up or buff[classtable.HowlofthePackLeaderBoarBuff].up or buff[classtable.HowlofthePackLeaderBearBuff].up ) and ttd <20) and cooldown[classtable.KillCommand].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and (( buff[classtable.RelentlessPrimalFerocityBuff].up and buff[classtable.TipoftheSpearBuff].count <1 ) or ( howl_summon_ready() ) and ttd <20) and cooldown[classtable.KillCommand].ready then
         if not setSpell then setSpell = classtable.KillCommand end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (cooldown[classtable.CoordinatedAssault].remains and cooldown[classtable.CoordinatedAssault].remains <gcd) and cooldown[classtable.ExplosiveShot].ready then
@@ -164,7 +164,7 @@ function Survival:plst()
     if (MaxDps:CheckSpellUsable(classtable.FuryoftheEagle, 'FuryoftheEagle')) and (buff[classtable.TipoftheSpearBuff].count >0 and ( (targets <2) or (targets >1) and math.huge >40 )) and cooldown[classtable.FuryoftheEagle].ready then
         if not setSpell then setSpell = classtable.FuryoftheEagle end
     end
-    if (MaxDps:CheckSpellUsable(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.4 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd and talents[classtable.Bombardier] or buff[classtable.HowlofthePackLeaderWyvernBuff].up or buff[classtable.HowlofthePackLeaderBoarBuff].up or buff[classtable.HowlofthePackLeaderBearBuff].up) and cooldown[classtable.WildfireBomb].ready then
+    if (MaxDps:CheckSpellUsable(classtable.WildfireBomb, 'WildfireBomb')) and (buff[classtable.TipoftheSpearBuff].count >0 and cooldown[classtable.WildfireBomb].charges >1.4 or cooldown[classtable.WildfireBomb].charges >1.9 or cooldown[classtable.CoordinatedAssault].remains <2 * gcd and talents[classtable.Bombardier] or howl_summon_ready()) and cooldown[classtable.WildfireBomb].ready then
         if not setSpell then setSpell = classtable.WildfireBomb end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (cooldown[classtable.CoordinatedAssault].remains <gcd) and cooldown[classtable.ExplosiveShot].ready then
@@ -358,7 +358,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.HuntersMark, false)
     MaxDps:GlowCooldown(classtable.Muzzle, false)
     MaxDps:GlowCooldown(classtable.TranquilizingShot, false)
-    --MaxDps:GlowCooldown(classtable.MendPet, false)
+    MaxDps:GlowCooldown(classtable.MendPet, false)
     MaxDps:GlowCooldown(classtable.Harpoon, false)
     MaxDps:GlowCooldown(classtable.AspectoftheEagle, false)
     MaxDps:GlowCooldown(classtable.Spearhead, false)
@@ -376,9 +376,9 @@ function Survival:callaction()
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (( false or MaxDps:boss() ) and MaxDps:DebuffCounter(classtable.HuntersMarkDeBuff) == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
         MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
-    --if (MaxDps:CheckSpellUsable(classtable.MendPet, 'MendPet')) and (petmath.health_pct <80) and cooldown[classtable.MendPet].ready then
-    --    MaxDps:GlowCooldown(classtable.MendPet, cooldown[classtable.MendPet].ready)
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.MendPet, 'MendPet')) and (pethealthPerc <80) and cooldown[classtable.MendPet].ready then
+        MaxDps:GlowCooldown(classtable.MendPet, cooldown[classtable.MendPet].ready)
+    end
     Survival:cds()
     if (targets <3 and talents[classtable.HowlofthePackLeader]) then
         Survival:plst()
@@ -455,6 +455,7 @@ function Hunter:Survival()
     classtable.MongooseFuryBuff = 259388
     classtable.SerpentStingDeBuff = 259491
     classtable.HowlofthePackLeader = 471876
+    classtable.MendPet = 136
 
     local function debugg()
         talents[classtable.HowlofthePackLeader] = 1

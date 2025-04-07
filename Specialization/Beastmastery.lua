@@ -78,40 +78,15 @@ local sync_active = false
 local sync_remains = 0
 
 
-local function GetTotemInfoByName(name)
-    local info = {
-        duration = 0,
-        remains = 0,
-        up = false,
-    }
-    for index=1,MAX_TOTEMS do
-        local arg1, totemName, startTime, duration, icon = GetTotemInfo(index)
-        local remains = math.floor(startTime+duration-GetTime())
-        if (totemName == name ) then
-            info.duration = duration
-            info.up = true
-            info.remains = remains
-            break
-        end
-    end
-    return info
-end
-
-
-local function GetTotemTypeActive(i)
-   local arg1, totemName, startTime, duration, icon = GetTotemInfo(i)
-   return duration > 0
-end
-
-
-
-
 local function howl_summon_ready()
     return buff[classtable.HowlofthePackLeaderBear].up or buff[classtable.HowlofthePackLeaderBoar].up or buff[classtable.HowlofthePackLeaderWyvern].up or false
 end
 
 
 function BeastMastery:precombat()
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (false) and cooldown[classtable.BarbedShot].ready and not UnitAffectingCombat('player') then
+        if not setSpell then setSpell = classtable.BarbedShot end
+    end
 end
 function BeastMastery:cds()
 end
@@ -119,7 +94,7 @@ function BeastMastery:cleave()
     if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and cooldown[classtable.BestialWrath].ready then
         MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and ((C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') ~= nil ) and (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) <= gcd + 0.25 or (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').applications or 0 ) <3 and ( cooldown[classtable.BestialWrath].ready and ( not (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') ~= nil ) or talents[classtable.ScentofBlood] ) or (MaxDps.tier and MaxDps.tier[33].count >= 2) ) or cooldown[classtable.CalloftheWild].ready or cooldown[classtable.BarbedShot].charges >1.4 and ( howl_summon_ready() ) or FocusTimeToMax <gcd + 0.25) and cooldown[classtable.BarbedShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready or howl_summon_ready() and FocusTimeToMax <8) and cooldown[classtable.BarbedShot].ready then
         if not setSpell then setSpell = classtable.BarbedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (buff[classtable.BeastCleaveBuff].remains <0.25 + gcd and ( not talents[classtable.BloodyFrenzy] or not cooldown[classtable.CalloftheWild].ready )) and cooldown[classtable.MultiShot].ready then
@@ -146,33 +121,27 @@ function BeastMastery:cleave()
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (buff[classtable.CalloftheWildBuff].up or talents[classtable.BlackArrow] and ( talents[classtable.BarbedScales] or talents[classtable.Savagery] ) or (MaxDps.tier and MaxDps.tier[33].count) >= 2 or MaxDps:boss() and ttd <9) and cooldown[classtable.BarbedShot].ready then
         if not setSpell then setSpell = classtable.BarbedShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.ThunderingHooves]) and cooldown[classtable.ExplosiveShot].ready then
-        MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (buff[classtable.HogstriderBuff].count >3) and cooldown[classtable.CobraShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (FocusTimeToMax <gcd * 2 or buff[classtable.HogstriderBuff].count >3) and cooldown[classtable.CobraShot].ready then
         if not setSpell then setSpell = classtable.CobraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
         MaxDps:GlowCooldown(classtable.DireBeast, cooldown[classtable.DireBeast].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (FocusTimeToMax <gcd * 2) and cooldown[classtable.CobraShot].ready then
-        if not setSpell then setSpell = classtable.CobraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
         MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
 end
 function BeastMastery:st()
-    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and cooldown[classtable.BestialWrath].ready then
-        MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and ((C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') ~= nil ) and (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').expirationTime or 0 ) <= gcd + 0.25 or (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL').applications or 0 ) <3 and ( cooldown[classtable.BestialWrath].ready and ( not (C_UnitAuras.GetAuraDataBySpellName('Frenzy', 'pet', 'HELPFUL') ~= nil ) or talents[classtable.ScentofBlood] ) or (MaxDps.tier and MaxDps.tier[33].count >= 2) ) or cooldown[classtable.CalloftheWild].ready or cooldown[classtable.BarbedShot].charges >1.4 and ( howl_summon_ready() ) or FocusTimeToMax <gcd + 0.25) and cooldown[classtable.BarbedShot].ready then
-        if not setSpell then setSpell = classtable.BarbedShot end
-    end
     if (MaxDps:CheckSpellUsable(classtable.DireBeast, 'DireBeast')) and (talents[classtable.HuntmastersCall]) and cooldown[classtable.DireBeast].ready then
         MaxDps:GlowCooldown(classtable.DireBeast, cooldown[classtable.DireBeast].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and (talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].remains <gcd + 0.25) and cooldown[classtable.KillCommand].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and cooldown[classtable.BestialWrath].ready then
+        MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready or howl_summon_ready() and FocusTimeToMax <8) and cooldown[classtable.BarbedShot].ready then
+        if not setSpell then setSpell = classtable.BarbedShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and (cooldown[classtable.KillCommand].charges >= cooldown[classtable.BarbedShot].charges) and cooldown[classtable.KillCommand].ready then
         if not setSpell then setSpell = classtable.KillCommand end
     end
     if (MaxDps:CheckSpellUsable(classtable.CalloftheWild, 'CalloftheWild') and talents[classtable.CalloftheWild]) and cooldown[classtable.CalloftheWild].ready then
@@ -183,12 +152,6 @@ function BeastMastery:st()
     end
     if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow') and talents[classtable.BlackArrow]) and cooldown[classtable.BlackArrow].ready then
         MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
-        if not setSpell then setSpell = classtable.KillCommand end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and ((MaxDps.tier and MaxDps.tier[33].count >= 2) or ( talents[classtable.WildCall] or talents[classtable.BarbedScales] or talents[classtable.Savagery] ) and cooldown[classtable.BarbedShot].charges >1.4 or buff[classtable.CalloftheWildBuff].up or talents[classtable.ScentofBlood] and ( cooldown[classtable.BestialWrath].remains <12 + gcd ) or MaxDps:boss() and ttd <9) and cooldown[classtable.BarbedShot].ready then
-        if not setSpell then setSpell = classtable.BarbedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.ThunderingHooves]) and cooldown[classtable.ExplosiveShot].ready then
         MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
@@ -210,7 +173,7 @@ end
 local function ClearCDs()
     MaxDps:GlowCooldown(classtable.CounterShot, false)
     MaxDps:GlowCooldown(classtable.TranquilizingShot, false)
-    --MaxDps:GlowCooldown(classtable.MendPet, false)
+    MaxDps:GlowCooldown(classtable.MendPet, false)
     MaxDps:GlowCooldown(classtable.HuntersMark, false)
     MaxDps:GlowCooldown(classtable.BestialWrath, false)
     MaxDps:GlowCooldown(classtable.BlackArrow, false)
@@ -227,9 +190,9 @@ function BeastMastery:callaction()
     if (MaxDps:CheckSpellUsable(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
         MaxDps:GlowCooldown(classtable.TranquilizingShot, cooldown[classtable.TranquilizingShot].ready)
     end
-    --if (MaxDps:CheckSpellUsable(classtable.MendPet, 'MendPet')) and (pethealthPerc <80) and cooldown[classtable.MendPet].ready then
-    --    MaxDps:GlowCooldown(classtable.MendPet, cooldown[classtable.MendPet].ready)
-    --end
+    if (MaxDps:CheckSpellUsable(classtable.MendPet, 'MendPet')) and (pethealthPerc <80) and cooldown[classtable.MendPet].ready then
+        MaxDps:GlowCooldown(classtable.MendPet, cooldown[classtable.MendPet].ready)
+    end
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (( false or MaxDps:boss() ) and MaxDps:DebuffCounter(classtable.HuntersMarkDeBuff) == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready then
         MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
@@ -284,7 +247,7 @@ function Hunter:BeastMastery()
     classtable.BeastCleaveBuff = 268877
     classtable.HogstriderBuff = 472640
     classtable.ArcanePulse = 260369
-    classtable.HowlofthePackLeaderBear = 472325
+    classtable.MendPet = 136
     classtable.HowlofthePackLeaderBoar = 472324
     classtable.HowlofthePackLeaderWyvern = 471878
 

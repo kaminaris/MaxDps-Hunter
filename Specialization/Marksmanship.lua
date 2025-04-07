@@ -273,6 +273,7 @@ function Hunter:Marksmanship()
     classtable.TrickShotsBuff = 257622
     classtable.WitheringFireBuff = 466991
     classtable.SpottersMarkDeBuff = 466872
+    classtable.MendPet = 136
 
     local function debugg()
         talents[classtable.UnbreakableBond] = 1
