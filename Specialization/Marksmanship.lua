@@ -213,9 +213,9 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.CounterShot, 'CounterShot')) and cooldown[classtable.CounterShot].ready then
         MaxDps:GlowCooldown(classtable.CounterShot, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
-    if (MaxDps:CheckSpellUsable(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
-        MaxDps:GlowCooldown(classtable.TranquilizingShot, cooldown[classtable.TranquilizingShot].ready)
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
+    --    MaxDps:GlowCooldown(classtable.TranquilizingShot, cooldown[classtable.TranquilizingShot].ready)
+    --end
     trueshot_ready = cooldown[classtable.Trueshot].ready and ( ( (targets <2) or targets == 1 ) and ( not talents[classtable.Bullseye] or ttd >cooldown[classtable.Trueshot].duration + buff[classtable.TrueshotBuff].duration / 2 or buff[classtable.BullseyeBuff].count == buff[classtable.BullseyeBuff].maxStacks ) and ( not MaxDps:HasOnUseEffect('13') or MaxDps:CheckTrinketCooldown('13') >30 or MaxDps:CheckTrinketReady('14') ) and ( not MaxDps:HasOnUseEffect('14') or MaxDps:CheckTrinketCooldown('14') >30 or MaxDps:CheckTrinketReady('14') ) or (targets >1) and ( not (targets >1) and ( (targets>1 and MaxDps:MaxAddDuration() or 0) + math.huge <25 or math.huge >60 ) or (targets >1) and targets >10 ) or MaxDps:boss() and ttd <25 )
     if (MaxDps:CheckSpellUsable(classtable.MendPet, 'MendPet')) and (pethealthPerc <80) and cooldown[classtable.MendPet].ready then
         MaxDps:GlowCooldown(classtable.MendPet, cooldown[classtable.MendPet].ready)
