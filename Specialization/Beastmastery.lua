@@ -100,7 +100,7 @@ function BeastMastery:cleave()
     if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow') and talents[classtable.BlackArrow]) and (buff[classtable.BeastCleaveBuff].remains and buff[classtable.WitheringFireBuff].up) and cooldown[classtable.BlackArrow].ready then
         MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready or howl_summon.ready and FocusTimeToMax <8) and cooldown[classtable.BarbedShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready or howl_summon_ready() and FocusTimeToMax <8) and cooldown[classtable.BarbedShot].ready then
         if not setSpell then setSpell = classtable.BarbedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (not buff[classtable.BeastCleaveBuff].up and ( not talents[classtable.BloodyFrenzy] or not cooldown[classtable.CalloftheWild].ready )) and cooldown[classtable.MultiShot].ready then
@@ -147,7 +147,7 @@ function BeastMastery:st()
     if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow') and talents[classtable.BlackArrow]) and (buff[classtable.WitheringFireBuff].up) and cooldown[classtable.BlackArrow].ready then
         MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready or howl_summon.ready and FocusTimeToMax <8) and cooldown[classtable.BarbedShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready or howl_summon_ready() and FocusTimeToMax <8) and cooldown[classtable.BarbedShot].ready then
         if not setSpell then setSpell = classtable.BarbedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.CalloftheWild, 'CalloftheWild') and talents[classtable.CalloftheWild]) and cooldown[classtable.CalloftheWild].ready then
