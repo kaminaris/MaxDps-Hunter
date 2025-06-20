@@ -33,3 +33,9 @@ Specialization\Classic\Beastmastery.lua
 Specialization\Classic\Survival.lua
 Specialization\Classic\Marksmanship.lua
 #@end-version-classic@
+
+#@version-mists@
+Specialization\Mop\Beastmastery.lua
+Specialization\Mop\Survival.lua
+Specialization\Mop\Marksmanship.lua
+#@end-version-mists@
