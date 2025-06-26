@@ -72,13 +72,6 @@ local next_wi_bomb
 
 local Survival = {}
 
-
-
-local function howl_summon_ready()
-    return buff[classtable.HowlofthePackLeaderBear].up or buff[classtable.HowlofthePackLeaderBoar].up or buff[classtable.HowlofthePackLeaderWyvern].up or false
-end
-
-
 function Survival:precombat()
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and (ttd >= 21 and not debuff[classtable.RangedVulnerabilityDeBuff].up) and cooldown[classtable.HuntersMark].ready and not UnitAffectingCombat('player') then
         MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
@@ -97,46 +90,49 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.ExplosiveShot, false)
     MaxDps:GlowCooldown(classtable.BlackArrow, false)
     MaxDps:GlowCooldown(classtable.DireBeast, false)
+    MaxDps:GlowCooldown(classtable.ExplosiveTrap, false)
+    MaxDps:GlowCooldown(classtable.RapidFire, false)
 end
 
 function Survival:callaction()
     if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and cooldown[classtable.AspectoftheHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
-        if not setSpell then setSpell = classtable.AspectoftheFox end
+    --if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
+    --    if not setSpell then setSpell = classtable.AspectoftheFox end
+    --end
+    --if (MaxDps:CheckSpellUsable(classtable.AutoShot, 'AutoShot')) and cooldown[classtable.AutoShot].ready then
+    --    if not setSpell then setSpell = classtable.AutoShot end
+    --end
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveTrap, 'ExplosiveTrap')) and (targets >0) and cooldown[classtable.ExplosiveTrap].ready then
+        --if not setSpell then setSpell = classtable.ExplosiveTrap end
+        MaxDps:GlowCooldown(classtable.ExplosiveTrap, true)
     end
-    if (MaxDps:CheckSpellUsable(classtable.AutoShot, 'AutoShot')) and cooldown[classtable.AutoShot].ready then
-        if not setSpell then setSpell = classtable.AutoShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.ExplosiveTrap, 'ExplosiveTrap')) and (target.adds >0) and cooldown[classtable.ExplosiveTrap].ready then
-        if not setSpell then setSpell = classtable.ExplosiveTrap end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.AMurderofCrows, 'AMurderofCrows')) and (enabled and not debuff[classtable.AMurderofCrowsDeBuff].up) and cooldown[classtable.AMurderofCrows].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AMurderofCrows, 'AMurderofCrows')) and (not debuff[classtable.AMurderofCrowsDeBuff].up) and cooldown[classtable.AMurderofCrows].ready then
         if not setSpell then setSpell = classtable.AMurderofCrows end
     end
-    if (MaxDps:CheckSpellUsable(classtable.BlinkStrike, 'BlinkStrike')) and (enabled) and cooldown[classtable.BlinkStrike].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BlinkStrike, 'BlinkStrike')) and cooldown[classtable.BlinkStrike].ready then
         if not setSpell then setSpell = classtable.BlinkStrike end
     end
-    if (MaxDps:CheckSpellUsable(classtable.LynxRush, 'LynxRush')) and (enabled and not debuff[classtable.LynxRushDeBuff].up) and cooldown[classtable.LynxRush].ready then
+    if (MaxDps:CheckSpellUsable(classtable.LynxRush, 'LynxRush')) and (not debuff[classtable.LynxRushDeBuff].up) and cooldown[classtable.LynxRush].ready then
         if not setSpell then setSpell = classtable.LynxRush end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (buff[classtable.LockandLoadBuff].up) and cooldown[classtable.ExplosiveShot].ready then
         MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.GlaiveToss, 'GlaiveToss')) and (enabled) and cooldown[classtable.GlaiveToss].ready then
+    if (MaxDps:CheckSpellUsable(classtable.GlaiveToss, 'GlaiveToss')) and cooldown[classtable.GlaiveToss].ready then
         if not setSpell then setSpell = classtable.GlaiveToss end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Powershot, 'Powershot')) and (enabled) and cooldown[classtable.Powershot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Powershot, 'Powershot')) and cooldown[classtable.Powershot].ready then
         if not setSpell then setSpell = classtable.Powershot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Barrage, 'Barrage')) and (enabled) and cooldown[classtable.Barrage].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Barrage, 'Barrage')) and cooldown[classtable.Barrage].ready then
         if not setSpell then setSpell = classtable.Barrage end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (target.adds >2) and cooldown[classtable.MultiShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (targets >2) and cooldown[classtable.MultiShot].ready then
         if not setSpell then setSpell = classtable.MultiShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (target.adds >2) and cooldown[classtable.CobraShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (targets >2) and cooldown[classtable.CobraShot].ready then
         if not setSpell then setSpell = classtable.CobraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not debuff[classtable.SerpentStingDeBuff].up and ttd >= 10) and cooldown[classtable.SerpentSting].ready then
@@ -154,16 +150,17 @@ function Survival:callaction()
     if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (buff[classtable.ThrilloftheHuntBuff].up) and cooldown[classtable.MultiShot].ready then
         if not setSpell then setSpell = classtable.MultiShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.DireBeast, 'DireBeast')) and (enabled) and cooldown[classtable.DireBeast].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
         MaxDps:GlowCooldown(classtable.DireBeast, cooldown[classtable.DireBeast].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (not buff[classtable.RapidFireBuff].up) and cooldown[classtable.RapidFire].ready then
-        if not setSpell then setSpell = classtable.RapidFire end
+        --if not setSpell then setSpell = classtable.RapidFire end
+        MaxDps:GlowCooldown(classtable.RapidFire, true)
     end
-    if (MaxDps:CheckSpellUsable(classtable.Readiness, 'Readiness')) and cooldown[classtable.Readiness].ready then
-        if not setSpell then setSpell = classtable.Readiness end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Fervor, 'Fervor')) and (enabled and Focus <= 50) and cooldown[classtable.Fervor].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Readiness, 'Readiness')) and cooldown[classtable.Readiness].ready then
+    --    if not setSpell then setSpell = classtable.Readiness end
+    --end
+    if (MaxDps:CheckSpellUsable(classtable.Fervor, 'Fervor')) and (Focus <= 50) and cooldown[classtable.Fervor].ready then
         if not setSpell then setSpell = classtable.Fervor end
     end
     if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (debuff[classtable.SerpentStingDeBuff].remains <6) and cooldown[classtable.CobraShot].ready then
@@ -213,11 +210,7 @@ function Hunter:Survival()
         local spellinfo = firstSpell and GetSpellInfo(firstSpell.spellID)
         return spellinfo and spellinfo.spellID or 0
     end
-    if talents[classtable.MongooseBite] then
-        classtable.RaptorBite = classtable.MongooseBite
-    else
-        classtable.RaptorBite = classtable.RaptorStrike
-    end
+
     --for spellId in pairs(MaxDps.Flags) do
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
@@ -225,7 +218,20 @@ function Hunter:Survival()
 
     local function debugg()
     end
+    classtable.AspectoftheHawk = talents[109260] and 109260 or 13165
+    classtable.AspectoftheHawkBuff = talents[109260] and 109260 or 13165
+    classtable.TrapLauncherBuff = 77769
+    classtable.ExplosiveTrap = 13813
+    classtable.BlinkStrike = 130392
 
+    --classtable.LockandLoadBuff
+    classtable.ThrilloftheHuntBuff = 34720
+    classtable.RapidFireBuff = 3045
+    classtable.RangedVulnerabilityDeBuff = 1130
+    classtable.AMurderofCrowsDeBuff = 131894
+    --classtable.LynxRushDeBuff
+    classtable.SerpentStingDeBuff = 118253
+    classtable.BlackArrowDeBuff = 3674
 
     --if MaxDps.db.global.debugMode then
     --   debugg()

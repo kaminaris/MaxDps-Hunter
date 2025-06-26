@@ -95,6 +95,9 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.HuntersMark, false)
     MaxDps:GlowCooldown(classtable.BestialWrath, false)
     MaxDps:GlowCooldown(classtable.DireBeast, false)
+    MaxDps:GlowCooldown(classtable.ExplosiveTrap, false)
+    MaxDps:GlowCooldown(classtable.RapidFire, false)
+    MaxDps:GlowCooldown(classtable.TrapLauncher, false)
 end
 
 function BeastMastery:callaction()
@@ -108,10 +111,12 @@ function BeastMastery:callaction()
     --    if not setSpell then setSpell = classtable.AutoShot end
     --end
     if (MaxDps:CheckSpellUsable(classtable.TrapLauncher, 'TrapLauncher')) and (not buff[classtable.TrapLauncherBuff].up) and cooldown[classtable.TrapLauncher].ready then
-        if not setSpell then setSpell = classtable.TrapLauncher end
+        --if not setSpell then setSpell = classtable.TrapLauncher end
+        MaxDps:GlowCooldown(classtable.TrapLauncher, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveTrap, 'ExplosiveTrap')) and (targets >0) and cooldown[classtable.ExplosiveTrap].ready then
-        if not setSpell then setSpell = classtable.ExplosiveTrap end
+        --if not setSpell then setSpell = classtable.ExplosiveTrap end
+        MaxDps:GlowCooldown(classtable.ExplosiveTrap, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire')) and (buff[classtable.FrenzyBuff].up) and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
@@ -132,7 +137,8 @@ function BeastMastery:callaction()
         if not setSpell then setSpell = classtable.CobraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (not buff[classtable.RapidFireBuff].up) and cooldown[classtable.RapidFire].ready then
-        if not setSpell then setSpell = classtable.RapidFire end
+        --if not setSpell then setSpell = classtable.RapidFire end
+        MaxDps:GlowCooldown(classtable.RapidFire, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end

@@ -103,7 +103,8 @@ function Marksmanship:callaction()
     --    if not setSpell then setSpell = classtable.AutoShot end
     --end
     if (MaxDps:CheckSpellUsable(classtable.TrapLauncher, 'TrapLauncher')) and (not buff[classtable.TrapLauncherBuff].up) and cooldown[classtable.TrapLauncher].ready then
-        if not setSpell then setSpell = classtable.TrapLauncher end
+        --if not setSpell then setSpell = classtable.TrapLauncher end
+        MaxDps:GlowCooldown(classtable.TrapLauncher, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveTrap, 'ExplosiveTrap')) and (targets >0) and cooldown[classtable.ExplosiveTrap].ready then
         --if not setSpell then setSpell = classtable.ExplosiveTrap end
