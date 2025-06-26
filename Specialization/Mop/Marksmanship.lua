@@ -88,6 +88,8 @@ end
 local function ClearCDs()
     MaxDps:GlowCooldown(classtable.HuntersMark, false)
     MaxDps:GlowCooldown(classtable.DireBeast, false)
+    MaxDps:GlowCooldown(classtable.ExplosiveTrap, false)
+    MaxDps:GlowCooldown(classtable.RapidFire, false)
 end
 
 function Marksmanship:callaction()
@@ -104,7 +106,8 @@ function Marksmanship:callaction()
         if not setSpell then setSpell = classtable.TrapLauncher end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveTrap, 'ExplosiveTrap')) and (targets >0) and cooldown[classtable.ExplosiveTrap].ready then
-        if not setSpell then setSpell = classtable.ExplosiveTrap end
+        --if not setSpell then setSpell = classtable.ExplosiveTrap end
+        MaxDps:GlowCooldown(classtable.ExplosiveTrap, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.GlaiveToss, 'GlaiveToss')) and cooldown[classtable.GlaiveToss].ready then
         if not setSpell then setSpell = classtable.GlaiveToss end
@@ -138,6 +141,7 @@ function Marksmanship:callaction()
     end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (not buff[classtable.RapidFireBuff].up) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
+        MaxDps:GlowCooldown(classtable.RapidFire, true)
     end
     --if (MaxDps:CheckSpellUsable(classtable.Readiness, 'Readiness')) and cooldown[classtable.Readiness].ready then
     --    if not setSpell then setSpell = classtable.Readiness end
