@@ -79,9 +79,9 @@ function Survival:precombat()
     if (MaxDps:CheckSpellUsable(classtable.TrueshotAura, 'TrueshotAura')) and cooldown[classtable.TrueshotAura].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.TrueshotAura end
     end
-    if (MaxDps:CheckSpellUsable(classtable.TolvirPotion, 'TolvirPotion')) and cooldown[classtable.TolvirPotion].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.TolvirPotion end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.TolvirPotion, 'TolvirPotion')) and cooldown[classtable.TolvirPotion].ready and not UnitAffectingCombat('player') then
+    --    if not setSpell then setSpell = classtable.TolvirPotion end
+    --end
 end
 
 
