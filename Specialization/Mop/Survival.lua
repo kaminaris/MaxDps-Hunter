@@ -87,7 +87,7 @@ end
 
 local function ClearCDs()
     MaxDps:GlowCooldown(classtable.HuntersMark, false)
-    MaxDps:GlowCooldown(classtable.ExplosiveShot, false)
+    --MaxDps:GlowCooldown(classtable.ExplosiveShot, false)
     MaxDps:GlowCooldown(classtable.BlackArrow, false)
     MaxDps:GlowCooldown(classtable.DireBeast, false)
     MaxDps:GlowCooldown(classtable.ExplosiveTrap, false)
@@ -95,7 +95,7 @@ local function ClearCDs()
 end
 
 function Survival:callaction()
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and cooldown[classtable.AspectoftheHawk].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not buff[classtable.AspectoftheHawkBuff].up) and cooldown[classtable.AspectoftheHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
     --if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
@@ -118,7 +118,8 @@ function Survival:callaction()
         if not setSpell then setSpell = classtable.LynxRush end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (buff[classtable.LockandLoadBuff].up) and cooldown[classtable.ExplosiveShot].ready then
-        MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
+        if not setSpell then setSpell = classtable.ExplosiveShot end
+        --MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.GlaiveToss, 'GlaiveToss')) and cooldown[classtable.GlaiveToss].ready then
         if not setSpell then setSpell = classtable.GlaiveToss end
@@ -139,7 +140,8 @@ function Survival:callaction()
         if not setSpell then setSpell = classtable.SerpentSting end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (cooldown[classtable.ExplosiveShot].ready) and cooldown[classtable.ExplosiveShot].ready then
-        MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
+        if not setSpell then setSpell = classtable.ExplosiveShot end
+        --MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
@@ -224,7 +226,7 @@ function Hunter:Survival()
     classtable.ExplosiveTrap = 13813
     classtable.BlinkStrike = 130392
 
-    --classtable.LockandLoadBuff
+    classtable.LockandLoadBuff = 56453
     classtable.ThrilloftheHuntBuff = 34720
     classtable.RapidFireBuff = 3045
     classtable.RangedVulnerabilityDeBuff = 1130
