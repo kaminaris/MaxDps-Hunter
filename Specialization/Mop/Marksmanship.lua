@@ -90,6 +90,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.DireBeast, false)
     MaxDps:GlowCooldown(classtable.ExplosiveTrap, false)
     MaxDps:GlowCooldown(classtable.RapidFire, false)
+    MaxDps:GlowCooldown(classtable.TrapLauncher, false)
 end
 
 function Marksmanship:callaction()
@@ -131,23 +132,23 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (targets >5) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not debuff[classtable.SerpentStingDeBuff].up and targethealthPerc <= 90) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not debuff[classtable.SerpentStingDeBuff].up) and cooldown[classtable.SerpentSting].ready then
         if not setSpell then setSpell = classtable.SerpentSting end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ChimeraShot, 'ChimeraShot')) and (targethealthPerc <= 90) and cooldown[classtable.ChimeraShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ChimeraShot, 'ChimeraShot')) and cooldown[classtable.ChimeraShot].ready then
         if not setSpell then setSpell = classtable.ChimeraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
         MaxDps:GlowCooldown(classtable.DireBeast, cooldown[classtable.DireBeast].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (not buff[classtable.RapidFireBuff].up) and cooldown[classtable.RapidFire].ready then
-        if not setSpell then setSpell = classtable.RapidFire end
+        --if not setSpell then setSpell = classtable.RapidFire end
         MaxDps:GlowCooldown(classtable.RapidFire, true)
     end
     --if (MaxDps:CheckSpellUsable(classtable.Readiness, 'Readiness')) and cooldown[classtable.Readiness].ready then
     --    if not setSpell then setSpell = classtable.Readiness end
     --end
-    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (buff[classtable.PreSteadyFocusBuff].up and buff[classtable.SteadyFocusBuff].remains <3) and cooldown[classtable.SteadyShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (MaxDps.spellHistory[1] == 56641 and buff[classtable.SteadyFocusBuff].remains <3) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
@@ -162,7 +163,7 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.ThrilloftheHuntBuff].up) and cooldown[classtable.ArcaneShot].ready then
         if not setSpell then setSpell = classtable.ArcaneShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (( Focus >= 66 or cooldown[classtable.ChimeraShot].remains >= 4 ) and ( targethealthPerc <90 and not buff[classtable.RapidFireBuff].up and not MaxDps:Bloodlust(1) and not buff[classtable.BerserkingBuff].up and not buff[classtable.Tier134pcBuff].up and cooldown[classtable.BuffTier134pc].remains <= 0 )) and cooldown[classtable.ArcaneShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (( Focus >= 66 or cooldown[classtable.ChimeraShot].remains >= 4 ) and ( not buff[classtable.RapidFireBuff].up and not MaxDps:Bloodlust(1) and not buff[classtable.BerserkingBuff].up and not buff[classtable.Tier134pcBuff].up and cooldown[classtable.BuffTier134pc].remains <= 0 )) and cooldown[classtable.ArcaneShot].ready then
         if not setSpell then setSpell = classtable.ArcaneShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (( cooldown[classtable.ChimeraShot].remains >5 or Focus >= 80 ) and ( MaxDps:Bloodlust(1) or buff[classtable.Tier134pcBuff].up or cooldown[classtable.BuffTier134pc].remains >0 ) or buff[classtable.RapidFireBuff].up or targethealthPerc >90) and cooldown[classtable.AimedShot].ready then
@@ -218,7 +219,7 @@ function Hunter:Marksmanship()
 
     --classtable.AspectoftheFox
     classtable.AspectoftheHawk = talents[109260] and 109260 or 13165
-    classtable.ExplosiveTrap = 13813
+    classtable.ExplosiveTrap = buff[classtable.TrapLauncherBuff].up and 82939 or 13813
     classtable.BlinkStrike = 130392
 
     classtable.AspectoftheHawkBuff = talents[109260] and 109260 or 13165
