@@ -101,6 +101,9 @@ local function ClearCDs()
 end
 
 function BeastMastery:callaction()
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc < 20) and cooldown[classtable.KillShot].ready then
+        if not setSpell then setSpell = classtable.KillShot end
+    end
     if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not buff[classtable.AspectoftheHawkBuff].up) and cooldown[classtable.AspectoftheHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
