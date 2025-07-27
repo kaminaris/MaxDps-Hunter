@@ -92,9 +92,14 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.DireBeast, false)
     MaxDps:GlowCooldown(classtable.ExplosiveTrap, false)
     MaxDps:GlowCooldown(classtable.RapidFire, false)
+    MaxDps:GlowCooldown(classtable.Stampede, false)
 end
 
 function Survival:callaction()
+    if (MaxDps:CheckSpellUsable(classtable.Stampede, 'Stampede')) and cooldown[classtable.Stampede].ready then
+        --if not setSpell then setSpell = classtable.Stampede end
+        MaxDps:GlowCooldown(classtable.Stampede, true)
+    end
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc < 20) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
