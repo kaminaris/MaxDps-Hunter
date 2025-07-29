@@ -105,7 +105,6 @@ function Hunter:TargetsInPetRange()
 		local t = GetTime()
 		if not lastWarning or t - lastWarning > 5 then
 			MaxDps:Print(MaxDps.Colors.Error .. 'At least one pet basic ability needs to be on YOUR action bar (One of those: Smack, Claw, Bite).', "error")
-			MaxDps:Print(MaxDps.Colors.Error .. 'Read this for more information: goo.gl/ZF6FXt', "error")
 			lastWarning = t
 		end
 		return 1
