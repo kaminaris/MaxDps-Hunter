@@ -460,8 +460,10 @@ function Hunter:Survival()
     classtable = MaxDps.SpellTable
     local trinket1ID = GetInventoryItemID('player', 13)
     local trinket2ID = GetInventoryItemID('player', 14)
+    local MHID = GetInventoryItemID('player', 16)
     classtable.trinket1 = (trinket1ID and select(2,GetItemSpell(trinket1ID)) ) or 0
     classtable.trinket2 = (trinket2ID and select(2,GetItemSpell(trinket2ID)) ) or 0
+    classtable.main_hand = (MHID and select(2,GetItemSpell(MHID)) ) or 0
     Focus = UnitPower('player', FocusPT)
     FocusMax = UnitPowerMax('player', FocusPT)
     FocusDeficit = FocusMax - Focus
