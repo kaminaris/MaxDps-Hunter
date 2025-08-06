@@ -167,7 +167,7 @@ end
 
 
 function BeastMastery:precombat()
-    trinket_1_stronger = not MaxDps:HasOnUseEffect('14') or MaxDps:HasOnUseEffect('13') and (not MaxDps:HasOnUseEffect('14') or not MaxDps:CheckTrinketNames('MirrorofFracturedTomorrows') and (MaxDps:CheckTrinketNames('MirrorofFracturedTomorrows') or MaxDps:CheckTrinketCooldown('14').duration <MaxDps:CheckTrinketCooldown('13').duration or 0 <0 or 0 == 0 and MaxDps:CheckTrinketCooldown('14').duration == MaxDps:CheckTrinketCooldown('13').duration)) or not MaxDps:HasOnUseEffect('13') and (not MaxDps:HasOnUseEffect('14') and (MaxDps:CheckTrinketCooldown('14').duration <MaxDps:CheckTrinketCooldown('13').duration or 0 <0 or 0 == 0 and MaxDps:CheckTrinketCooldown('14').duration == MaxDps:CheckTrinketCooldown('13').duration))
+    trinket_1_stronger = not MaxDps:HasOnUseEffect('14') or MaxDps:HasOnUseEffect('13') and (not MaxDps:HasOnUseEffect('14') or not MaxDps:CheckTrinketNames('MirrorofFracturedTomorrows') and (MaxDps:CheckTrinketNames('MirrorofFracturedTomorrows') or MaxDps:CheckTrinketCooldownDuration('14') <MaxDps:CheckTrinketCooldownDuration('13') or 0 <0 or 0 == 0 and MaxDps:CheckTrinketCooldownDuration('14') == MaxDps:CheckTrinketCooldownDuration('13'))) or not MaxDps:HasOnUseEffect('13') and (not MaxDps:HasOnUseEffect('14') and (MaxDps:CheckTrinketCooldownDuration('14') <MaxDps:CheckTrinketCooldownDuration('13') or 0 <0 or 0 == 0 and MaxDps:CheckTrinketCooldownDuration('14') == MaxDps:CheckTrinketCooldownDuration('13')))
     trinket_2_stronger = not trinket_1_stronger
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (false) and cooldown[classtable.BarbedShot].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.BarbedShot end
