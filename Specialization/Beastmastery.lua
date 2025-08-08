@@ -167,7 +167,7 @@ end
 
 
 function BeastMastery:precombat()
-    trinket_1_stronger = not MaxDps:HasOnUseEffect('14') or MaxDps:HasOnUseEffect('13') and (not MaxDps:HasOnUseEffect('14') or not MaxDps:CheckTrinketNames('MirrorofFracturedTomorrows') and (MaxDps:CheckTrinketNames('MirrorofFracturedTomorrows') or MaxDps:CheckTrinketCooldownDuration('14') <MaxDps:CheckTrinketCooldownDuration('13') or 0 <0 or 0 == 0 and MaxDps:CheckTrinketCooldownDuration('14') == MaxDps:CheckTrinketCooldownDuration('13'))) or not MaxDps:HasOnUseEffect('13') and (not MaxDps:HasOnUseEffect('14') and (MaxDps:CheckTrinketCooldownDuration('14') <MaxDps:CheckTrinketCooldownDuration('13') or 0 <0 or 0 == 0 and MaxDps:CheckTrinketCooldownDuration('14') == MaxDps:CheckTrinketCooldownDuration('13')))
+    trinket_1_stronger = not MaxDps:HasOnUseEffect('14') or MaxDps:HasOnUseEffect('13') and (not MaxDps:HasOnUseEffect('14') or not MaxDps:CheckTrinketNames('MirrorofFracturedTomorrows') and (MaxDps:CheckTrinketNames('MirrorofFracturedTomorrows') or MaxDps:CheckTrinketCooldownDuration('14') <MaxDps:CheckTrinketCooldownDuration('13') or MaxDps:CheckTrinketCastTime('14') <MaxDps:CheckTrinketCastTime('13') or MaxDps:CheckTrinketCastTime('14') == MaxDps:CheckTrinketCastTime('13') and MaxDps:CheckTrinketCooldownDuration('14') == MaxDps:CheckTrinketCooldownDuration('13'))) or not MaxDps:HasOnUseEffect('13') and (not MaxDps:HasOnUseEffect('14') and (MaxDps:CheckTrinketCooldownDuration('14') <MaxDps:CheckTrinketCooldownDuration('13') or MaxDps:CheckTrinketCastTime('14') <MaxDps:CheckTrinketCastTime('13') or MaxDps:CheckTrinketCastTime('14') == MaxDps:CheckTrinketCastTime('13') and MaxDps:CheckTrinketCooldownDuration('14') == MaxDps:CheckTrinketCooldownDuration('13')))
     trinket_2_stronger = not trinket_1_stronger
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (false) and cooldown[classtable.BarbedShot].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.BarbedShot end
@@ -240,7 +240,7 @@ function BeastMastery:cleave()
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (cooldown[classtable.BestialWrath].ready and talents[classtable.ScentofBlood]) and cooldown[classtable.BarbedShot].ready then
         if not setSpell then setSpell = classtable.BarbedShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (buff[classtable.HowlofthePackLeaderCooldownBuff].remains - buff[classtable.LeadFromtheFrontBuff].duration<buff[classtable.LeadFromtheFrontBuff].duration%gcd * 0.5 or talents[classtable.MultiShot] or not (MaxDps.tier and MaxDps.tier[3].count >= 4)) and cooldown[classtable.BestialWrath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (buff[classtable.HowlofthePackLeaderCooldownBuff].remains - buff[classtable.LeadFromtheFrontBuff].duration<buff[classtable.LeadFromtheFrontBuff].duration%gcd * 0.5 or talents[classtable.MultiShot] or not (MaxDps.tier and MaxDps.tier[34].count >= 4)) and cooldown[classtable.BestialWrath].ready then
         MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready or howl_summon_ready() and FocusTimeToMax <8) and cooldown[classtable.BarbedShot].ready then
@@ -269,7 +269,7 @@ function BeastMastery:cleave()
     end
 end
 function BeastMastery:st()
-    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (buff[classtable.HowlofthePackLeaderCooldownBuff].remains - buff[classtable.LeadFromtheFrontBuff].duration<buff[classtable.LeadFromtheFrontBuff].duration%gcd * 0.5 or not (MaxDps.tier and MaxDps.tier[3].count >= 4)) and cooldown[classtable.BestialWrath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (buff[classtable.HowlofthePackLeaderCooldownBuff].remains - buff[classtable.LeadFromtheFrontBuff].duration<buff[classtable.LeadFromtheFrontBuff].duration%gcd * 0.5 or not (MaxDps.tier and MaxDps.tier[34].count >= 4)) and cooldown[classtable.BestialWrath].ready then
         MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd) and cooldown[classtable.BarbedShot].ready then
@@ -304,6 +304,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.CalloftheWild, false)
     MaxDps:GlowCooldown(classtable.Bloodshed, false)
     MaxDps:GlowCooldown(classtable.ExplosiveShot, false)
+    MaxDps:GlowCooldown(classtable.trinket1, false)
     MaxDps:GlowCooldown(classtable.trinket2, false)
 end
 
