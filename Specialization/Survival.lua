@@ -135,7 +135,7 @@ function Survival:cds()
         MaxDps:GlowCooldown(classtable.AspectoftheEagle, cooldown[classtable.AspectoftheEagle].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.spellstrike_warplance, 'spellstrike_warplance')) and cooldown[classtable.spellstrike_warplance].ready then
-        if not setSpell then setSpell = classtable.spellstrike_warplance end
+        MaxDps:GlowCooldown(classtable.spellstrike_warplance, cooldown[classtable.spellstrike_warplance].ready)
     end
 end
 function Survival:plcleave()
@@ -405,6 +405,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.Harpoon, false)
     MaxDps:GlowCooldown(classtable.imperfect_ascendancy_serum, false)
     MaxDps:GlowCooldown(classtable.AspectoftheEagle, false)
+    MaxDps:GlowCooldown(classtable.spellstrike_warplance, false)
     MaxDps:GlowCooldown(classtable.Spearhead, false)
     MaxDps:GlowCooldown(classtable.ExplosiveShot, false)
     MaxDps:GlowCooldown(classtable.CoordinatedAssault, false)
