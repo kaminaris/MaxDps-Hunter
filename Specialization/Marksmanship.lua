@@ -135,7 +135,7 @@ function Marksmanship:precombat()
     if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'HuntersMark')) and ((false or MaxDps:boss()) and MaxDps:DebuffCounter(classtable.HuntersMarkDeBuff) == 0 and MaxDps:GetTimeToPct(80) >20) and cooldown[classtable.HuntersMark].ready and not UnitAffectingCombat('player') then
         MaxDps:GlowCooldown(classtable.HuntersMark, cooldown[classtable.HuntersMark].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (targets <3 or talents[classtable.BlackArrow] and talents[classtable.Headshot]) and cooldown[classtable.AimedShot].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (targets <3 or talents[466932] and talents[classtable.Headshot]) and cooldown[classtable.AimedShot].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.AimedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready and not UnitAffectingCombat('player') then
@@ -145,11 +145,11 @@ end
 function Marksmanship:cds()
 end
 function Marksmanship:cleave()
-    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and (MaxDps.spellHistory[1] == classtable.AimedShot) and (not buff[classtable.TrueshotBuff].up or not talents[classtable.WindrunnerQuiver])) and cooldown[classtable.ExplosiveShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and MaxDps:CheckPrevSpell(classtable.AimedShot,1) and (not buff[classtable.TrueshotBuff].up or not talents[classtable.WindrunnerQuiver])) and cooldown[classtable.ExplosiveShot].ready then
         MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (talents[classtable.BlackArrow] and buff[classtable.PreciseShotsBuff].up and not buff[classtable.MovingTargetBuff].up and trueshot_ready) and cooldown[classtable.KillShot].ready then
-        if not setSpell then setSpell = classtable.KillShot end
+    if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow') and talents[466932]) and (buff[classtable.PreciseShotsBuff].up and not buff[classtable.MovingTargetBuff].up and trueshot_ready) and cooldown[classtable.BlackArrow].ready then
+        MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.Volley, 'Volley') and talents[classtable.Volley]) and ((talents[classtable.DoubleTap] and not buff[classtable.DoubleTapBuff].up or not talents[classtable.AspectoftheHydra]) and (not buff[classtable.PreciseShotsBuff].up or buff[classtable.MovingTargetBuff].up)) and cooldown[classtable.Volley].ready then
         MaxDps:GlowCooldown(classtable.Volley, cooldown[classtable.Volley].ready)
@@ -160,17 +160,20 @@ function Marksmanship:cleave()
     if (MaxDps:CheckSpellUsable(classtable.Volley, 'Volley') and talents[classtable.Volley]) and (not talents[classtable.DoubleTap] and (not buff[classtable.PreciseShotsBuff].up or buff[classtable.MovingTargetBuff].up)) and cooldown[classtable.Volley].ready then
         MaxDps:GlowCooldown(classtable.Volley, cooldown[classtable.Volley].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.Trueshot, 'Trueshot')) and (trueshot_ready and (not buff[classtable.DoubleTapBuff].up or not talents[classtable.Volley]) and ((MaxDps.ActiveHeroTree == 'darkranger') or buff[classtable.LunarStormCooldownBuff].up or not talents[classtable.DoubleTap] or not talents[classtable.Volley]) and (not buff[classtable.PreciseShotsBuff].up or buff[classtable.MovingTargetBuff].up or not talents[classtable.Volley])) and cooldown[classtable.Trueshot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Trueshot, 'Trueshot')) and (trueshot_ready and (not buff[classtable.DoubleTapBuff].up or not talents[classtable.Volley]) and (buff[classtable.LunarStormCooldownBuff].up or not talents[classtable.DoubleTap] or not talents[classtable.Volley]) and (not buff[classtable.PreciseShotsBuff].up or buff[classtable.MovingTargetBuff].up or not talents[classtable.Volley])) and cooldown[classtable.Trueshot].ready then
         MaxDps:GlowCooldown(classtable.Trueshot, cooldown[classtable.Trueshot].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (talents[466932] and Focus + FocusRegen<FocusMax and MaxDps:CheckPrevSpell(classtable.AimedShot,1) and not buff[classtable.DeathblowBuff].up and not buff[classtable.TrueshotBuff].up and not cooldown[classtable.Trueshot].ready) and cooldown[classtable.SteadyShot].ready then
+        if not setSpell then setSpell = classtable.SteadyShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (talents[classtable.LunarStorm] and not buff[classtable.LunarStormCooldownBuff].up and (not buff[classtable.PreciseShotsBuff].up or buff[classtable.MovingTargetBuff].up or not cooldown[classtable.Volley].ready and not cooldown[classtable.Trueshot].ready or not talents[classtable.Volley])) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (not talents[classtable.BlackArrow] and (talents[classtable.Headshot] and buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up) or not talents[classtable.Headshot] and buff[classtable.RazorFragmentsBuff].up)) and cooldown[classtable.KillShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (talents[classtable.Headshot] and buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up) or not talents[classtable.Headshot] and buff[classtable.RazorFragmentsBuff].up) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (talents[classtable.BlackArrow] and (talents[classtable.Headshot] and buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up) or not talents[classtable.Headshot] and buff[classtable.RazorFragmentsBuff].up)) and cooldown[classtable.KillShot].ready then
-        if not setSpell then setSpell = classtable.KillShot end
+    if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow') and talents[466932]) and (talents[classtable.Headshot] and buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up) or not talents[classtable.Headshot] and buff[classtable.RazorFragmentsBuff].up) and cooldown[classtable.BlackArrow].ready then
+        MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up) and not talents[classtable.AspectoftheHydra] and (talents[classtable.SymphonicArsenal] or talents[classtable.SmallGameHunter])) and cooldown[classtable.MultiShot].ready then
         if not setSpell then setSpell = classtable.MultiShot end
@@ -193,33 +196,62 @@ function Marksmanship:cleave()
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] or not buff[classtable.TrueshotBuff].up) and cooldown[classtable.ExplosiveShot].ready then
         MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (talents[classtable.BlackArrow] and not talents[classtable.Headshot]) and cooldown[classtable.KillShot].ready then
-        if not setSpell then setSpell = classtable.KillShot end
+    if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow') and talents[466932]) and (not talents[classtable.Headshot]) and cooldown[classtable.BlackArrow].ready then
+        MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
 end
-function Marksmanship:st()
+function Marksmanship:drst()
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and MaxDps:CheckPrevSpell(classtable.AimedShot,1) and not buff[classtable.TrueshotBuff].up and not buff[classtable.LockandLoadBuff].up) and cooldown[classtable.ExplosiveShot].ready then
+        MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Volley, 'Volley') and talents[classtable.Volley]) and (not buff[classtable.DoubleTapBuff].up and (not (targets >1) or math.huge >cooldown[classtable.Volley].remains)) and cooldown[classtable.Volley].ready then
+        MaxDps:GlowCooldown(classtable.Volley, cooldown[classtable.Volley].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (Focus + FocusRegen<FocusMax and MaxDps:CheckPrevSpell(classtable.AimedShot,1) and (not cooldown[classtable.BlackArrow].ready) and not buff[classtable.TrueshotBuff].up and not cooldown[classtable.Trueshot].ready) and cooldown[classtable.SteadyShot].ready then
+        if not setSpell then setSpell = classtable.SteadyShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow') and talents[466932]) and (not talents[classtable.Headshot] or talents[classtable.Headshot] and buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up)) and cooldown[classtable.BlackArrow].ready then
+        MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (buff[classtable.TrueshotBuff].up and not buff[classtable.PreciseShotsBuff].up or buff[classtable.LockandLoadBuff].up and buff[classtable.MovingTargetBuff].up) and cooldown[classtable.AimedShot].ready then
+        if not setSpell then setSpell = classtable.AimedShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (not buff[classtable.DeathblowBuff].up) and cooldown[classtable.RapidFire].ready then
+        if not setSpell then setSpell = classtable.RapidFire end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Trueshot, 'Trueshot')) and (trueshot_ready and not buff[classtable.DoubleTapBuff].up and not buff[classtable.DeathblowBuff].up) and cooldown[classtable.Trueshot].ready then
+        MaxDps:GlowCooldown(classtable.Trueshot, cooldown[classtable.Trueshot].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up)) and cooldown[classtable.ArcaneShot].ready then
+        if not setSpell then setSpell = classtable.ArcaneShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (not buff[classtable.PreciseShotsBuff].up or debuff[classtable.SpottersMarkDeBuff].up and buff[classtable.MovingTargetBuff].up) and cooldown[classtable.AimedShot].ready then
+        if not setSpell then setSpell = classtable.AimedShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.ShrapnelShot] and not buff[classtable.LockandLoadBuff].up) and cooldown[classtable.ExplosiveShot].ready then
+        MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and cooldown[classtable.SteadyShot].ready then
+        if not setSpell then setSpell = classtable.SteadyShot end
+    end
+end
+function Marksmanship:sentst()
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and (MaxDps.spellHistory[1] == classtable.AimedShot) and not buff[classtable.TrueshotBuff].up) and cooldown[classtable.ExplosiveShot].ready then
         MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.Volley, 'Volley') and talents[classtable.Volley]) and (not buff[classtable.DoubleTapBuff].up) and cooldown[classtable.Volley].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Volley, 'Volley') and talents[classtable.Volley]) and (not buff[classtable.DoubleTapBuff].up and (not (targets >1) or math.huge >cooldown[classtable.Volley].remains)) and cooldown[classtable.Volley].ready then
         MaxDps:GlowCooldown(classtable.Volley, cooldown[classtable.Volley].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.Trueshot, 'Trueshot')) and (trueshot_ready and not buff[classtable.DoubleTapBuff].up) and cooldown[classtable.Trueshot].ready then
         MaxDps:GlowCooldown(classtable.Trueshot, cooldown[classtable.Trueshot].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.BlackArrow] and Focus + FocusRegen<FocusMax and (MaxDps.spellHistory[1] == classtable.AimedShot) and not buff[classtable.DeathblowBuff].up and not buff[classtable.TrueshotBuff].up and not cooldown[classtable.Trueshot].ready) and cooldown[classtable.SteadyShot].ready then
-        if not setSpell then setSpell = classtable.SteadyShot end
-    end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (talents[classtable.LunarStorm] and not buff[classtable.LunarStormCooldownBuff].up) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (not talents[classtable.BlackArrow] and (talents[classtable.Headshot] and buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up) or not talents[classtable.Headshot] and buff[classtable.RazorFragmentsBuff].up)) and cooldown[classtable.KillShot].ready then
-        if not setSpell then setSpell = classtable.KillShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (talents[classtable.BlackArrow] and (not talents[classtable.Headshot] or talents[classtable.Headshot] and buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up))) and cooldown[classtable.KillShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (talents[classtable.Headshot] and buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up) or not talents[classtable.Headshot] and buff[classtable.RazorFragmentsBuff].up) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.PreciseShotsBuff].up and (not debuff[classtable.SpottersMarkDeBuff].up or not buff[classtable.MovingTargetBuff].up)) and cooldown[classtable.ArcaneShot].ready then
@@ -242,7 +274,7 @@ function Marksmanship:st()
     end
 end
 function Marksmanship:trickshots()
-    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and (MaxDps.spellHistory[1] == classtable.AimedShot) and not buff[classtable.TrueshotBuff].up and (not talents[classtable.ShrapnelShot] or not buff[classtable.LockandLoadBuff].up)) and cooldown[classtable.ExplosiveShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and MaxDps:CheckPrevSpell(classtable.AimedShot,1) and not buff[classtable.TrueshotBuff].up and (not talents[classtable.ShrapnelShot] or not buff[classtable.LockandLoadBuff].up)) and cooldown[classtable.ExplosiveShot].ready then
         MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.Volley, 'Volley') and talents[classtable.Volley]) and (not buff[classtable.DoubleTapBuff].up and (not talents[classtable.ShrapnelShot] or not buff[classtable.LockandLoadBuff].up)) and cooldown[classtable.Volley].ready then
@@ -254,11 +286,11 @@ function Marksmanship:trickshots()
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and ((MaxDps.ActiveHeroTree == 'sentinel') and not buff[classtable.LunarStormCooldownBuff].up and buff[classtable.TrickShotsBuff].remains >timeShift) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (talents[classtable.BlackArrow] and Focus + FocusRegen<FocusMax and (MaxDps.spellHistory[1] == classtable.AimedShot) and not buff[classtable.DeathblowBuff].up and not buff[classtable.TrueshotBuff].up and not cooldown[classtable.Trueshot].ready) and cooldown[classtable.SteadyShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (talents[466932] and Focus + FocusRegen<FocusMax and MaxDps:CheckPrevSpell(classtable.AimedShot,1) and not buff[classtable.DeathblowBuff].up and not buff[classtable.TrueshotBuff].up and not cooldown[classtable.Trueshot].ready) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (talents[classtable.BlackArrow] and (not talents[classtable.Headshot] or buff[classtable.PreciseShotsBuff].up or not buff[classtable.TrickShotsBuff].up)) and cooldown[classtable.KillShot].ready then
-        if not setSpell then setSpell = classtable.KillShot end
+    if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow') and talents[466932]) and (not talents[classtable.Headshot] or buff[classtable.PreciseShotsBuff].up or not buff[classtable.TrickShotsBuff].up) and cooldown[classtable.BlackArrow].ready then
+        MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (buff[classtable.PreciseShotsBuff].up and not buff[classtable.MovingTargetBuff].up or not buff[classtable.TrickShotsBuff].up) and cooldown[classtable.MultiShot].ready then
         if not setSpell then setSpell = classtable.MultiShot end
@@ -272,7 +304,7 @@ function Marksmanship:trickshots()
     if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and ((not buff[classtable.PreciseShotsBuff].up or debuff[classtable.SpottersMarkDeBuff].up and buff[classtable.MovingTargetBuff].up) and buff[classtable.TrickShotsBuff].up and buff[classtable.BulletstormBuff].up and FocusTimeToMax <gcd) and cooldown[classtable.AimedShot].ready then
         if not setSpell then setSpell = classtable.AimedShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].remains >timeShift and (not talents[classtable.BlackArrow] or not buff[classtable.DeathblowBuff].up) and (not talents[classtable.NoScope] or not debuff[classtable.SpottersMarkDeBuff].up) and (talents[classtable.NoScope] or not buff[classtable.BulletstormBuff].up)) and cooldown[classtable.RapidFire].ready then
+    if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'RapidFire')) and (buff[classtable.TrickShotsBuff].remains >timeShift and (not talents[466932] or not buff[classtable.DeathblowBuff].up) and (not talents[classtable.NoScope] or not debuff[classtable.SpottersMarkDeBuff].up) and (talents[classtable.NoScope] or not buff[classtable.BulletstormBuff].up)) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.PrecisionDetonation] and talents[classtable.ShrapnelShot] and not buff[classtable.LockandLoadBuff].up and (not buff[classtable.PreciseShotsBuff].up or debuff[classtable.SpottersMarkDeBuff].up and buff[classtable.MovingTargetBuff].up)) and cooldown[classtable.ExplosiveShot].ready then
@@ -301,6 +333,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.TranquilizingShot, false)
     MaxDps:GlowCooldown(classtable.MendPet, false)
     MaxDps:GlowCooldown(classtable.ExplosiveShot, false)
+    MaxDps:GlowCooldown(classtable.BlackArrow, false)
     MaxDps:GlowCooldown(classtable.Volley, false)
     MaxDps:GlowCooldown(classtable.Trueshot, false)
     MaxDps:GlowCooldown(classtable.trinket1, false)
@@ -314,7 +347,7 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.TranquilizingShot, 'TranquilizingShot')) and cooldown[classtable.TranquilizingShot].ready then
         MaxDps:GlowCooldown(classtable.TranquilizingShot, cooldown[classtable.TranquilizingShot].ready)
     end
-    trueshot_ready = cooldown[classtable.Trueshot].ready and ((not (targets >1) or 1 == 1) and (not talents[classtable.Bullseye] or ttd >cooldown[classtable.Trueshot].duration+buff[classtable.TrueshotBuff].duration%2 or buff[classtable.BullseyeBuff].count == buff[classtable.BullseyeBuff].maxStacks) and (not MaxDps:HasOnUseEffect('13') or MaxDps:CheckTrinketCooldown('13') >30 or MaxDps:CheckTrinketReady('13')) and (not MaxDps:HasOnUseEffect('14') or MaxDps:CheckTrinketCooldown('14') >30 or MaxDps:CheckTrinketReady('14')) or (targets >1) and (not (targets >1) and ((targets>1 and MaxDps:MaxAddDuration() or 0) + math.huge<25 or math.huge >60) or (targets >1) and targets >10) or MaxDps:boss() and ttd <25)
+    trueshot_ready = cooldown[classtable.Trueshot].ready and (not talents[classtable.Bullseye] or ttd >cooldown[classtable.Trueshot].duration+buff[classtable.TrueshotBuff].duration%2 or buff[classtable.BullseyeBuff].count == buff[classtable.BullseyeBuff].maxStacks) and (not MaxDps:HasOnUseEffect('13') or MaxDps:CheckTrinketCooldown('13') >30 or MaxDps:CheckTrinketReady('13')) and (not MaxDps:HasOnUseEffect('14') or MaxDps:CheckTrinketCooldown('14') >30 or MaxDps:CheckTrinketReady('14')) or MaxDps:boss() and ttd <25
     if (MaxDps:CheckSpellUsable(classtable.MendPet, 'MendPet')) and (pethealthPerc <80) and cooldown[classtable.MendPet].ready then
         MaxDps:GlowCooldown(classtable.MendPet, cooldown[classtable.MendPet].ready)
     end
@@ -329,7 +362,12 @@ function Marksmanship:callaction()
     if (targets >1) then
         Marksmanship:cleave()
     end
-    Marksmanship:st()
+    if (targets == 1 and talents[466932]) then
+        Marksmanship:drst()
+    end
+    if (targets == 1 and not talents[466932]) then
+        Marksmanship:sentst()
+    end
 end
 function Hunter:Marksmanship()
     fd = MaxDps.FrameData
@@ -380,16 +418,17 @@ function Hunter:Marksmanship()
     classtable.BulletstormBuff = 389020
     classtable.TrickShotsBuff = 257622
     classtable.LunarStormCooldownBuff = 451803
-    classtable.RazorFragmentsBuff = 388998
+    classtable.LunarStormReadyBuff = 451805
     classtable.DeathblowBuff = 378770
+    classtable.RazorFragmentsBuff = 388998
     classtable.LockandLoadBuff = 194594
     classtable.SpottersMarkDeBuff = 466872
     classtable.MendPet = 136
-    classtable.KillShot = talents[classtable.BlackArrow] and 466930 or classtable.KillShot
+    classtable.KillShot = talents[466932] and 466930 or classtable.KillShot
 
     local function debugg()
         talents[classtable.UnbreakableBond] = 1
-        talents[classtable.BlackArrow] = 1
+        talents[466932] = 1
         talents[classtable.Headshot] = 1
         talents[classtable.TrickShots] = 1
         talents[classtable.PrecisionDetonation] = 1
