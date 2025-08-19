@@ -108,10 +108,10 @@ local BeastMastery = {}
 local trinket_1_stronger = false
 local trinket_2_stronger = false
 local buff_sync_ready = false
-local buff_sync_remains = false
+local buff_sync_remains = 0
 local buff_sync_active = false
-local damage_sync_active = false
-local damage_sync_remains = false
+local damage_sync_active = 1
+local damage_sync_remains = 0
 
 
 local function GetTotemInfoByName(name)
@@ -175,72 +175,8 @@ function BeastMastery:precombat()
 end
 function BeastMastery:cds()
 end
-function BeastMastery:drcleave()
-    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and cooldown[classtable.BestialWrath].ready then
-        MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (buff[classtable.WitheringFireBuff].up or (C_UnitAuras.GetAuraDataBySpellName('BeastCleave', 'pet', 'HELPFUL') and C_UnitAuras.GetAuraDataBySpellName('BeastCleave', 'pet', 'HELPFUL').expirationTime or 0 ) <gcd) and cooldown[classtable.KillShot].ready then
-        if not setSpell then setSpell = classtable.KillShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd) and cooldown[classtable.BarbedShot].ready then
-        if not setSpell then setSpell = classtable.BarbedShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot') and talents[classtable.MultiShot]) and ((not buff[classtable.BeastCleaveBuff].up) and (not talents[classtable.BloodyFrenzy] or not cooldown[classtable.CalloftheWild].ready)) and cooldown[classtable.MultiShot].ready then
-        if not setSpell then setSpell = classtable.MultiShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
-        if not setSpell then setSpell = classtable.KillShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.CalloftheWild, 'CalloftheWild') and talents[classtable.CalloftheWild]) and cooldown[classtable.CalloftheWild].ready then
-        MaxDps:GlowCooldown(classtable.CalloftheWild, cooldown[classtable.CalloftheWild].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Bloodshed, 'Bloodshed')) and cooldown[classtable.Bloodshed].ready then
-        MaxDps:GlowCooldown(classtable.Bloodshed, cooldown[classtable.Bloodshed].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.ThunderingHooves]) and cooldown[classtable.ExplosiveShot].ready then
-        MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
-        if not setSpell then setSpell = classtable.KillCommand end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (FocusTimeToMax <gcd*2 or not talents[classtable.MultiShot]) and cooldown[classtable.CobraShot].ready then
-        if not setSpell then setSpell = classtable.CobraShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
-        MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
-    end
-end
-function BeastMastery:drst()
-    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
-        if not setSpell then setSpell = classtable.KillShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.Bloodshed, 'Bloodshed')) and cooldown[classtable.Bloodshed].ready then
-        MaxDps:GlowCooldown(classtable.Bloodshed, cooldown[classtable.Bloodshed].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.CalloftheWild, 'CalloftheWild') and talents[classtable.CalloftheWild]) and (ttd >60 or MaxDps:boss() and ttd <30) and cooldown[classtable.CalloftheWild].ready then
-        MaxDps:GlowCooldown(classtable.CalloftheWild, cooldown[classtable.CalloftheWild].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (cooldown[classtable.CalloftheWild].remains >20 or not talents[classtable.CalloftheWild] or cooldown[classtable.CalloftheWild].ready) and cooldown[classtable.BestialWrath].ready then
-        MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
-    end
-    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and ((MaxDps:CheckPrevSpell(classtable.BlackArrow,1) or MaxDps:CheckPrevSpell(classtable.KillShot,1)) and buff[classtable.WitheringFireBuff].up) and cooldown[classtable.KillCommand].ready then
-        if not setSpell then setSpell = classtable.KillCommand end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges) and cooldown[classtable.BarbedShot].ready then
-        if not setSpell then setSpell = classtable.BarbedShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
-        if not setSpell then setSpell = classtable.KillCommand end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and cooldown[classtable.CobraShot].ready then
-        if not setSpell then setSpell = classtable.CobraShot end
-    end
-end
 function BeastMastery:cleave()
-    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (cooldown[classtable.BestialWrath].ready and talents[classtable.ScentofBlood]) and cooldown[classtable.BarbedShot].ready then
-        if not setSpell then setSpell = classtable.BarbedShot end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (buff[classtable.HowlofthePackLeaderCooldownBuff].remains - buff[classtable.LeadFromtheFrontBuff].duration<buff[classtable.LeadFromtheFrontBuff].duration%gcd * 0.5 or talents[classtable.MultiShot] or not (MaxDps.tier and MaxDps.tier[34].count >= 4)) and cooldown[classtable.BestialWrath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (((buff[classtable.HowlofthePackLeaderCooldownBuff].upMath)-(buff[classtable.LeadFromtheFrontBuff].duration))<((buff[classtable.LeadFromtheFrontBuff].duration)%gcd * 0.5) or not (MaxDps.tier and MaxDps.tier[34].count >= 4)) and cooldown[classtable.BestialWrath].ready then
         MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd or cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges or talents[classtable.CalloftheWild] and cooldown[classtable.CalloftheWild].ready or howl_summon_ready() and FocusTimeToMax <8) and cooldown[classtable.BarbedShot].ready then
@@ -264,12 +200,70 @@ function BeastMastery:cleave()
     if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (FocusTimeToMax <gcd*2 or buff[classtable.HogstriderBuff].count >3 or not talents[classtable.MultiShot]) and cooldown[classtable.CobraShot].ready then
         if not setSpell then setSpell = classtable.CobraShot end
     end
+end
+function BeastMastery:drcleave()
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
+        if not setSpell then setSpell = classtable.KillShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (cooldown[classtable.CalloftheWild].remains >20 or not talents[classtable.CalloftheWild]) and cooldown[classtable.BestialWrath].ready then
+        MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd) and cooldown[classtable.BarbedShot].ready then
+        if not setSpell then setSpell = classtable.BarbedShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Bloodshed, 'Bloodshed')) and cooldown[classtable.Bloodshed].ready then
+        MaxDps:GlowCooldown(classtable.Bloodshed, cooldown[classtable.Bloodshed].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot') and talents[classtable.MultiShot]) and ((not buff[classtable.BeastCleaveBuff].up) and (not talents[classtable.BloodyFrenzy] or not cooldown[classtable.CalloftheWild].ready)) and cooldown[classtable.MultiShot].ready then
+        if not setSpell then setSpell = classtable.MultiShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.CalloftheWild, 'CalloftheWild') and talents[classtable.CalloftheWild]) and cooldown[classtable.CalloftheWild].ready then
+        MaxDps:GlowCooldown(classtable.CalloftheWild, cooldown[classtable.CalloftheWild].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (talents[classtable.ThunderingHooves]) and cooldown[classtable.ExplosiveShot].ready then
+        MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (cooldown[classtable.BarbedShot].charges >= cooldown[classtable.KillCommand].charges) and cooldown[classtable.BarbedShot].ready then
+        if not setSpell then setSpell = classtable.BarbedShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
+        if not setSpell then setSpell = classtable.KillCommand end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (FocusTimeToMax <gcd*2) and cooldown[classtable.CobraShot].ready then
+        if not setSpell then setSpell = classtable.CobraShot end
+    end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and cooldown[classtable.ExplosiveShot].ready then
         MaxDps:GlowCooldown(classtable.ExplosiveShot, cooldown[classtable.ExplosiveShot].ready)
     end
 end
+function BeastMastery:drst()
+    if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and cooldown[classtable.KillShot].ready then
+        if not setSpell then setSpell = classtable.KillShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (cooldown[classtable.CalloftheWild].remains >20 or not talents[classtable.CalloftheWild]) and cooldown[classtable.BestialWrath].ready then
+        MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd) and cooldown[classtable.BarbedShot].ready then
+        if not setSpell then setSpell = classtable.BarbedShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Bloodshed, 'Bloodshed')) and cooldown[classtable.Bloodshed].ready then
+        MaxDps:GlowCooldown(classtable.Bloodshed, cooldown[classtable.Bloodshed].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.CalloftheWild, 'CalloftheWild') and talents[classtable.CalloftheWild]) and cooldown[classtable.CalloftheWild].ready then
+        MaxDps:GlowCooldown(classtable.CalloftheWild, cooldown[classtable.CalloftheWild].ready)
+    end
+    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and cooldown[classtable.KillCommand].ready then
+        if not setSpell then setSpell = classtable.KillCommand end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and cooldown[classtable.BarbedShot].ready then
+        if not setSpell then setSpell = classtable.BarbedShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and cooldown[classtable.CobraShot].ready then
+        if not setSpell then setSpell = classtable.CobraShot end
+    end
+end
 function BeastMastery:st()
-    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (buff[classtable.HowlofthePackLeaderCooldownBuff].remains - buff[classtable.LeadFromtheFrontBuff].duration<buff[classtable.LeadFromtheFrontBuff].duration%gcd * 0.5 or not (MaxDps.tier and MaxDps.tier[34].count >= 4)) and cooldown[classtable.BestialWrath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'BestialWrath')) and (((buff[classtable.HowlofthePackLeaderCooldownBuff].upMath)-(buff[classtable.LeadFromtheFrontBuff].duration))<((buff[classtable.LeadFromtheFrontBuff].duration)%gcd * 0.5) or not (MaxDps.tier and MaxDps.tier[34].count >= 4)) and cooldown[classtable.BestialWrath].ready then
         MaxDps:GlowCooldown(classtable.BestialWrath, cooldown[classtable.BestialWrath].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and (FocusTimeToMax <gcd) and cooldown[classtable.BarbedShot].ready then
@@ -281,7 +275,7 @@ function BeastMastery:st()
     if (MaxDps:CheckSpellUsable(classtable.Bloodshed, 'Bloodshed')) and cooldown[classtable.Bloodshed].ready then
         MaxDps:GlowCooldown(classtable.Bloodshed, cooldown[classtable.Bloodshed].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and (cooldown[classtable.KillCommand].charges >= cooldown[classtable.BarbedShot].charges) and cooldown[classtable.KillCommand].ready then
+    if (MaxDps:CheckSpellUsable(classtable.KillCommand, 'KillCommand')) and (cooldown[classtable.KillCommand].charges >= cooldown[classtable.BarbedShot].charges and not (buff[classtable.LeadFromtheFrontBuff].remains >gcd and buff[classtable.LeadFromtheFrontBuff].remains <gcd*2 and not howl_summon_ready() and FocusTimeToMax >gcd)) and cooldown[classtable.KillCommand].ready then
         if not setSpell then setSpell = classtable.KillCommand end
     end
     if (MaxDps:CheckSpellUsable(classtable.BarbedShot, 'BarbedShot')) and cooldown[classtable.BarbedShot].ready then
@@ -301,8 +295,8 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.MendPet, false)
     MaxDps:GlowCooldown(classtable.HuntersMark, false)
     MaxDps:GlowCooldown(classtable.BestialWrath, false)
-    MaxDps:GlowCooldown(classtable.CalloftheWild, false)
     MaxDps:GlowCooldown(classtable.Bloodshed, false)
+    MaxDps:GlowCooldown(classtable.CalloftheWild, false)
     MaxDps:GlowCooldown(classtable.ExplosiveShot, false)
     MaxDps:GlowCooldown(classtable.trinket1, false)
     MaxDps:GlowCooldown(classtable.trinket2, false)
@@ -323,16 +317,16 @@ function BeastMastery:callaction()
     end
     BeastMastery:cds()
     BeastMastery:trinkets()
-    if (talents[classtable.BlackArrow] and (targets <2 or not talents[classtable.BeastCleave] and targets <3)) then
+    if (talents[466932] and (targets <2 or not talents[classtable.BeastCleave] and targets <3)) then
         BeastMastery:drst()
     end
-    if (talents[classtable.BlackArrow] and (targets >2 or talents[classtable.BeastCleave] and targets >1)) then
+    if (talents[466932] and (targets >2 or talents[classtable.BeastCleave] and targets >1)) then
         BeastMastery:drcleave()
     end
-    if (not talents[classtable.BlackArrow] and (targets <2 or not talents[classtable.BeastCleave] and targets <3)) then
+    if (not talents[466932] and (targets <2 or not talents[classtable.BeastCleave] and targets <3)) then
         BeastMastery:st()
     end
-    if (not talents[classtable.BlackArrow] and (targets >2 or talents[classtable.BeastCleave] and targets >1)) then
+    if (not talents[466932] and (targets >2 or talents[classtable.BeastCleave] and targets >1)) then
         BeastMastery:cleave()
     end
 end
@@ -377,22 +371,20 @@ function Hunter:BeastMastery()
     --end
     classtable.CalloftheWildBuff = 359844
     classtable.BestialWrathBuff = 19574
-    classtable.WitheringFireBuff = 466991
-    classtable.BeastCleaveBuff = 268877
     classtable.HowlofthePackLeaderCooldownBuff = 471877
     classtable.LeadFromtheFrontBuff = 472743
+    classtable.BeastCleaveBuff = 268877
     classtable.HogstriderBuff = 472640
     classtable.MendPet = 136
-    classtable.KillShot = talents[classtable.BlackArrow] and 466930 or classtable.KillShot
+    classtable.KillShot = talents[466932] and 466930 or classtable.KillShot
 
     local function debugg()
-        talents[classtable.BlackArrow] = 1
+        talents[466932] = 1
         talents[classtable.BeastCleave] = 1
         talents[classtable.CalloftheWild] = 1
         talents[classtable.BloodyFrenzy] = 1
         talents[classtable.ThunderingHooves] = 1
         talents[classtable.MultiShot] = 1
-        talents[classtable.ScentofBlood] = 1
     end
 
 
