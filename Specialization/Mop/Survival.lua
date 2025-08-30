@@ -157,8 +157,11 @@ function Survival:callaction()
     if (MaxDps:CheckSpellUsable(classtable.BlackArrow, 'BlackArrow')) and (not debuff[classtable.BlackArrowDeBuff].up and ttd >= 8) and cooldown[classtable.BlackArrow].ready then
         MaxDps:GlowCooldown(classtable.BlackArrow, cooldown[classtable.BlackArrow].ready)
     end
-    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (buff[classtable.ThrilloftheHuntBuff].up) and cooldown[classtable.MultiShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'MultiShot')) and (buff[classtable.ThrilloftheHuntBuff].up and targets >2) and cooldown[classtable.MultiShot].ready then
         if not setSpell then setSpell = classtable.MultiShot end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.ThrilloftheHuntBuff].up and targets <2) and cooldown[classtable.ArcaneShot].ready then
+        if not setSpell then setSpell = classtable.ArcaneShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.DireBeast, 'DireBeast')) and cooldown[classtable.DireBeast].ready then
         MaxDps:GlowCooldown(classtable.DireBeast, cooldown[classtable.DireBeast].ready)
