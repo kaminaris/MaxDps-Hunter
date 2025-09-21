@@ -126,7 +126,10 @@ function BeastMastery:callaction()
         --if not setSpell then setSpell = classtable.ExplosiveTrap end
         MaxDps:GlowCooldown(classtable.ExplosiveTrap, true)
     end
-    if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire')) and (buff[classtable.FrenzyBuff].up) and cooldown[classtable.FocusFire].ready then
+    -- Focus Fire (first check) - only glow at 5 Frenzy stacks
+    if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire')) 
+       and (buff[classtable.FrenzyBuff].up and buff[classtable.FrenzyBuff].count == 5) 
+       and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
     end
     if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not debuff[classtable.SerpentStingDeBuff].up) and cooldown[classtable.SerpentSting].ready then
@@ -181,7 +184,11 @@ function BeastMastery:callaction()
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.ThrilloftheHuntBuff].up) and cooldown[classtable.ArcaneShot].ready then
         if not setSpell then setSpell = classtable.ArcaneShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire')) and (buff[classtable.FrenzyBuff].up) and (not debuff[classtable.FocusFireDeBuff].up and not buff[classtable.BeastWithinBuff].up) and cooldown[classtable.FocusFire].ready then
+    -- Focus Fire (second check) - only glow at 5 Frenzy stacks
+    if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire')) 
+       and (buff[classtable.FrenzyBuff].up and buff[classtable.FrenzyBuff].count == 5) 
+       and (not debuff[classtable.FocusFireDeBuff].up and not buff[classtable.BeastWithinBuff].up) 
+       and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
     end
     if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (debuff[classtable.SerpentStingDeBuff].remains <6) and cooldown[classtable.CobraShot].ready then
@@ -194,6 +201,7 @@ function BeastMastery:callaction()
         if not setSpell then setSpell = classtable.CobraShot end
     end
 end
+
 function Hunter:BeastMastery()
     fd = MaxDps.FrameData
     ttd = (fd.timeToDie and fd.timeToDie) or 500
