@@ -93,6 +93,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.ExplosiveTrap, false)
     MaxDps:GlowCooldown(classtable.RapidFire, false)
     MaxDps:GlowCooldown(classtable.Stampede, false)
+    MaxDps:GlowCooldown(classtable.AMurderofCrows, false)
 end
 
 function Survival:callaction()
@@ -117,7 +118,7 @@ function Survival:callaction()
         MaxDps:GlowCooldown(classtable.ExplosiveTrap, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.AMurderofCrows, 'AMurderofCrows')) and (not debuff[classtable.AMurderofCrowsDeBuff].up) and cooldown[classtable.AMurderofCrows].ready then
-        if not setSpell then setSpell = classtable.AMurderofCrows end
+        MaxDps:GlowCooldown(classtable.AMurderofCrows, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.BlinkStrike, 'BlinkStrike')) and cooldown[classtable.BlinkStrike].ready then
         if not setSpell then setSpell = classtable.BlinkStrike end

@@ -99,6 +99,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.RapidFire, false)
     MaxDps:GlowCooldown(classtable.TrapLauncher, false)
     MaxDps:GlowCooldown(classtable.Stampede, false)
+    MaxDps:GlowCooldown(classtable.AMurderofCrows, false)
 end
 
 function BeastMastery:callaction()
@@ -158,7 +159,7 @@ function BeastMastery:callaction()
         if not setSpell then setSpell = classtable.KillCommand end
     end
     if (MaxDps:CheckSpellUsable(classtable.AMurderofCrows, 'AMurderofCrows')) and (not debuff[classtable.AMurderofCrowsDeBuff].up) and cooldown[classtable.AMurderofCrows].ready then
-        if not setSpell then setSpell = classtable.AMurderofCrows end
+        MaxDps:GlowCooldown(classtable.AMurderofCrows, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.GlaiveToss, 'GlaiveToss')) and cooldown[classtable.GlaiveToss].ready then
         if not setSpell then setSpell = classtable.GlaiveToss end

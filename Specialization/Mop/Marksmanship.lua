@@ -92,6 +92,7 @@ local function ClearCDs()
     MaxDps:GlowCooldown(classtable.RapidFire, false)
     MaxDps:GlowCooldown(classtable.TrapLauncher, false)
     MaxDps:GlowCooldown(classtable.Stampede, false)
+    MaxDps:GlowCooldown(classtable.AMurderofCrows, false)
 end
 
 function Marksmanship:callaction()
@@ -166,7 +167,7 @@ function Marksmanship:callaction()
         if not setSpell then setSpell = classtable.AimedShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.AMurderofCrows, 'AMurderofCrows')) and (not debuff[classtable.AMurderofCrowsDeBuff].up) and cooldown[classtable.AMurderofCrows].ready then
-        if not setSpell then setSpell = classtable.AMurderofCrows end
+        MaxDps:GlowCooldown(classtable.AMurderofCrows, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.ThrilloftheHuntBuff].up) and cooldown[classtable.ArcaneShot].ready then
         if not setSpell then setSpell = classtable.ArcaneShot end
