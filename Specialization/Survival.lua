@@ -105,6 +105,8 @@ local pethealthPerc
 local next_wi_bomb
 
 local Survival = {}
+local boar_charge = {}
+local lastBoarSummoned = 0
 
 local stronger_trinket_slot = false
 
@@ -481,6 +483,7 @@ function Hunter:Survival()
         local spellinfo = firstSpell and GetSpellInfo(firstSpell.spellID)
         return spellinfo and spellinfo.spellID or 0
     end
+    boar_charge.remains = 6 - GetTime() - lastBoarSummoned
     if talents[classtable.MongooseBite] then
         classtable.RaptorBite = classtable.MongooseBite
     else
@@ -530,3 +533,17 @@ function Hunter:Survival()
     Survival:callaction()
     if setSpell then return setSpell end
 end
+
+boar_charge.remains = 0
+boar_charge.next_charge = 0
+boar_charge.charges_remaining = 0
+Survival.BoarTrackingFrame = CreateFrame('Frame')
+Survival.BoarTrackingFrame:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED')
+Survival.BoarTrackingFrame:SetScript('OnEvent', function(_, event, _, subtype, _,  sourceGUID, sourceName, _, _, destGUID, destName, destFlags, _, spellID, spellName)
+    if event == 'COMBAT_LOG_EVENT_UNFILTERED' then
+        if subtype == "SPELL_AURA_REMOVED" and spellID == 472324 then
+            local now = GetTime()
+            if now - (MaxDps.spellHistoryTime and MaxDps.spellHistoryTime[FormatItemorSpell(C_Spell.GetSpellName(classtable.KillCommand))] and MaxDps.spellHistoryTime[FormatItemorSpell(C_Spell.GetSpellName(classtable.KillCommand))].last_used or math.huge) <= 1 then lastBoarSummoned = now end
+        end
+    end
+end)
