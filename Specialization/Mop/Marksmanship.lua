@@ -172,9 +172,9 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (buff[classtable.ThrilloftheHuntBuff].up) and cooldown[classtable.ArcaneShot].ready then
         if not setSpell then setSpell = classtable.ArcaneShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (( Focus >= 66 or cooldown[classtable.ChimeraShot].remains >= 4 ) and ( not buff[classtable.RapidFireBuff].up and not MaxDps:Bloodlust(1) and not buff[classtable.BerserkingBuff].up and not buff[classtable.Tier134pcBuff].up and cooldown[classtable.BuffTier134pc].remains <= 0 )) and cooldown[classtable.ArcaneShot].ready then
-        if not setSpell then setSpell = classtable.ArcaneShot end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (( Focus >= 66 or cooldown[classtable.ChimeraShot].remains >= 4 ) and ( not buff[classtable.RapidFireBuff].up and not MaxDps:Bloodlust(1) and not buff[classtable.BerserkingBuff].up and not buff[classtable.Tier134pcBuff].up and cooldown[classtable.BuffTier134pc].remains <= 0 )) and cooldown[classtable.ArcaneShot].ready then
+    --    if not setSpell then setSpell = classtable.ArcaneShot end
+    --end
     if (MaxDps:CheckSpellUsable(classtable.AimedShot, 'AimedShot')) and (( cooldown[classtable.ChimeraShot].remains >5 or Focus >= 80 ) and ( MaxDps:Bloodlust(1) or buff[classtable.Tier134pcBuff].up or cooldown[classtable.BuffTier134pc].remains >0 ) or buff[classtable.RapidFireBuff].up or targethealthPerc >90) and cooldown[classtable.AimedShot].ready then
         if not setSpell then setSpell = classtable.AimedShot end
     end
@@ -240,8 +240,8 @@ function Hunter:Marksmanship()
     classtable.MasterMarksmanFireBuff = 82926
     classtable.ThrilloftheHuntBuff = 34720
     --classtable.BerserkingBuff
-    classtable.Tier134pcBuff = 0
-    classtable.BuffTier134pc = 0
+    classtable.Tier134pcBuff = 105921
+    classtable.BuffTier134pc = 105921
     classtable.RangedVulnerabilityDeBuff = 1130
     classtable.SerpentStingDeBuff = 118253
     classtable.AMurderofCrowsDeBuff = 131894
