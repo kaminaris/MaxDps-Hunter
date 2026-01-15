@@ -4,7 +4,7 @@
 ## Interface: 110207
 ## Interface-Retail: 110207
 ## Interface-Classic: 11508
-## Interface-BCC: 20504
+## Interface-BCC: 20505
 ## Interface-Wrath: 30403
 ## Interface-Cata: 40402
 ## Interface-Mists: 50503
@@ -28,6 +28,12 @@ Specialization\Cata\Beastmastery.lua
 Specialization\Cata\Survival.lua
 Specialization\Cata\Marksmanship.lua
 #@end-version-cata@
+
+#@version-bcc@
+Specialization\TBC\Beastmastery.lua
+Specialization\TBC\Survival.lua
+Specialization\TBC\Marksmanship.lua
+#@end-version-bcc@
 
 #@version-classic@
 Specialization\Classic\Beastmastery.lua
