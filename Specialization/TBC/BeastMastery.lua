@@ -175,6 +175,7 @@ function Hunter:BeastMastery()
 
     speed = UnitRangedDamage("player")
 
+    classtable.KillCommand = 34026
     classtable.AspectoftheHawk = 25296
     classtable.HuntersMark = 14325
     classtable.BestialWrath = 19574
