@@ -103,9 +103,11 @@ function BeastMastery:single()
     end
     if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'Bestial Wrath')) and cooldown[classtable.BestialWrath].ready then
         if not setSpell then setSpell = classtable.BestialWrath end
+        MaxDps:GlowCooldown(classtable.BestialWrath, true)
     end
     if (MaxDps:CheckSpellUsable(classtable.RapidFire, 'Rapid Fire')) and cooldown[classtable.RapidFire].ready then
         if not setSpell then setSpell = classtable.RapidFire end
+        MaxDps:GlowCooldown(classtable.RapidFire, true)
     end
     if not speed or (speed and speed < 1.5) then
         if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'Multi-Shot')) and cooldown[classtable.MultiShot].ready then
@@ -132,6 +134,8 @@ end
 
 
 local function ClearCDs()
+    MaxDps:GlowCooldown(classtable.BestialWrath, false)
+    MaxDps:GlowCooldown(classtable.RapidFire, false)
 end
 
 function BeastMastery:callaction()
@@ -198,8 +202,6 @@ function Hunter:BeastMastery()
 
     setSpell = nil
     ClearCDs()
-
-    BeastMastery:precombat()
 
     BeastMastery:callaction()
     if setSpell then return setSpell end
