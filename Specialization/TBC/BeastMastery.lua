@@ -110,17 +110,17 @@ function BeastMastery:single()
         MaxDps:GlowCooldown(classtable.RapidFire, true)
     end
     if not speed or (speed and speed < 1.5) then
-        if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'Multi-Shot')) and cooldown[classtable.MultiShot].ready then
+        if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'Multi-Shot')) and (MaxDps.spellHistory[1] ~= classtable.MultiShot) and cooldown[classtable.MultiShot].ready then
             if not setSpell then setSpell = classtable.MultiShot end
         end
-        if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'Steady Shot')) and cooldown[classtable.SteadyShot].ready then
+        if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'Steady Shot')) and (MaxDps.spellHistory[1] ~= classtable.SteadyShot) and cooldown[classtable.SteadyShot].ready then
             if not setSpell then setSpell = classtable.SteadyShot end
         end
     else
-        if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'Steady Shot')) and cooldown[classtable.SteadyShot].ready then
+        if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'Steady Shot')) and not (MaxDps.spellHistory[1] == classtable.SteadyShot) and cooldown[classtable.SteadyShot].ready then
             if not setSpell then setSpell = classtable.SteadyShot end
         end
-        if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'Multi-Shot')) and cooldown[classtable.MultiShot].ready then
+        if (MaxDps:CheckSpellUsable(classtable.MultiShot, 'Multi-Shot')) and not (MaxDps.spellHistory[1] == classtable.MultiShot) and cooldown[classtable.MultiShot].ready then
             if not setSpell then setSpell = classtable.MultiShot end
         end
         if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'Arcane Shot')) and cooldown[classtable.ArcaneShot].ready then
