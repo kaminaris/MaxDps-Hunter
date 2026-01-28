@@ -92,7 +92,7 @@ function Survival:single()
     if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'Aspect of the Hawk')) and (not MaxDps:FindBuffAuraData(classtable.AspectoftheHawk).up) and cooldown[classtable.AspectoftheHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
-    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'Hunters Mark')) and (not MaxDps:FindADAuraData(classtable.HuntersMark).up) and cooldown[classtable.HuntersMark].ready then
+    if (MaxDps:CheckSpellUsable(classtable.HuntersMark, 'Hunters Mark')) and (not MaxDps:FindDeBuffAuraData(classtable.HuntersMark).up) and cooldown[classtable.HuntersMark].ready then
         if not setSpell then setSpell = classtable.HuntersMark end
     end
     if (MaxDps:CheckSpellUsable(classtable.BestialWrath, 'Bestial Wrath')) and cooldown[classtable.BestialWrath].ready then
