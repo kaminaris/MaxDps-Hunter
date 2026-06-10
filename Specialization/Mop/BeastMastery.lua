@@ -133,7 +133,7 @@ function BeastMastery:callaction()
        and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not FindDeBuffAuraData(classtable.SerpentStingDeBuff).up) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not MaxDps:FindDeBuffAuraData(classtable.SerpentStingDeBuff).up) and cooldown[classtable.SerpentSting].ready then
         if not setSpell then setSpell = classtable.SerpentSting end
     end
     if (MaxDps:CheckSpellUsable(classtable.Fervor, 'Fervor')) and (not buff[classtable.FervorBuff].up and Focus <= 65) and cooldown[classtable.Fervor].ready then
@@ -192,7 +192,7 @@ function BeastMastery:callaction()
        and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (FindDeBuffAuraData(classtable.SerpentStingDeBuff).remains <6) and cooldown[classtable.CobraShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (MaxDps:FindDeBuffAuraData(classtable.SerpentStingDeBuff).remains <6) and cooldown[classtable.CobraShot].ready then
         if not setSpell then setSpell = classtable.CobraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (Focus >= 61 or buff[classtable.BeastWithinBuff].up) and cooldown[classtable.ArcaneShot].ready then

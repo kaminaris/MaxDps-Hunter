@@ -141,7 +141,7 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (targets >5) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not FindDeBuffAuraData(classtable.SerpentStingDeBuff).up) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not MaxDps:FindDeBuffAuraData(classtable.SerpentStingDeBuff).up) and cooldown[classtable.SerpentSting].ready then
         if not setSpell then setSpell = classtable.SerpentSting end
     end
     if (MaxDps:CheckSpellUsable(classtable.ChimeraShot, 'ChimeraShot')) and cooldown[classtable.ChimeraShot].ready then

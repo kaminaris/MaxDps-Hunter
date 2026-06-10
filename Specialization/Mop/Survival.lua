@@ -145,7 +145,7 @@ function Survival:callaction()
     if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (targets >2) and cooldown[classtable.CobraShot].ready then
         if not setSpell then setSpell = classtable.CobraShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not FindDeBuffAuraData(classtable.SerpentStingDeBuff).up and ttd >= 10) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not MaxDps:FindDeBuffAuraData(classtable.SerpentStingDeBuff).up and ttd >= 10) and cooldown[classtable.SerpentSting].ready then
         if not setSpell then setSpell = classtable.SerpentSting end
     end
     if (MaxDps:CheckSpellUsable(classtable.ExplosiveShot, 'ExplosiveShot')) and (cooldown[classtable.ExplosiveShot].ready) and cooldown[classtable.ExplosiveShot].ready then
@@ -177,7 +177,7 @@ function Survival:callaction()
     if (MaxDps:CheckSpellUsable(classtable.Fervor, 'Fervor')) and (Focus <= 50) and cooldown[classtable.Fervor].ready then
         if not setSpell then setSpell = classtable.Fervor end
     end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (FindDeBuffAuraData(classtable.SerpentStingDeBuff).remains <6) and cooldown[classtable.CobraShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (MaxDps:FindDeBuffAuraData(classtable.SerpentStingDeBuff).remains <6) and cooldown[classtable.CobraShot].ready then
         if not setSpell then setSpell = classtable.CobraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (Focus >= 67) and cooldown[classtable.ArcaneShot].ready then
