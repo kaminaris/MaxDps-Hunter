@@ -110,9 +110,9 @@ function BeastMastery:callaction()
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc < 20) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not MaxDps:FindBuffAuraData(classtable.AspectoftheHawk).up) and cooldown[classtable.AspectoftheHawk].ready then
-        if not setSpell then setSpell = classtable.AspectoftheHawk end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not MaxDps:FindBuffAuraData(classtable.AspectoftheHawk).up) and cooldown[classtable.AspectoftheHawk].ready then
+    --    if not setSpell then setSpell = classtable.AspectoftheHawk end
+    --end
     --if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
     --    if not setSpell then setSpell = classtable.AspectoftheFox end
     --end
@@ -133,7 +133,7 @@ function BeastMastery:callaction()
        and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not debuff[classtable.SerpentStingDeBuff].up) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not FindDeBuffAuraData(classtable.SerpentStingDeBuff).up) and cooldown[classtable.SerpentSting].ready then
         if not setSpell then setSpell = classtable.SerpentSting end
     end
     if (MaxDps:CheckSpellUsable(classtable.Fervor, 'Fervor')) and (not buff[classtable.FervorBuff].up and Focus <= 65) and cooldown[classtable.Fervor].ready then
@@ -192,7 +192,7 @@ function BeastMastery:callaction()
        and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (debuff[classtable.SerpentStingDeBuff].remains <6) and cooldown[classtable.CobraShot].ready then
+    if (MaxDps:CheckSpellUsable(classtable.CobraShot, 'CobraShot')) and (FindDeBuffAuraData(classtable.SerpentStingDeBuff).remains <6) and cooldown[classtable.CobraShot].ready then
         if not setSpell then setSpell = classtable.CobraShot end
     end
     if (MaxDps:CheckSpellUsable(classtable.ArcaneShot, 'ArcaneShot')) and (Focus >= 61 or buff[classtable.BeastWithinBuff].up) and cooldown[classtable.ArcaneShot].ready then
@@ -213,9 +213,6 @@ function Hunter:BeastMastery()
     debuff = fd.debuff
     talents = fd.talents
     targets = MaxDps:SmartAoe()
-    Mana = UnitPower('player', ManaPT)
-    ManaMax = UnitPowerMax('player', ManaPT)
-    ManaDeficit = ManaMax - Mana
     targetHP = UnitHealth('target')
     targetmaxHP = UnitHealthMax('target')
     targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100

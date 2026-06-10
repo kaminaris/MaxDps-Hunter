@@ -103,9 +103,9 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc < 20) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not MaxDps:FindBuffAuraData(classtable.AspectoftheHawk).up) and cooldown[classtable.AspectoftheHawk].ready then
-        if not setSpell then setSpell = classtable.AspectoftheHawk end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not MaxDps:FindBuffAuraData(classtable.AspectoftheHawk).up) and cooldown[classtable.AspectoftheHawk].ready then
+    --    if not setSpell then setSpell = classtable.AspectoftheHawk end
+    --end
     --if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
     --    if not setSpell then setSpell = classtable.AspectoftheFox end
     --end
@@ -141,7 +141,7 @@ function Marksmanship:callaction()
     if (MaxDps:CheckSpellUsable(classtable.SteadyShot, 'SteadyShot')) and (targets >5) and cooldown[classtable.SteadyShot].ready then
         if not setSpell then setSpell = classtable.SteadyShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not debuff[classtable.SerpentStingDeBuff].up) and cooldown[classtable.SerpentSting].ready then
+    if (MaxDps:CheckSpellUsable(classtable.SerpentSting, 'SerpentSting')) and (not FindDeBuffAuraData(classtable.SerpentStingDeBuff).up) and cooldown[classtable.SerpentSting].ready then
         if not setSpell then setSpell = classtable.SerpentSting end
     end
     if (MaxDps:CheckSpellUsable(classtable.ChimeraShot, 'ChimeraShot')) and cooldown[classtable.ChimeraShot].ready then
@@ -195,9 +195,6 @@ function Hunter:Marksmanship()
     debuff = fd.debuff
     talents = fd.talents
     targets = MaxDps:SmartAoe()
-    Mana = UnitPower('player', ManaPT)
-    ManaMax = UnitPowerMax('player', ManaPT)
-    ManaDeficit = ManaMax - Mana
     targetHP = UnitHealth('target')
     targetmaxHP = UnitHealthMax('target')
     targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
