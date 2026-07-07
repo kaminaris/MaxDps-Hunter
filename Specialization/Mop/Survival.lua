@@ -104,8 +104,11 @@ function Survival:callaction()
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc < 20) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not MaxDps:FindBuffAuraData(classtable.AspectoftheHawk).up) and cooldown[classtable.AspectoftheHawk].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and not talents[classtable.AspectoftheIronHawk] and (not buff[classtable.AspectoftheHawk].up) and cooldown[classtable.AspectoftheHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheHawk end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheIronHawk, 'AspectoftheIronHawk')) and (not buff[classtable.AspectoftheIronHawk].up) and cooldown[classtable.AspectoftheIronHawk].ready then
+        if not setSpell then setSpell = classtable.AspectoftheIronHawk end
     end
     --if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
     --    if not setSpell then setSpell = classtable.AspectoftheFox end
@@ -229,8 +232,10 @@ function Hunter:Survival()
 
     local function debugg()
     end
-    classtable.AspectoftheHawk = talents[109260] and 109260 or 13165
-    classtable.AspectoftheHawkBuff = talents[109260] and 109260 or 13165
+    classtable.AspectoftheHawk = 13165
+    classtable.AspectoftheIronHawk = 109260
+    classtable.AspectoftheHawkBuff = 13165
+    classtable.AspectoftheIronHawkBuff = 109260
     classtable.TrapLauncherBuff = 77769
     classtable.ExplosiveTrap = 13813
     classtable.BlinkStrike = 130392

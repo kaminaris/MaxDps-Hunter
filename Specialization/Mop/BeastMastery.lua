@@ -110,8 +110,11 @@ function BeastMastery:callaction()
     if (MaxDps:CheckSpellUsable(classtable.KillShot, 'KillShot')) and (targethealthPerc < 20) and cooldown[classtable.KillShot].ready then
         if not setSpell then setSpell = classtable.KillShot end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and (not MaxDps:FindBuffAuraData(classtable.AspectoftheHawk).up) and cooldown[classtable.AspectoftheHawk].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and not talents[classtable.AspectoftheIronHawk] and (not buff[classtable.AspectoftheHawk].up) and cooldown[classtable.AspectoftheHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheHawk end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheIronHawk, 'AspectoftheIronHawk')) and (not buff[classtable.AspectoftheIronHawk].up) and cooldown[classtable.AspectoftheIronHawk].ready then
+        if not setSpell then setSpell = classtable.AspectoftheIronHawk end
     end
     --if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
     --    if not setSpell then setSpell = classtable.AspectoftheFox end
@@ -128,8 +131,8 @@ function BeastMastery:callaction()
         MaxDps:GlowCooldown(classtable.ExplosiveTrap, true)
     end
     -- Focus Fire (first check) - only glow at 5 Frenzy stacks
-    if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire')) 
-       and (buff[classtable.FrenzyBuff].up and buff[classtable.FrenzyBuff].count == 5) 
+    if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire'))
+       and (buff[classtable.FrenzyBuff].up and buff[classtable.FrenzyBuff].count == 5)
        and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
     end
@@ -186,9 +189,9 @@ function BeastMastery:callaction()
         if not setSpell then setSpell = classtable.ArcaneShot end
     end
     -- Focus Fire (second check) - only glow at 5 Frenzy stacks
-    if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire')) 
-       and (buff[classtable.FrenzyBuff].up and buff[classtable.FrenzyBuff].count == 5) 
-       and (not debuff[classtable.FocusFireDeBuff].up and not buff[classtable.BeastWithinBuff].up) 
+    if (MaxDps:CheckSpellUsable(classtable.FocusFire, 'FocusFire'))
+       and (buff[classtable.FrenzyBuff].up and buff[classtable.FrenzyBuff].count == 5)
+       and (not debuff[classtable.FocusFireDeBuff].up and not buff[classtable.BeastWithinBuff].up)
        and cooldown[classtable.FocusFire].ready then
         if not setSpell then setSpell = classtable.FocusFire end
     end
@@ -241,11 +244,13 @@ function Hunter:BeastMastery()
     end
 
     --classtable.AspectoftheFox
-    classtable.AspectoftheHawk = talents[109260] and 109260 or 13165
+    classtable.AspectoftheHawk = 13165
+    classtable.AspectoftheIronHawk = 109260
     classtable.ExplosiveTrap = 13813
     classtable.BlinkStrike = 130392
 
-    classtable.AspectoftheHawkBuff = talents[109260] and 109260 or 13165
+    classtable.AspectoftheHawkBuff = 13165
+    classtable.AspectoftheIronHawkBuff = 109260
     classtable.BeastWithinBuff = 34471
     classtable.FervorBuff = 82726
     classtable.FrenzyBuff = 19615
