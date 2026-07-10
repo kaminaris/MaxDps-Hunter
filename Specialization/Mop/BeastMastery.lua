@@ -113,7 +113,7 @@ function BeastMastery:callaction()
     if (MaxDps:CheckSpellUsable(classtable.AspectoftheHawk, 'AspectoftheHawk')) and not talents[classtable.AspectoftheIronHawk] and (not buff[classtable.AspectoftheHawk].up) and cooldown[classtable.AspectoftheHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheHawk end
     end
-    if (MaxDps:CheckSpellUsable(classtable.AspectoftheIronHawk, 'AspectoftheIronHawk')) and (not buff[classtable.AspectoftheIronHawk].up) and cooldown[classtable.AspectoftheIronHawk].ready then
+    if (MaxDps:CheckSpellUsable(classtable.AspectoftheIronHawk, 'AspectoftheIronHawk')) and talents[classtable.AspectoftheIronHawk] and (not buff[classtable.AspectoftheIronHawk].up) and cooldown[classtable.AspectoftheIronHawk].ready then
         if not setSpell then setSpell = classtable.AspectoftheIronHawk end
     end
     --if (MaxDps:CheckSpellUsable(classtable.AspectoftheFox, 'AspectoftheFox')) and cooldown[classtable.AspectoftheFox].ready then
