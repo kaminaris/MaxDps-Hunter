@@ -1,4 +1,4 @@
-## Title: MaxDps_Hunter
+﻿## Title: MaxDps_Hunter
 ## Version: @project-version@
 ## Author: Kaminaris
 ## Interface: 120105
@@ -17,33 +17,27 @@
 ## X-Wago-ID: XKq9w5Ky
 
 Main.lua
-#@retail@
-Specialization\Beastmastery.lua
-Specialization\Survival.lua
-Specialization\Marksmanship.lua
-Config.lua
-#@end-retail@
+Specialization\Beastmastery.lua [AllowLoadGameType standard]
+Specialization\Survival.lua [AllowLoadGameType standard]
+Specialization\Marksmanship.lua [AllowLoadGameType standard]
+Config.lua [AllowLoadGameType standard]
 
-#@version-cata@
-Specialization\Cata\Beastmastery.lua
-Specialization\Cata\Survival.lua
-Specialization\Cata\Marksmanship.lua
-#@end-version-cata@
+Specialization\Cata\Beastmastery.lua [AllowLoadGameType cata]
+Specialization\Cata\Survival.lua [AllowLoadGameType cata]
+Specialization\Cata\Marksmanship.lua [AllowLoadGameType cata]
 
-#@version-bcc@
-Specialization\TBC\Beastmastery.lua
-Specialization\TBC\Survival.lua
-Specialization\TBC\Marksmanship.lua
-#@end-version-bcc@
+Specialization\TBC\Beastmastery.lua [AllowLoadGameType tbc]
+Specialization\TBC\Survival.lua [AllowLoadGameType tbc]
+Specialization\TBC\Marksmanship.lua [AllowLoadGameType tbc]
 
-#@version-classic@
-Specialization\Classic\Beastmastery.lua
-Specialization\Classic\Survival.lua
-Specialization\Classic\Marksmanship.lua
-#@end-version-classic@
+Specialization\Classic\Beastmastery.lua [AllowLoadGameType vanilla]
+Specialization\Classic\Survival.lua [AllowLoadGameType vanilla]
+Specialization\Classic\Marksmanship.lua [AllowLoadGameType vanilla]
 
-#@version-mists@
-Specialization\Mop\Beastmastery.lua
-Specialization\Mop\Survival.lua
-Specialization\Mop\Marksmanship.lua
-#@end-version-mists@
+Specialization\Mop\Beastmastery.lua [AllowLoadGameType mists]
+Specialization\Mop\Survival.lua [AllowLoadGameType mists]
+Specialization\Mop\Marksmanship.lua [AllowLoadGameType mists]
+
+Specialization\Forever\Beastmastery.lua [AllowLoadGameType forever]
+Specialization\Forever\Survival.lua [AllowLoadGameType forever]
+Specialization\Forever\Marksmanship.lua [AllowLoadGameType forever]
