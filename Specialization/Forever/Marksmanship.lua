@@ -8,7 +8,7 @@ local Marksmanship = {}
 function Hunter:Marksmanship()
     if not MaxDps.IsTrackedAuraActive(1978) and not MaxDps.IsSpellOnCooldown(19434, true) and not MaxDps.IsSpellOnCooldown(2643, true) and (MaxDps.Power("mana") >= 30) then return 1978 end --  Serpent Sting
     if not MaxDps.IsSpellOnCooldown(75, true) then return 75 end --  Auto Shot
-    if not MaxDps.IsTrackedAuraActive(1130) then return 1130 end --  Hunter's Mark
+    if (not MaxDps.IsTrackedAuraActive(1130)) and not MaxDps.IsSpellOnCooldown(1130, true) then return 1130 end --  Hunter's Mark
     if not MaxDps.IsSpellOnCooldown(2973, true) then return 2973 end --  Raptor Strike
     if not MaxDps.IsSpellOnCooldown(1495, true) then return 1495 end --  Mongoose Bite
     if not MaxDps.IsSpellOnCooldown(61304, false) and MaxDps.IsSpellOnCooldown(19434, true) then return 3045 end --  Rapid Fire
