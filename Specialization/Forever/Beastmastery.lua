@@ -16,9 +16,9 @@ function Hunter:BeastMastery()
         if not MaxDps.IsSpellOnCooldown(1495, true) then return 1495 end --  Mongoose Bite
     end
     if not MaxDps.Near(8) then
-        if not MaxDps.IsSpellOnCooldown(61304, false) and MaxDps.IsSpellOnCooldown(19434, true) then return 3045 end --  Rapid Fire
-        if MaxDps.IsSpellOnCooldown(61304, false) then return 19434 end --  Aimed Shot
-        if MaxDps.IsSpellOnCooldown(61304, false) then return 2643 end --  Multi-Shot
-        if MaxDps.IsSpellOnCooldown(61304, false) then return 1293241 end --  Summon Hawk
+        if not MaxDps.IsSpellOnCooldown(3045, true) then return 3045 end --  Rapid Fire
+        if not MaxDps.IsSpellOnCooldown(19434, true) then return 19434 end --  Aimed Shot
+        if not MaxDps.IsSpellOnCooldown(2643, true) then return 2643 end --  Multi-Shot
+        if not MaxDps.IsSpellOnCooldown(1293241, true) then return 1293241 end --  Summon Hawk
     end
 end

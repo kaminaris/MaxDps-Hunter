@@ -15,10 +15,10 @@ function Hunter:Survival()
         if not MaxDps.IsSpellOnCooldown(2973, true) then return 2973 end --  Raptor Strike
         if not MaxDps.IsSpellOnCooldown(1495, true) then return 1495 end --  Mongoose Bite
     end
-    if not MaxDps.IsSpellOnCooldown(61304, false) and MaxDps.IsSpellOnCooldown(19434, true) then return 3045 end --  Rapid Fire
+    if not MaxDps.IsSpellOnCooldown(3045, true) then return 3045 end --  Rapid Fire
     if MaxDps.Near(8) then
-        if MaxDps.IsSpellOnCooldown(61304, false) then return 19434 end --  Aimed Shot
-        if MaxDps.IsSpellOnCooldown(61304, false) then return 2643 end --  Multi-Shot
-        if MaxDps.IsSpellOnCooldown(61304, false) and (MaxDps.Power("mana") >= 30) then return 3044 end --  Arcane Shot
+        if not MaxDps.IsSpellOnCooldown(19434, true) then return 19434 end --  Aimed Shot
+        if not MaxDps.IsSpellOnCooldown(2643, true) then return 2643 end --  Multi-Shot
+        if not MaxDps.IsSpellOnCooldown(3044, true) and (MaxDps.Power("mana") >= 30) then return 3044 end --  Arcane Shot
     end
 end
